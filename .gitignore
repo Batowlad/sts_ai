@@ -1,7 +1,7 @@
 # ---- Python ----
 .venv/
 venv/
-env/
+# NOTE: do NOT ignore env/ — it is a source package in this project.
 __pycache__/
 *.py[cod]
 *.egg-info/

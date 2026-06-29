@@ -1,0 +1,32 @@
+# Keep the build context small & avoid shipping host-specific artifacts.
+# (Docker does a LINUX build inside the image, so none of these are needed.)
+
+.git
+.venv
+venv/
+
+# Host build outputs (the image rebuilds the engine itself)
+**/cmake-build-*/
+sts_lightspeed/build/
+**/*.pyd
+**/*.so
+**/*.dll
+**/*.dylib
+**/*.o
+**/*.a
+
+# Python clutter
+__pycache__/
+**/*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# IDE / editor
+.vscode/
+.idea/
+
+# Generated data & notebooks (mount these as volumes at runtime instead)
+data/*
+!data/.gitkeep
+notebooks/*
+!notebooks/.gitkeep
