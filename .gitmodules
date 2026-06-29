@@ -1,0 +1,4 @@
+[submodule "sts_lightspeed"]
+	path = sts_lightspeed
+	url = https://github.com/Batowlad/sts_lightspeed.git
+	branch = master
