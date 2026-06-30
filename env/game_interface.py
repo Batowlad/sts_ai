@@ -31,5 +31,18 @@ def new_game(character=None, seed: int = 42, ascension: int = 0):
         character = sts.CharacterClass.IRONCLAD
     return sts.GameContext(character, seed, ascension)
 
-print(new_game())
 # TODO: GameInterface class — step(), legal_actions(), reset(), run-combat-via-Agent, etc.
+
+class GameInterface:
+    def __init__(self):
+        self.game_context = new_game()
+
+    def step(self):
+        print(1)
+
+    def legal_actions(self):
+        print(self.game_context)
+
+
+game_interface = GameInterface()
+game_interface.legal_actions()
