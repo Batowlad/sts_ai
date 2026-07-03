@@ -24,7 +24,6 @@ if hasattr(os, "add_dll_directory") and os.path.isdir(MINGW_BIN):
 
 import slaythespire as sts  # noqa: E402
 
-
 def new_game(character=None, seed: int = 42, ascension: int = 0):
     """Create a fresh GameContext (defaults to Ironclad)."""
     if character is None:
@@ -36,13 +35,3 @@ def new_game(character=None, seed: int = 42, ascension: int = 0):
 class GameInterface:
     def __init__(self):
         self.game_context = new_game()
-
-    def step(self):
-        print(1)
-
-    def legal_actions(self):
-        print(self.game_context)
-
-
-game_interface = GameInterface()
-game_interface.legal_actions()

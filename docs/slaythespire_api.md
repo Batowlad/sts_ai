@@ -27,14 +27,17 @@ gc = sts.GameContext(sts.CharacterClass.IRONCLAD, seed=42, ascension=0)
 | `get_seed_str(seed)` | `get_seed_str(int) -> str` | Convert an integral seed → the in-game UI seed string (e.g. `"ABC123"`). Wraps `SeedHelper::getString`. |
 | `get_seed_long(seed)` | `get_seed_long(str) -> int` | Convert a UI seed string → its integral (`uint64`) value. Wraps `SeedHelper::getLong`. |
 | `getNNInterface()` | `getNNInterface() -> NNInterface` | Returns the singleton `NNInterface` used to encode a `GameContext` into an observation vector. |
+| `get_legal_actions(bc)` | `get_legal_actions(bc: BattleContext) -> list[Action]` | All combat actions valid in `bc`'s current input state. Same as `bc.legal_actions()`. |
 
 ---
 
 ## Classes
 
 ### `GameContext`
-The top-level run state (map traversal / out-of-combat). Combat itself is run
-internally by `Agent.playout`, not stepped from Python.
+The top-level run state (map traversal / out-of-combat). Combat can be played
+two ways: automatically inside `Agent.playout`, or stepped action-by-action
+from Python with `BattleContext` + `Action` (see the **Combat** section).
+Out-of-combat decisions are stepped with `GameAction`.
 
 **Constructor**
 ```python
@@ -59,6 +62,7 @@ GameContext(character: CharacterClass, seed: int, ascension: int)
 | `encounter` | `MonsterEncounter` | Current encounter (`info.encounter`). |
 | `deck` | `list[Card]` | **Copy** of the deck's cards. Mutating the list won't change the deck — use `obtain_card`/`remove_card`. |
 | `relics` | `list[Relic]` | **Copy** of the relic list. |
+| `potions` | `list[Potion]` | **Copy** of the potion slots (length = `potion_capacity`; empty slots are `Potion.EMPTY_POTION_SLOT`). |
 
 **Read/write fields**
 
@@ -66,7 +70,10 @@ GameContext(character: CharacterClass, seed: int, ascension: int)
 |---|---|---|
 | `outcome` | `GameOutcome` | `UNDECIDED` until win/loss. |
 | `act` | `int` | 1-based act. |
+| `ascension` | `int` | |
 | `floor_num` | `int` | |
+| `potion_count` | `int` | |
+| `potion_capacity` | `int` | 3 by default, +2 with Potion Belt. |
 | `screen_state` | `ScreenState` | Current screen (drives which actions are valid). |
 | `seed` | `int` | `uint64`. |
 | `cur_map_node_x` | `int` | `-1` until on the map. |
@@ -88,9 +95,10 @@ GameContext(character: CharacterClass, seed: int, ascension: int)
 | `speedrun_pace` | `bool` | |
 | `note_for_yourself_card` | `Card` | Card for the "Note For Yourself" mechanic. |
 
-> Not exposed to Python: RNG streams, relic/event/monster pools, potions,
-> `map` object, and the many `chooseX`/`generateX`/combat methods on the C++
-> `GameContext`. Add bindings in `slaythespire.cpp` if you need them.
+> Not exposed to Python: RNG streams, relic/event/monster pools, the `map`
+> object, and the many `chooseX`/`generateX` methods on the C++ `GameContext`
+> (drive those with `GameAction` instead). Add bindings in `slaythespire.cpp`
+> if you need them.
 
 ---
 
@@ -184,10 +192,297 @@ Agent()
 
 ---
 
+## Combat — stepping battles from Python
+
+Combat lives in a separate `BattleContext`, stepped with `Action`s — the same
+discrete action MDP the MCTS agent uses internally. The canonical loop:
+
+```python
+from env.game_interface import sts
+
+# ... advance gc (via GameAction) until gc.screen_state == sts.ScreenState.BATTLE ...
+bc = sts.BattleContext()
+bc.init(gc)
+
+while bc.outcome == sts.BattleOutcome.UNDECIDED:
+    actions = bc.legal_actions()      # list[Action], all valid
+    a = my_policy(bc, actions)
+    a.execute(bc)                     # applies + runs engine to the next decision point
+
+bc.exit_battle(gc)                    # hp/gold/potions/relics/cards written back to gc
+# victory -> the run continues (usually REWARDS screen); defeat -> gc.outcome == PLAYER_LOSS
+```
+
+`bc.player`, `bc.monsters`, `bc.cards` and `bc.card_select_info` are **live
+views** into the battle — they reflect every executed action. The card piles
+(`hand`, `draw_pile`, …), `potions` and `card_select_info.cards` are returned
+as **copies**.
+
+### `BattleContext`
+
+**Constructors**
+```python
+BattleContext()            # empty; call init() next
+BattleContext(other)       # full copy — cheap; for Python-side rollouts/MCTS
+```
+`copy.copy` / `copy.deepcopy` also work.
+
+| Method | Signature | Notes |
+|---|---|---|
+| `init` | `(gc: GameContext) -> None` | Build combat state from `gc` (encounter, deck, relics, hp, potions, rng). Raises `ValueError` unless `gc.screen_state == BATTLE`. |
+| `init` | `(gc: GameContext, encounter: MonsterEncounter) -> None` | Fight an explicit encounter; `gc` supplies everything else. No screen-state check. |
+| `exit_battle` | `(gc: GameContext) -> None` | Write results back to `gc`. Raises `ValueError` while `outcome == UNDECIDED`. On victory the run continues; on defeat sets `gc.outcome = PLAYER_LOSS`. |
+| `legal_actions` | `() -> list[Action]` | All valid actions for the current `input_state`. |
+| `__repr__` | `() -> str` | Full battle-state dump. |
+
+**Read-only properties**
+
+| Property | Type | Notes |
+|---|---|---|
+| `outcome` | `BattleOutcome` | `UNDECIDED` / `PLAYER_VICTORY` / `PLAYER_LOSS`. |
+| `input_state` | `InputState` | `PLAYER_NORMAL` or `CARD_SELECT` at decision points. |
+| `turn` | `int` | |
+| `is_battle_over` | `bool` | |
+| `encounter` | `MonsterEncounter` | |
+| `ascension` / `seed` / `floor_num` | `int` | |
+| `player` | `Player` | **Live view.** |
+| `monsters` | `MonsterGroup` | **Live view.** |
+| `cards` | `CardManager` | **Live view.** |
+| `card_select_info` | `CardSelectInfo` | **Live view.** What a `CARD_SELECT` state is asking. |
+| `potion_count` / `potion_capacity` | `int` | |
+| `potions` | `list[Potion]` | **Copy**, length = `potion_capacity`. |
+
+**`legal_actions()` semantics** (vs. the MCTS searcher's internal enumerator):
+
+- Identical cards in hand are **not** deduplicated, so action indices are
+  stable (the searcher prunes duplicates as an MCTS optimization).
+- For `EXHAUST_MANY` / `GAMBLE` selects only the "pick nothing" action is
+  enumerated (engine behavior). Richer picks can be built manually with
+  `Action(ActionType.MULTI_CARD_SELECT, mask)` where bit *i* of `mask`
+  selects hand index *i* — `Action.is_valid` accepts any legal subset.
+- For card-select tasks of not-fully-implemented characters (`HOLOGRAM`,
+  `MEDITATE`, `NIGHTMARE`, `RECYCLE`, `SETUP`, `SEEK`) it returns `[]` even
+  though `outcome == UNDECIDED`. Treat an empty list as an error state —
+  Ironclad play never hits it.
+
+### `Action`  (C++ `search::Action`)
+
+A 32-bit packed combat action.
+
+**Constructors**
+```python
+Action(action_type)                 # END_TURN
+Action(action_type, idx1)           # untargeted CARD/POTION, card selects, multi-select mask
+Action(action_type, idx1, idx2)     # targeted CARD/POTION (idx2 = monster idx, or -1 to discard a potion)
+Action.from_bits(bits)              # reconstruct from .bits
+```
+
+| Member | Type / Signature | Notes |
+|---|---|---|
+| `action_type` | `ActionType` | |
+| `source_idx` | `int` | Hand idx (CARD) / potion slot (POTION). |
+| `target_idx` | `int` | Monster idx; for POTION a value **> 5 means discard**. |
+| `select_idx` | `int` | For `SINGLE_CARD_SELECT`. |
+| `selected_idxs` | `list[int]` | For `MULTI_CARD_SELECT`. |
+| `bits` | `int` | Raw stable encoding — good for replay logs. |
+| `is_valid(bc)` | `-> bool` | Full legality check against the battle state. |
+| `execute(bc)` | `-> None` | Apply + run the engine to the next decision point. **Raises `ValueError` if not valid.** |
+| `describe(bc)` | `-> str` | Human-readable, e.g. `{ use card (0) Strike -> (0) Jaw Worm }`. |
+
+Hashable, comparable with `==` (by bits); `repr()` needs no battle context.
+
+### `GameAction`  (C++ `search::GameAction`) — out-of-combat decisions
+
+**Constructors:** `GameAction(idx1, idx2=0)`,
+`GameAction(rewards_type: RewardsActionType, idx1=0, idx2=0)`,
+`GameAction.from_bits(bits)`.
+
+| Member | Type / Signature | Notes |
+|---|---|---|
+| `GameAction.get_all_actions_in_state(gc)` | `static -> list[GameAction]` | All valid actions for the current screen. **Empty** on the `BATTLE` screen (hand off to `BattleContext`), after the game ends, and for the unimplemented `MATCH_AND_KEEP` event. |
+| `idx1` / `idx2` / `idx3` | `int` | Meaning depends on the screen. |
+| `rewards_action_type` | `RewardsActionType` | Only meaningful on the `REWARDS` screen. |
+| `is_potion_action` / `is_potion_discard` | `bool` | Potions can be drunk/discarded on most screens. |
+| `is_valid(gc)` | `-> bool` | |
+| `execute(gc)` | `-> None` | **Raises `ValueError` if not valid.** |
+| `describe(gc)` | `-> str` | |
+
+### `Player` — live combat view (read-only)
+
+Fields: `character_class`, `cur_hp`, `max_hp`, `gold`, `block`, `energy`,
+`energy_per_turn`, `card_draw_per_turn`, `stance`, `orb_slots`, `artifact`,
+`dexterity`, `focus`, `strength`, `cards_played_this_turn`,
+`attacks_played_this_turn`, `skills_played_this_turn`,
+`cards_discarded_this_turn`, `combust_hp_loss`, and the relic counters
+`happy_flower_counter`, `incense_burner_counter`, `ink_bottle_counter`,
+`inserter_counter`, `nunchaku_counter`, `pen_nib_counter`, `sundial_counter`.
+
+| Method | Signature | Notes |
+|---|---|---|
+| `has_status` | `(s: PlayerStatus) -> bool` | Works for every status incl. STRENGTH/DEXTERITY/FOCUS/ARTIFACT. |
+| `get_status` | `(s: PlayerStatus) -> int` | Stack count / value; 0 when absent. |
+| `has_relic` | `(r: RelicId) -> bool` | In-combat relic bits. |
+
+### `Monster` — live combat view (read-only)
+
+Fields: `idx`, `id` (`MonsterId`), `cur_hp`, `max_hp`, `block`, `strength`,
+`misc_info` (monster-specific state, e.g. hexaghost orb count / champ phase).
+Properties: `name`, `move_id` (`MonsterMoveId` — the current move, i.e. the
+intent), `last_move_id`, `is_alive`, `is_targetable`, `is_dying`,
+`is_escaping`, `is_dead_or_escaped`, `is_half_dead`, `does_escape_next`,
+`is_attacking`.
+
+| Method | Signature | Notes |
+|---|---|---|
+| `has_status` / `get_status` | `(s: MonsterStatus) -> bool / int` | |
+| `get_move_base_damage` | `(bc) -> DamageInfo` | Base damage & hit count of the current move. |
+| `calculate_damage_to_player` | `(bc, base_damage: int) -> int` | After strength/weak/vulnerable modifiers. |
+
+### `MonsterGroup` — live combat view (read-only)
+
+`monster_count`, `monsters_alive`, `targetable_count`,
+`first_targetable_idx`, `are_monsters_basically_dead`. Supports `len(g)` and
+`g[i]` (live `Monster` views), hence `for m in bc.monsters: ...`.
+
+### `CardManager` — live combat view (read-only)
+
+`cards_in_hand`; `hand`, `draw_pile`, `discard_pile`, `exhaust_pile` return
+**copies** as `list[CardInstance]`.
+
+### `CardInstance`
+
+The in-combat card representation (distinct from the deck-level `Card`).
+Constructor: `CardInstance(id: CardId, upgraded=False)`.
+
+Fields/properties: `id`, `type`, `name`, `unique_id`, `special_data`
+(per-card combat state, e.g. Ritual Dagger damage), `cost`, `cost_for_turn`,
+`free_to_play_once`, `retain`, `upgraded`, `upgrade_count`, `upgradable`,
+`is_ethereal`, `is_strike_card`, `does_exhaust`, `has_self_retain`,
+`requires_target`, `is_x_cost`.
+
+Methods: `is_free_to_play(bc)`, `can_use(bc, target, in_autoplay=False)`,
+`can_use_on_any_target(bc)`.
+
+### `CardSelectInfo`
+
+Describes what a `CARD_SELECT` input state is asking for: `task`
+(`CardSelectTask`), `can_pick_zero`, `can_pick_any_number`, `pick_count`,
+`cards` (the offered `CardId`s for DISCOVERY/CODEX tasks).
+
+### `DamageInfo`
+
+`damage`, `attack_count`.
+
+---
+
 ## Enums
 
 ### `GameOutcome`
 `UNDECIDED`, `PLAYER_VICTORY`, `PLAYER_LOSS`
+
+### `BattleOutcome`  (C++ `sts::Outcome`)
+`UNDECIDED`, `PLAYER_VICTORY`, `PLAYER_LOSS`
+
+### `ActionType`
+`CARD`, `POTION`, `SINGLE_CARD_SELECT`, `MULTI_CARD_SELECT`, `END_TURN`
+
+### `RewardsActionType`  (C++ `search::GameAction::RewardsActionType`)
+`CARD`, `GOLD`, `KEY`, `POTION`, `RELIC`, `CARD_REMOVE`, `SKIP`
+
+### `InputState`
+Only `PLAYER_NORMAL` and `CARD_SELECT` appear at decision points; the rest are
+internal engine states.
+```
+EXECUTING_ACTIONS, PLAYER_NORMAL, CARD_SELECT, CHOOSE_STANCE_ACTION,
+CHOOSE_TOOLBOX_COLORLESS_CARD, CHOOSE_EXHAUST_POTION_CARDS,
+CHOOSE_GAMBLING_CARDS, CHOOSE_ENTROPIC_BREW_DISCARD_POTIONS,
+CHOOSE_DISCARD_CARDS, SCRY, SELECT_ENEMY_ACTIONS, FILL_RANDOM_POTIONS,
+SHUFFLE_INTO_DRAW_BURN, SHUFFLE_INTO_DRAW_VOID, SHUFFLE_INTO_DRAW_DAZED,
+SHUFFLE_INTO_DRAW_WOUND, SHUFFLE_INTO_DRAW_SLIMED,
+SHUFFLE_INTO_DRAW_ALL_STATUS, SHUFFLE_CUR_CARD_INTO_DRAW,
+SHUFFLE_DISCARD_TO_DRAW, INITIAL_SHUFFLE, CREATE_RANDOM_CARD_IN_HAND_POWER,
+CREATE_RANDOM_CARD_IN_HAND_COLORLESS, CREATE_RANDOM_CARD_IN_HAND_DEAD_BRANCH,
+SELECT_CARD_IN_HAND_EXHAUST, GENERATE_NILRY_CARDS,
+EXHAUST_RANDOM_CARD_IN_HAND, SELECT_STRANGE_SPOON_PROC,
+SELECT_ENEMY_THE_SPECIMEN_APPLY_POISON, SELECT_WARPED_TONGS_CARD,
+CREATE_ENCHIRIDION_POWER, SELECT_CONFUSED_CARD_COST
+```
+
+### `CardSelectTask`
+```
+INVALID, ARMAMENTS, CODEX, DISCOVERY, DUAL_WIELD, EXHAUST_ONE, EXHAUST_MANY,
+EXHUME, FORETHOUGHT, GAMBLE, HEADBUTT, HOLOGRAM, LIQUID_MEMORIES_POTION,
+MEDITATE, NIGHTMARE, RECYCLE, SECRET_TECHNIQUE, SECRET_WEAPON, SEEK, SETUP,
+WARCRY
+```
+
+### `Stance`
+`NEUTRAL`, `CALM`, `WRATH`, `DIVINITY`
+
+### `PlayerStatus`
+```
+INVALID, DOUBLE_DAMAGE, DRAW_REDUCTION, FRAIL, INTANGIBLE, VULNERABLE, WEAK,
+BIAS, CONFUSED, CONSTRICTED, ENTANGLED, FASTING, HEX, LOSE_DEXTERITY,
+LOSE_STRENGTH, NO_BLOCK, NO_DRAW, WRAITH_FORM, BARRICADE, BLASPHEMER,
+CORRUPTION, ELECTRO, SURROUNDED, MASTER_REALITY, PEN_NIB, WRATH_NEXT_TURN,
+AMPLIFY, BLUR, BUFFER, COLLECT, DOUBLE_TAP, DUPLICATION, ECHO_FORM,
+FREE_ATTACK_POWER, REBOUND, MANTRA, ACCURACY, AFTER_IMAGE, BATTLE_HYMN,
+BRUTALITY, BURST, COMBUST, CREATIVE_AI, DARK_EMBRACE, DEMON_FORM, DEVA,
+DEVOTION, DRAW_CARD_NEXT_TURN, ENERGIZED, ENVENOM, ESTABLISHMENT, EVOLVE,
+FEEL_NO_PAIN, FIRE_BREATHING, FLAME_BARRIER, FOCUS, FORESIGHT, HELLO_WORLD,
+INFINITE_BLADES, JUGGERNAUT, LIKE_WATER, LOOP, MAGNETISM, MAYHEM, METALLICIZE,
+NEXT_TURN_BLOCK, NOXIOUS_FUMES, OMEGA, PANACHE, PHANTASMAL, PLATED_ARMOR,
+RAGE, REGEN, RITUAL, RUPTURE, SADISTIC, STATIC_DISCHARGE, THORNS,
+THOUSAND_CUTS, TOOLS_OF_THE_TRADE, VIGOR, WAVE_OF_THE_HAND, EQUILIBRIUM,
+ARTIFACT, DEXTERITY, STRENGTH, THE_BOMB
+```
+
+### `MonsterStatus`
+```
+ARTIFACT, BLOCK_RETURN, CHOKED, CORPSE_EXPLOSION, LOCK_ON, MARK, METALLICIZE,
+PLATED_ARMOR, POISON, REGEN, SHACKLED, STRENGTH, VULNERABLE, WEAK, ANGRY,
+BEAT_OF_DEATH, CURIOSITY, CURL_UP, ENRAGE, FADING, FLIGHT,
+GENERIC_STRENGTH_UP, INTANGIBLE, MALLEABLE, MODE_SHIFT, RITUAL, SLOW,
+SPORE_CLOUD, THIEVERY, THORNS, TIME_WARP, INVINCIBLE, REACTIVE, SHARP_HIDE,
+ASLEEP, BARRICADE, MINION, MINION_LEADER, PAINFUL_STABS, REGROW, SHIFTING,
+STASIS, INVALID
+```
+
+### `MonsterId`
+```
+INVALID, ACID_SLIME_L, ACID_SLIME_M, ACID_SLIME_S, AWAKENED_ONE, BEAR,
+BLUE_SLAVER, BOOK_OF_STABBING, BRONZE_AUTOMATON, BRONZE_ORB, BYRD, CENTURION,
+CHOSEN, CORRUPT_HEART, CULTIST, DAGGER, DARKLING, DECA, DONU, EXPLODER,
+FAT_GREMLIN, FUNGI_BEAST, GIANT_HEAD, GREEN_LOUSE, GREMLIN_LEADER,
+GREMLIN_NOB, GREMLIN_WIZARD, HEXAGHOST, JAW_WORM, LAGAVULIN, LOOTER,
+MAD_GREMLIN, MUGGER, MYSTIC, NEMESIS, ORB_WALKER, POINTY, RED_LOUSE,
+RED_SLAVER, REPTOMANCER, REPULSOR, ROMEO, SENTRY, SHELLED_PARASITE,
+SHIELD_GREMLIN, SLIME_BOSS, SNAKE_PLANT, SNEAKY_GREMLIN, SNECKO,
+SPHERIC_GUARDIAN, SPIKER, SPIKE_SLIME_L, SPIKE_SLIME_M, SPIKE_SLIME_S,
+SPIRE_GROWTH, SPIRE_SHIELD, SPIRE_SPEAR, TASKMASTER, THE_CHAMP,
+THE_COLLECTOR, THE_GUARDIAN, THE_MAW, TIME_EATER, TORCH_HEAD, TRANSIENT,
+WRITHING_MASS
+```
+
+### `MonsterMoveId`
+One value per monster move (197 values, e.g. `JAW_WORM_CHOMP`,
+`CULTIST_INCANTATION`, `GREMLIN_NOB_BELLOW`) — names mirror the C++ enum in
+`sts_lightspeed/include/constants/MonsterMoves.h`. `Monster.move_id` is the
+monster's intent.
+
+### `Potion`
+```
+INVALID, EMPTY_POTION_SLOT, AMBROSIA, ANCIENT_POTION, ATTACK_POTION,
+BLESSING_OF_THE_FORGE, BLOCK_POTION, BLOOD_POTION, BOTTLED_MIRACLE,
+COLORLESS_POTION, CULTIST_POTION, CUNNING_POTION, DEXTERITY_POTION,
+DISTILLED_CHAOS, DUPLICATION_POTION, ELIXIR_POTION, ENERGY_POTION,
+ENTROPIC_BREW, ESSENCE_OF_DARKNESS, ESSENCE_OF_STEEL, EXPLOSIVE_POTION,
+FAIRY_POTION, FEAR_POTION, FIRE_POTION, FLEX_POTION, FOCUS_POTION,
+FRUIT_JUICE, GAMBLERS_BREW, GHOST_IN_A_JAR, HEART_OF_IRON, LIQUID_BRONZE,
+LIQUID_MEMORIES, POISON_POTION, POTION_OF_CAPACITY, POWER_POTION,
+REGEN_POTION, SKILL_POTION, SMOKE_BOMB, SNECKO_OIL, SPEED_POTION,
+STANCE_POTION, STRENGTH_POTION, SWIFT_POTION, WEAK_POTION
+```
 
 ### `ScreenState`
 `INVALID`, `EVENT_SCREEN`, `REWARDS`, `BOSS_RELIC_REWARDS`, `CARD_SELECT`,
@@ -371,8 +666,15 @@ print([str(c) for c in gc.deck])
 - The reward helpers (`get_card_reward`, `pick_reward_card`, `skip_reward_cards`)
   only work while `screen_state == ScreenState.REWARDS` **and** there is a pending
   card reward; otherwise they warn to stderr and do nothing.
-- Combat is **not** steppable from Python — it runs inside `Agent.playout`. There
-  is no `BattleContext` binding. To drive individual combat actions you'd need to
-  add bindings in `slaythespire.cpp`.
+- Combat **is** steppable from Python via `BattleContext` + `Action` (see the
+  Combat section). `Action.execute` / `GameAction.execute` raise `ValueError`
+  on illegal actions instead of hitting engine asserts.
+- `bc.legal_actions()` can return `[]` while `outcome == UNDECIDED` on
+  card-select states of non-Ironclad cards (Hologram/Meditate/Nightmare/
+  Recycle/Setup/Seek) — treat that as an error, don't loop on it.
+- Combat state views (`bc.player`, `bc.monsters`, `bc.cards`) are live;
+  the lists they hand out (`hand`, piles, `potions`) are copies.
 - ABI constraint: the `.pyd` only imports from MSYS2's MinGW64 Python 3.14 (see
-  `memory/build-run-slaythespire.md`).
+  `memory/build-run-slaythespire.md`). The pybind11 submodule must be ≥ v3.0
+  for Python 3.14, and configuring needs `-DCMAKE_POLICY_VERSION_MINIMUM=3.5`
+  with CMake ≥ 4.
