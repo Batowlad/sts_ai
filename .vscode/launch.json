@@ -13,6 +13,8 @@
             "program": "${workspaceFolder}/_importtest.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
+            // Not portable: assumes the default MSYS2 install location (C:\msys64).
+            // Edit "python" and "PATH" below if MSYS2 is installed elsewhere (see README).
             "python": "C:\\msys64\\mingw64\\bin\\python.exe",
             "env": {
                 "MSYSTEM": "MINGW64",
@@ -26,6 +28,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
+            // Not portable: assumes the default MSYS2 install location (C:\msys64), see README.
             "python": "C:\\msys64\\mingw64\\bin\\python.exe",
             "env": {
                 "MSYSTEM": "MINGW64",

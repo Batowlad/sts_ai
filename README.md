@@ -40,7 +40,8 @@ toolchain. The resulting `.pyd` is ABI-locked to MSYS2's MINGW64 Python and will
 ### Configure & build
 From the **MSYS2 MINGW64** shell, in `sts_lightspeed/`:
 ```bash
-cd /d/Dev/sts_ai/sts_lightspeed
+# MSYS2 maps Windows drives to /<drive-letter>/, e.g. D:\dev\sts_ai -> /d/dev/sts_ai
+cd /path/to/sts_ai/sts_lightspeed
 
 # Force the mingw Python (otherwise CMake may pick up a registry MSVC Python)
 cmake -G Ninja -S . -B cmake-build-mingw -DCMAKE_BUILD_TYPE=Release \
@@ -63,12 +64,12 @@ cmake --build cmake-build-mingw --target test -j   # benchmarks / agents
 The module only imports from MSYS2's MINGW64 Python 3.14 with `/mingw64/bin` on
 `PATH`. From the MSYS2 MINGW64 shell:
 ```bash
-cd /d/Dev/sts_ai/sts_lightspeed/cmake-build-mingw && python yourscript.py
+cd /path/to/sts_ai/sts_lightspeed/cmake-build-mingw && python yourscript.py
 ```
 Or from PowerShell:
 ```powershell
 $env:MSYSTEM = "MINGW64"
-& C:\msys64\usr\bin\bash.exe -lc "cd /d/Dev/sts_ai/sts_lightspeed/cmake-build-mingw && python yourscript.py"
+& C:\msys64\usr\bin\bash.exe -lc "cd /path/to/sts_ai/sts_lightspeed/cmake-build-mingw && python yourscript.py"
 ```
 
 Once built, from MSYS2 MINGW64 Python:
@@ -78,6 +79,11 @@ gc = new_game(seed=42)
 print(gc.cur_hp, gc.deck)
 ```
 Set `STS_BUILD_DIR` / `STS_MINGW_BIN` if your paths differ from the defaults.
+
+> **Note:** `.vscode/launch.json` hardcodes the MSYS2 default Python at
+> `C:\msys64\mingw64\bin\python.exe` — VS Code launch configs can't fall back to
+> an environment variable, so if MSYS2 is installed elsewhere you must edit the
+> `python` and `PATH` entries there by hand.
 
 ### Troubleshooting
 * **`ImportError` / DLL load failed** — you're using the wrong Python. Only the
