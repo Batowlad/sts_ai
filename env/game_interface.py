@@ -35,3 +35,5 @@ def new_game(character=None, seed: int = 42, ascension: int = 0):
 class GameInterface:
     def __init__(self):
         self.game_context = new_game()
+
+    

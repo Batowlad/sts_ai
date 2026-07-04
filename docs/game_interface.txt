@@ -1,0 +1,46 @@
+------------START------------
+1. Pick starting blessing and leave the encounter (is leaving necessary? check doc)
+
+------------MAP INTERACTION------------
+2. View map (can I?)
+3. Pick encounter
+
+------------VIEW STUFF------------
+4. View deck
+5. View enemy state (hp, statuses, intention)
+6. View player state (HP, energy)
+7. View Draw pile and Discard pile and Exhausted pile
+8. View gold amount
+9. View Potion slots
+10. View relics
+11. View card 
+
+------------FIGHT------------
+12. Pick action/card
+13 -> 12. Choose what enemy to attack
+14. Perform action/play card
+15. Use potion
+16. End turn
+
+------------END OF FIGHT------------
+17. Pick rewards
+
+------------UNKNOWN------------
+18. View choices
+19. Pick a choice
+
+------------MERCHANT------------
+20. Enter Shop
+21. View wares
+22. Buy something
+23. Card Removal service
+    - Check Cards 
+    - Pick card to remove
+24. Exit Shop
+
+------------REST------------
+25. Check available options
+26. Pick either option
+27. Card Upgrade
+    - Check cards available
+    - Upgrade card
