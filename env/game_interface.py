@@ -32,8 +32,16 @@ def new_game(character=None, seed: int = 42, ascension: int = 0):
 
 # TODO: GameInterface class — step(), legal_actions(), reset(), run-combat-via-Agent, etc.
 
+
 class GameInterface:
     def __init__(self):
-        self.game_context = new_game()
+        self.gc = new_game()
+        self.battle_context = sts.BattleContext()
 
-    
+    def legal_actions(self):
+        if self.gc.screen_state != sts.ScreenState.BATTLE:
+            return sts.GameAction.get_all_actions_in_state(self.gc)
+        
+
+gi = GameInterface()
+print(sts.Action(gi.legal_actions()))

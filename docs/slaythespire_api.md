@@ -300,12 +300,80 @@ Hashable, comparable with `==` (by bits); `repr()` needs no battle context.
 | Member | Type / Signature | Notes |
 |---|---|---|
 | `GameAction.get_all_actions_in_state(gc)` | `static -> list[GameAction]` | All valid actions for the current screen. **Empty** on the `BATTLE` screen (hand off to `BattleContext`), after the game ends, and for the unimplemented `MATCH_AND_KEEP` event. |
-| `idx1` / `idx2` / `idx3` | `int` | Meaning depends on the screen. |
+| `idx1` / `idx2` / `idx3` | `int` | Meaning depends on the screen — see the decoding guide below. `idx3` is never set in practice. |
 | `rewards_action_type` | `RewardsActionType` | Only meaningful on the `REWARDS` screen. |
 | `is_potion_action` / `is_potion_discard` | `bool` | Potions can be drunk/discarded on most screens. |
 | `is_valid(gc)` | `-> bool` | |
 | `execute(gc)` | `-> None` | **Raises `ValueError` if not valid.** |
-| `describe(gc)` | `-> str` | |
+| `describe(gc)` | `-> str` | **Stub** — the C++ `printDesc` prints nothing, so this always returns `""`. Decode the indices yourself. |
+
+#### Reading `GameAction` indices (`idx1` / `idx2` / `idx3`)
+
+A `GameAction` is a packed 32-bit integer; `idx1` / `idx2` / `idx3` are just
+slices of it, and what they *mean* depends on `gc.screen_state`:
+
+```
+bits  0–7   idx1
+bits  8–15  idx2
+bits 16–23  idx3   (never written by any constructor — always 0 in practice)
+bits 27–29  rewards_action_type  (only meaningful on REWARDS / SHOP screens)
+bit  30     is_potion_discard
+bit  31     is_potion_action
+```
+
+Check `is_potion_action` **first** — potion actions can occur on any screen.
+If true: `idx1` = potion slot, and `is_potion_discard` distinguishes discard
+from drink. Otherwise, by `gc.screen_state`:
+
+| Screen | Meaning |
+|---|---|
+| `EVENT_SCREEN` | `idx1` = event option number (same order as the in-game buttons) |
+| `MAP_SCREEN` | `idx1` = x-coordinate of the map node to move to (0–6) |
+| `REST_ROOM` | `idx1`: 0=rest, 1=smith/upgrade, 2=take ruby key, 3=Girya lift, 4=Peace Pipe toke, 5=Shovel dig, 6=skip |
+| `TREASURE_ROOM` | `idx1`: 0=open chest, 1=skip |
+| `BOSS_RELIC_REWARDS` | `idx1` = which boss relic (0–2), 3=skip |
+| `CARD_SELECT` | `idx1` = index into `gc.info.toSelectCards` |
+| `REWARDS` | dispatch on `rewards_action_type`, see below |
+| `SHOP_ROOM` | dispatch on `rewards_action_type`, see below |
+
+On **`REWARDS`**, `rewards_action_type` picks the reward kind:
+
+* `CARD` — `idx1` = which card-reward bundle, `idx2` = which card inside it
+  (`idx2 == 5` means Singing Bowl: +2 max HP instead of a card)
+* `GOLD` / `POTION` / `RELIC` — `idx1` = index of that reward
+* `KEY` / `SKIP` — indices unused
+
+On **`SHOP_ROOM`**:
+
+* `CARD` — `idx1` = shop card slot (0–6)
+* `RELIC` / `POTION` — `idx1` = slot (0–2)
+* `CARD_REMOVE` — buy a card removal
+* `SKIP` — leave the shop
+
+Example decoder:
+
+```python
+def describe(a, gc):
+    if a.is_potion_action:
+        verb = "discard" if a.is_potion_discard else "drink"
+        return f"{verb} potion in slot {a.idx1} ({gc.potions[a.idx1]})"
+    ss = gc.screen_state
+    if ss in (sts.ScreenState.REWARDS, sts.ScreenState.SHOP_ROOM):
+        return f"{a.rewards_action_type} idx1={a.idx1} idx2={a.idx2}"
+    return f"{ss} option {a.idx1}"
+
+for a in sts.GameAction.get_all_actions_in_state(gc):
+    print(describe(a, gc))
+```
+
+Gotchas:
+
+* `describe(gc)` always returns `""` (C++ stub, see table above) — decode the
+  indices yourself as above. The `repr()` at least shows the raw idx values.
+* `idx3` can be ignored: it is read out of bits 16–23, but no constructor ever
+  writes there.
+* This is all separate from the in-combat `Action` class (fields
+  `source_idx` / `target_idx` / `select_idx`, used with `BattleContext`).
 
 ### `Player` — live combat view (read-only)
 
