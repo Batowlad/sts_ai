@@ -26,6 +26,7 @@ gc = sts.GameContext(sts.CharacterClass.IRONCLAD, seed=42, ascension=0)
 | `play()` | `play() -> None` | Launches the interactive console simulator, reading/writing `std::cin`/`std::cout`. **Blocking & interactive** — not useful from a normal Python script. |
 | `get_seed_str(seed)` | `get_seed_str(int) -> str` | Convert an integral seed → the in-game UI seed string (e.g. `"ABC123"`). Wraps `SeedHelper::getString`. |
 | `get_seed_long(seed)` | `get_seed_long(str) -> int` | Convert a UI seed string → its integral (`uint64`) value. Wraps `SeedHelper::getLong`. |
+| `event_game_name(e)` | `event_game_name(Event) -> str` | In-game display name of an `Event`, e.g. `"Hypnotizing Colored Mushrooms"`. |
 | `getNNInterface()` | `getNNInterface() -> NNInterface` | Returns the singleton `NNInterface` used to encode a `GameContext` into an observation vector. |
 | `get_legal_actions(bc)` | `get_legal_actions(bc: BattleContext) -> list[Action]` | All combat actions valid in `bc`'s current input state. Same as `bc.legal_actions()`. |
 
@@ -63,12 +64,17 @@ GameContext(character: CharacterClass, seed: int, ascension: int)
 | `deck` | `list[Card]` | **Copy** of the deck's cards. Mutating the list won't change the deck — use `obtain_card`/`remove_card`. |
 | `relics` | `list[Relic]` | **Copy** of the relic list. |
 | `potions` | `list[Potion]` | **Copy** of the potion slots (length = `potion_capacity`; empty slots are `Potion.EMPTY_POTION_SLOT`). |
+| `cur_event_name` | `str` | In-game display name of `cur_event`, e.g. `"Big Fish"`. |
+| `event_data` | `int` | Phase/progress counter for multi-phase events (Cursed Tome pages, Scrap Ooze attempts, Colosseum round). |
+| `event_info` | `dict` | Raw per-event state (`hp_amount0..2`, `phase`, `gold_loss`, `gold`, `potion_idx`, `card_idx`, `relic_idx0/1`, `upgrade_one`, `clean_up_is_remove_card`, `skill/power/attack_card_deck_idx`, `event_data`). **Only the fields the current event uses are meaningful** — the rest are uninitialized garbage. |
+| `neow_rewards` | `list[NeowOption]` | The four Neow options; only meaningful while the `NEOW` event screen is active. |
 
 **Read/write fields**
 
 | Field | Type | Default / notes |
 |---|---|---|
 | `outcome` | `GameOutcome` | `UNDECIDED` until win/loss. |
+| `cur_event` | `Event` | Current event (meaningful on `EVENT_SCREEN`). |
 | `act` | `int` | 1-based act. |
 | `ascension` | `int` | |
 | `floor_num` | `int` | |
@@ -305,7 +311,7 @@ Hashable, comparable with `==` (by bits); `repr()` needs no battle context.
 | `is_potion_action` / `is_potion_discard` | `bool` | Potions can be drunk/discarded on most screens. |
 | `is_valid(gc)` | `-> bool` | |
 | `execute(gc)` | `-> None` | **Raises `ValueError` if not valid.** |
-| `describe(gc)` | `-> str` | **Stub** — the C++ `printDesc` prints nothing, so this always returns `""`. Decode the indices yourself. |
+| `describe(gc)` | `-> str` | **Stub** — the C++ `printDesc` prints nothing, so this always returns `""`. Use `env/game_interface.py::describe(a, gc)` instead (event text comes from `env/event_options.py`). |
 
 #### Reading `GameAction` indices (`idx1` / `idx2` / `idx3`)
 
@@ -327,7 +333,7 @@ from drink. Otherwise, by `gc.screen_state`:
 
 | Screen | Meaning |
 |---|---|
-| `EVENT_SCREEN` | `idx1` = event option number (same order as the in-game buttons) |
+| `EVENT_SCREEN` | `idx1` = event option number (same order as the in-game buttons). Option numbers are **fixed slots per event** (`GameAction::getValidEventSelectBits`): unavailable options are absent from the legal list but the rest keep their numbers. Decode which event via `gc.cur_event` and get option text with `env/event_options.py::describe_event_option(gc, idx1)` (a port of `ConsoleSimulator::printEventActions`, faithful to what the sim actually executes). Neow options are dynamic — read `gc.neow_rewards`. |
 | `MAP_SCREEN` | `idx1` = x-coordinate of the map node to move to (0–6) |
 | `REST_ROOM` | `idx1`: 0=rest, 1=smith/upgrade, 2=take ruby key, 3=Girya lift, 4=Peace Pipe toke, 5=Shovel dig, 6=skip |
 | `TREASURE_ROOM` | `idx1`: 0=open chest, 1=skip |
@@ -555,6 +561,33 @@ STANCE_POTION, STRENGTH_POTION, SWIFT_POTION, WEAK_POTION
 ### `ScreenState`
 `INVALID`, `EVENT_SCREEN`, `REWARDS`, `BOSS_RELIC_REWARDS`, `CARD_SELECT`,
 `MAP_SCREEN`, `TREASURE_ROOM`, `REST_ROOM`, `SHOP_ROOM`, `BATTLE`
+
+### `Event`
+Which event is active (`gc.cur_event`) while `screen_state == EVENT_SCREEN`.
+The first five values are internal room markers, not real events:
+```
+INVALID, MONSTER, REST, SHOP, TREASURE, NEOW, OMINOUS_FORGE, PLEADING_VAGRANT,
+ANCIENT_WRITING, OLD_BEGGAR, BIG_FISH, BONFIRE_SPIRITS, COLOSSEUM, CURSED_TOME,
+DEAD_ADVENTURER, DESIGNER_IN_SPIRE, AUGMENTER, DUPLICATOR, FACE_TRADER, FALLING,
+FORGOTTEN_ALTAR, THE_DIVINE_FOUNTAIN, GHOSTS, GOLDEN_IDOL, GOLDEN_SHRINE,
+WING_STATUE, KNOWING_SKULL, LAB, THE_SSSSSERPENT, LIVING_WALL, MASKED_BANDITS,
+MATCH_AND_KEEP, MINDBLOOM, HYPNOTIZING_COLORED_MUSHROOMS, MYSTERIOUS_SPHERE,
+THE_NEST, NLOTH, NOTE_FOR_YOURSELF, PURIFIER, SCRAP_OOZE, SECRET_PORTAL,
+SENSORY_STONE, SHINING_LIGHT, THE_CLERIC, THE_JOUST, THE_LIBRARY, THE_MAUSOLEUM,
+THE_MOAI_HEAD, THE_WOMAN_IN_BLUE, TOMB_OF_LORD_RED_MASK, TRANSMORGRIFIER,
+UPGRADE_SHRINE, VAMPIRES, WE_MEET_AGAIN, WHEEL_OF_CHANGE, WINDING_HALLS,
+WORLD_OF_GOOP
+```
+`COLOSSEUM` and `MATCH_AND_KEEP` are compile-time disabled in the engine
+(`GameContext::disableColosseum` / `disableMatchAndKeep`) and never spawn.
+`BONFIRE_SPIRITS` and `LAB` skip the option screen (card select / rewards
+open directly).
+
+### `NeowBonus` / `NeowDrawback` / `NeowOption`
+`gc.neow_rewards` returns 4 `NeowOption`s, each with `bonus` (`NeowBonus`),
+`drawback` (`NeowDrawback`), and ready-made text in `bonus_text` /
+`drawback_text` (from the C++ `Neow::bonusStrings`/`drawbackStrings`).
+Option 0 never has a drawback; option 3 is always a boss-relic trade.
 
 ### `CharacterClass`
 `IRONCLAD`, `SILENT`, `DEFECT`, `WATCHER`, `INVALID`
