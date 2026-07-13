@@ -71,7 +71,7 @@ def describe(a, gc):
 
 class GameInterface:
     def __init__(self):
-        self.gc = new_game()
+        self.gc = sts.GameContext(sts.CharacterClass.IRONCLAD, 42, 0)
         self.bc = sts.BattleContext()
 
     def legal_actions(self):
@@ -86,6 +86,14 @@ class GameInterface:
                 decoded_actions.append(action)
             return decoded_actions
         
+    def reset(self):
+        self.gc = new_game()
+
+    def view_map(self):
+        print(1) #placeholder
+
+    def step(self, action):
+        print(1) #placeholder
 
 
 if __name__ == "__main__":
