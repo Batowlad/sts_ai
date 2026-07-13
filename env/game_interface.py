@@ -79,12 +79,15 @@ class GameInterface:
             actions_list = sts.get_legal_actions(self.bc)
             return actions_list
         else:
-            actions_list =  sts.GameAction.get_all_actions_in_state(self.gc)
-            return describe(actions_list, self.gc)
+            actions_list = sts.GameAction.get_all_actions_in_state(self.gc)
+            decoded_actions = []
+            for x in actions_list:
+                action = describe(x, self.gc)
+                decoded_actions.append(action)
+            return decoded_actions
         
 
 
 if __name__ == "__main__":
     gi = GameInterface()
-    for a in sts.GameAction.get_all_actions_in_state(gi.gc):
-        print(describe(a, gi.gc))
+    print(gi.legal_actions())
