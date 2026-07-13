@@ -24,7 +24,7 @@ if hasattr(os, "add_dll_directory") and os.path.isdir(MINGW_BIN):
 
 import slaythespire as sts  # noqa: E402
 
-from env.event_options import describe_event_option  # noqa: E402
+from event_options import describe_event_option  # noqa: E402
 
 REST_ROOM_OPTIONS = {
     0: "rest (heal 30% max HP)",
@@ -77,10 +77,12 @@ class GameInterface:
     def legal_actions(self):
         if self.gc.screen_state == sts.ScreenState.BATTLE:
             actions_list = sts.get_legal_actions(self.bc)
-
+            return actions_list
         else:
-            return sts.GameAction.get_all_actions_in_state(self.gc)
+            actions_list =  sts.GameAction.get_all_actions_in_state(self.gc)
+            return describe(actions_list, self.gc)
         
+
 
 if __name__ == "__main__":
     gi = GameInterface()
