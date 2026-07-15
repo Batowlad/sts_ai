@@ -73,6 +73,7 @@ class GameInterface:
     def __init__(self):
         self.gc = sts.GameContext(sts.CharacterClass.IRONCLAD, 42, 0)
         self.bc = sts.BattleContext()
+        self.bc_initiated = False
 
     def legal_actions(self):
         if self.gc.screen_state == sts.ScreenState.BATTLE:
@@ -87,13 +88,21 @@ class GameInterface:
             return decoded_actions
         
     def reset(self):
-        self.gc = new_game()
+        self.gc = new_game() # to be tested
 
     def view_map(self):
         print(1) #placeholder
 
     def step(self, action):
-        print(1) #placeholder
+        if self.gc.screen_state == sts.ScreenState.BATTLE: # WHEN IN BATTLE
+            if self.bc_initiated == False:
+                self.bc.init(self.gc)
+                self.bc_initiated = True
+            if self.bc.outcome == sts.BattleOutcome.PLAYER_VICTORY or self.bc.outcome == sts.BattleOutcome.PLAYER_LOSS:
+                self.bc.exit_battle(self.gc)
+                self.bc_initiated = False
+            
+            
 
 
 if __name__ == "__main__":
