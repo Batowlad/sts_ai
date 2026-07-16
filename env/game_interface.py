@@ -73,6 +73,7 @@ class GameInterface:
     def __init__(self):
         self.gc = sts.GameContext(sts.CharacterClass.IRONCLAD, 42, 0)
         self.bc = sts.BattleContext()
+        self.map = sts.SpireMap(42, 0, 0, False) #CHANGE 3rd value based on act (add later)!!!!!!!!!!!!!!
         self.bc_initiated = False
 
     def legal_actions(self):
@@ -91,7 +92,7 @@ class GameInterface:
         self.gc = new_game() # to be tested
 
     def view_map(self):
-        print(1) #placeholder
+        return self.map.__repr__()
 
     def step(self, action):
         if self.gc.screen_state == sts.ScreenState.BATTLE: # WHEN IN BATTLE
@@ -108,3 +109,4 @@ class GameInterface:
 if __name__ == "__main__":
     gi = GameInterface()
     print(gi.legal_actions())
+    print(gi.view_map())
