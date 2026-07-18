@@ -82,6 +82,7 @@ class GameInterface:
             return actions_list
         else:
             actions_list = sts.GameAction.get_all_actions_in_state(self.gc)
+            print(actions_list) # debugging
             decoded_actions = []
             for x in actions_list:
                 action = describe(x, self.gc)
@@ -102,11 +103,14 @@ class GameInterface:
             if self.bc.outcome == sts.BattleOutcome.PLAYER_VICTORY or self.bc.outcome == sts.BattleOutcome.PLAYER_LOSS:
                 self.bc.exit_battle(self.gc)
                 self.bc_initiated = False
-            
-            
 
-
-if __name__ == "__main__":
-    gi = GameInterface()
-    print(gi.legal_actions())
-    print(gi.view_map())
+        if self.gc.screen_state == sts.ScreenState.EVENT_SCREEN:
+            try:
+                self.gc.chooseEventOption(action.idx1)
+            # OR 
+            except:
+                sts.GameAction(idx1=action).execute(self.gc)
+        
+        if self.gc.screen_state == sts.ScreenState.MAP_SCREEN:
+            sts.GameAction(idx1=action).execute(self.gc)
+            
