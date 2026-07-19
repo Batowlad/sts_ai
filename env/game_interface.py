@@ -104,13 +104,23 @@ class GameInterface:
                 self.bc.exit_battle(self.gc)
                 self.bc_initiated = False
 
-        if self.gc.screen_state == sts.ScreenState.EVENT_SCREEN:
-            try:
-                self.gc.chooseEventOption(action.idx1)
-            # OR 
-            except:
+        elif self.gc.screen_state == sts.ScreenState.EVENT_SCREEN:
+            # try:
+            #     self.gc.chooseEventOption(action.idx1)
+            # # OR 
+            # except:
                 sts.GameAction(idx1=action).execute(self.gc)
         
-        if self.gc.screen_state == sts.ScreenState.MAP_SCREEN:
+        elif self.gc.screen_state == sts.ScreenState.MAP_SCREEN:
             sts.GameAction(idx1=action).execute(self.gc)
-            
+
+    def encode_state(self) -> str:
+        if self.gc.screen_state == sts.ScreenState.BATTLE:
+            print(1)
+        else:
+            cur_screen = self.gc.screen_state.ScreenState
+            cur_hp = self.gc.cur_hp
+            max_hp = self.gc.max_hp
+
+            return f"Current screen: {cur_screen}, HP: {cur_hp}/{max_hp}"
+        
