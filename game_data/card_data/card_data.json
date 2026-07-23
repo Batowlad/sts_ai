@@ -1,0 +1,1452 @@
+{
+  "BASH": {
+    "name": "Bash",
+    "type": "ATTACK",
+    "rarity": "BASIC",
+    "color": "RED",
+    "cost": "2",
+    "cost_upgraded": null,
+    "text": "Deal 8 damage. Apply 2 Vulnerable.",
+    "text_upgraded": "Deal 10 damage. Apply 3 Vulnerable."
+  },
+  "DEFEND_RED": {
+    "name": "Defend",
+    "type": "SKILL",
+    "rarity": "BASIC",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Gain 5 Block.",
+    "text_upgraded": "Gain 8 Block."
+  },
+  "STRIKE_RED": {
+    "name": "Strike",
+    "type": "ATTACK",
+    "rarity": "BASIC",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Deal 6 damage.",
+    "text_upgraded": "Deal 9 damage."
+  },
+  "ANGER": {
+    "name": "Anger",
+    "type": "ATTACK",
+    "rarity": "COMMON",
+    "color": "RED",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Deal 6 damage. Add a copy of this card into your discard pile.",
+    "text_upgraded": "Deal 8 damage. Add a copy of this card into your discard pile."
+  },
+  "ARMAMENTS": {
+    "name": "Armaments",
+    "type": "SKILL",
+    "rarity": "COMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Gain 5 Block. Upgrade a card in your hand for the rest of combat.",
+    "text_upgraded": "Gain 5 Block. Upgrade all cards in your hand for the rest of combat."
+  },
+  "BODY_SLAM": {
+    "name": "Body Slam",
+    "type": "ATTACK",
+    "rarity": "COMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": "0",
+    "text": "Deal damage equal to your Block.",
+    "text_upgraded": null
+  },
+  "CLASH": {
+    "name": "Clash",
+    "type": "ATTACK",
+    "rarity": "COMMON",
+    "color": "RED",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Can only be played if every card in your hand is an Attack. Deal 14 damage.",
+    "text_upgraded": "Can only be played if every card in your hand is an Attack. Deal 18 damage."
+  },
+  "CLEAVE": {
+    "name": "Cleave",
+    "type": "ATTACK",
+    "rarity": "COMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Deal 8 damage to ALL enemies.",
+    "text_upgraded": "Deal 11 damage to ALL enemies."
+  },
+  "CLOTHESLINE": {
+    "name": "Clothesline",
+    "type": "ATTACK",
+    "rarity": "COMMON",
+    "color": "RED",
+    "cost": "2",
+    "cost_upgraded": null,
+    "text": "Deal 12 damage. Apply 2 Weak.",
+    "text_upgraded": "Deal 14 damage. Apply 3 Weak."
+  },
+  "FLEX": {
+    "name": "Flex",
+    "type": "SKILL",
+    "rarity": "COMMON",
+    "color": "RED",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Gain 2 Strength. At the end of this turn, lose 2 Strength.",
+    "text_upgraded": "Gain 4 Strength. At the end of this turn, lose 4 Strength."
+  },
+  "HAVOC": {
+    "name": "Havoc",
+    "type": "SKILL",
+    "rarity": "COMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": "0",
+    "text": "Play the top card of your draw pile and Exhaust it.",
+    "text_upgraded": null
+  },
+  "HEADBUTT": {
+    "name": "Headbutt",
+    "type": "ATTACK",
+    "rarity": "COMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Deal 9 damage. Put a card from your discard pile on top of your draw pile.",
+    "text_upgraded": "Deal 12 damage. Put a card from your discard pile on top of your draw pile."
+  },
+  "HEAVY_BLADE": {
+    "name": "Heavy Blade",
+    "type": "ATTACK",
+    "rarity": "COMMON",
+    "color": "RED",
+    "cost": "2",
+    "cost_upgraded": null,
+    "text": "Deal 14 damage. Strength affects this card 3 times.",
+    "text_upgraded": "Deal 14 damage. Strength affects this card 5 times."
+  },
+  "IRON_WAVE": {
+    "name": "Iron Wave",
+    "type": "ATTACK",
+    "rarity": "COMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Gain 5 Block. Deal 5 damage.",
+    "text_upgraded": "Gain 7 Block. Deal 7 damage."
+  },
+  "PERFECTED_STRIKE": {
+    "name": "Perfected Strike",
+    "type": "ATTACK",
+    "rarity": "COMMON",
+    "color": "RED",
+    "cost": "2",
+    "cost_upgraded": null,
+    "text": "Deal 6 damage. Deals 2 additional damage for ALL your cards containing \"Strike\".",
+    "text_upgraded": "Deal 6 damage. Deals 3 additional damage for ALL your cards containing \"Strike\"."
+  },
+  "POMMEL_STRIKE": {
+    "name": "Pommel Strike",
+    "type": "ATTACK",
+    "rarity": "COMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Deal 9 damage. Draw 1 card.",
+    "text_upgraded": "Deal 10 damage. Draw 2 cards."
+  },
+  "SHRUG_IT_OFF": {
+    "name": "Shrug It Off",
+    "type": "SKILL",
+    "rarity": "COMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Gain 8 Block. Draw 1 card.",
+    "text_upgraded": "Gain 11 Block. Draw 1 card."
+  },
+  "SWORD_BOOMERANG": {
+    "name": "Sword Boomerang",
+    "type": "ATTACK",
+    "rarity": "COMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Deal 3 damage to a random enemy 3 times.",
+    "text_upgraded": "Deal 3 damage to a random enemy 4 times."
+  },
+  "THUNDERCLAP": {
+    "name": "Thunderclap",
+    "type": "ATTACK",
+    "rarity": "COMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Deal 4 damage and apply 1 Vulnerable to ALL enemies.",
+    "text_upgraded": "Deal 7 damage and apply 1 Vulnerable to ALL enemies."
+  },
+  "TRUE_GRIT": {
+    "name": "True Grit",
+    "type": "SKILL",
+    "rarity": "COMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Gain 7 Block. Exhaust 1 card at random.",
+    "text_upgraded": "Gain 9 Block. Exhaust 1 card."
+  },
+  "TWIN_STRIKE": {
+    "name": "Twin Strike",
+    "type": "ATTACK",
+    "rarity": "COMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Deal 5 damage twice.",
+    "text_upgraded": "Deal 7 damage twice."
+  },
+  "WARCRY": {
+    "name": "Warcry",
+    "type": "SKILL",
+    "rarity": "COMMON",
+    "color": "RED",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Draw 1 card. Put a card from your hand onto the top of your draw pile. Exhaust.",
+    "text_upgraded": "Draw 2 cards. Put a card from your hand onto the top of your draw pile. Exhaust."
+  },
+  "WILD_STRIKE": {
+    "name": "Wild Strike",
+    "type": "ATTACK",
+    "rarity": "COMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Deal 12 damage. Shuffle a Wound into your draw pile.",
+    "text_upgraded": "Deal 17 damage. Shuffle a Wound into your draw pile."
+  },
+  "BATTLE_TRANCE": {
+    "name": "Battle Trance",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Draw 3 cards. You cannot draw additional cards this turn.",
+    "text_upgraded": "Draw 4 cards. You cannot draw additional cards this turn."
+  },
+  "BLOOD_FOR_BLOOD": {
+    "name": "Blood for Blood",
+    "type": "ATTACK",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "4",
+    "cost_upgraded": "3",
+    "text": "Costs 1 less 1 Energy for each time you lose HP this combat. Deal 18 damage.",
+    "text_upgraded": "Costs 1 less 1 Energy for each time you lose HP this combat. Deal 22 damage."
+  },
+  "BLOODLETTING": {
+    "name": "Bloodletting",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Lose 3 HP. Gain 2 Energy.",
+    "text_upgraded": "Lose 3 HP. Gain 3 Energy."
+  },
+  "BURNING_PACT": {
+    "name": "Burning Pact",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Exhaust 1 card. Draw 2 cards.",
+    "text_upgraded": "Exhaust 1 card. Draw 3 cards."
+  },
+  "CARNAGE": {
+    "name": "Carnage",
+    "type": "ATTACK",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "2",
+    "cost_upgraded": null,
+    "text": "Ethereal. Deal 20 damage.",
+    "text_upgraded": "Ethereal. Deal 28 damage."
+  },
+  "COMBUST": {
+    "name": "Combust",
+    "type": "POWER",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "At the end of your turn, lose 1 HP and deal 5 damage to ALL enemies.",
+    "text_upgraded": "At the end of your turn, lose 1 HP and deal 7 damage to ALL enemies."
+  },
+  "DARK_EMBRACE": {
+    "name": "Dark Embrace",
+    "type": "POWER",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "2",
+    "cost_upgraded": "1",
+    "text": "Whenever a card is Exhausted, draw 1 card.",
+    "text_upgraded": null
+  },
+  "DISARM": {
+    "name": "Disarm",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Enemy loses 2 Strength. Exhaust.",
+    "text_upgraded": "Enemy loses 3 Strength. Exhaust."
+  },
+  "DROPKICK": {
+    "name": "Dropkick",
+    "type": "ATTACK",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Deal 5 damage. If the enemy has Vulnerable, gain 1 Energy and draw 1 card.",
+    "text_upgraded": "Deal 8 damage. If the enemy has Vulnerable, gain 1 Energy and draw 1 card."
+  },
+  "DUAL_WIELD": {
+    "name": "Dual Wield",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Choose an Attack or Power card. Add a copy of that card into your hand.",
+    "text_upgraded": "Choose an Attack or Power card. Add 2 copies of that card into your hand."
+  },
+  "ENTRENCH": {
+    "name": "Entrench",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "2",
+    "cost_upgraded": "1",
+    "text": "Double your Block.",
+    "text_upgraded": null
+  },
+  "EVOLVE": {
+    "name": "Evolve",
+    "type": "POWER",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Whenever you draw a Status card, draw 1 card.",
+    "text_upgraded": "Whenever you draw a Status card, draw 2 cards."
+  },
+  "FEEL_NO_PAIN": {
+    "name": "Feel No Pain",
+    "type": "POWER",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Whenever a card is Exhausted, gain 3 Block.",
+    "text_upgraded": "Whenever a card is Exhausted, gain 4 Block."
+  },
+  "FIRE_BREATHING": {
+    "name": "Fire Breathing",
+    "type": "POWER",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Whenever you draw a Status or Curse card, deal 6 damage to ALL enemies.",
+    "text_upgraded": "Whenever you draw a Status or Curse card, deal 10 damage to ALL enemies."
+  },
+  "FLAME_BARRIER": {
+    "name": "Flame Barrier",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "2",
+    "cost_upgraded": null,
+    "text": "Gain 12 Block. Whenever you are attacked this turn, deal 4 damage back.",
+    "text_upgraded": "Gain 16 Block. Whenever you are attacked this turn, deal 6 damage back."
+  },
+  "GHOSTLY_ARMOR": {
+    "name": "Ghostly Armor",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Ethereal. Gain 10 Block.",
+    "text_upgraded": "Ethereal. Gain 13 Block."
+  },
+  "HEMOKINESIS": {
+    "name": "Hemokinesis",
+    "type": "ATTACK",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Lose 2 HP. Deal 15 damage.",
+    "text_upgraded": "Lose 2 HP. Deal 20 damage."
+  },
+  "INFERNAL_BLADE": {
+    "name": "Infernal Blade",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": "0",
+    "text": "Add a random Attack into your hand. It costs 0 this turn. Exhaust.",
+    "text_upgraded": null
+  },
+  "INFLAME": {
+    "name": "Inflame",
+    "type": "POWER",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Gain 2 Strength.",
+    "text_upgraded": "Gain 3 Strength."
+  },
+  "INTIMIDATE": {
+    "name": "Intimidate",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Apply 1 Weak to ALL enemies. Exhaust.",
+    "text_upgraded": "Apply 2 Weak to ALL enemies. Exhaust."
+  },
+  "METALLICIZE": {
+    "name": "Metallicize",
+    "type": "POWER",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "At the end of your turn, gain 3 Block.",
+    "text_upgraded": "At the end of your turn, gain 4 Block."
+  },
+  "POWER_THROUGH": {
+    "name": "Power Through",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Add 2 Wounds into your hand. Gain 15 Block.",
+    "text_upgraded": "Add 2 Wounds into your hand. Gain 20 Block."
+  },
+  "PUMMEL": {
+    "name": "Pummel",
+    "type": "ATTACK",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Deal 2 damage 4 times. Exhaust.",
+    "text_upgraded": "Deal 2 damage 5 times. Exhaust."
+  },
+  "RAGE": {
+    "name": "Rage",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Whenever you play an Attack this turn, gain 3 Block.",
+    "text_upgraded": "Whenever you play an Attack this turn, gain 5 Block."
+  },
+  "RAMPAGE": {
+    "name": "Rampage",
+    "type": "ATTACK",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Deal 8 damage. Increase this card's damage by 5 this combat.",
+    "text_upgraded": "Deal 8 damage. Increase this card's damage by 8 this combat."
+  },
+  "RECKLESS_CHARGE": {
+    "name": "Reckless Charge",
+    "type": "ATTACK",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Deal 7 damage. Shuffle a Dazed into your draw pile.",
+    "text_upgraded": "Deal 10 damage. Shuffle a Dazed into your draw pile."
+  },
+  "RUPTURE": {
+    "name": "Rupture",
+    "type": "POWER",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Whenever you lose HP from a card, gain 1 Strength.",
+    "text_upgraded": "Whenever you lose HP from a card, gain 2 Strength."
+  },
+  "SEARING_BLOW": {
+    "name": "Searing Blow",
+    "type": "ATTACK",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "2",
+    "cost_upgraded": null,
+    "text": "Deal 12 damage. Can be Upgraded any number of times.",
+    "text_upgraded": "Deal 16 damage. Can be Upgraded any number of times."
+  },
+  "SECOND_WIND": {
+    "name": "Second Wind",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Exhaust all non-Attack cards in your hand. Gain 5 Block for each card Exhausted.",
+    "text_upgraded": "Exhaust all non-Attack cards in your hand. Gain 7 Block for each card Exhausted."
+  },
+  "SEEING_RED": {
+    "name": "Seeing Red",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": "0",
+    "text": "Gain 2 Energy. Exhaust.",
+    "text_upgraded": null
+  },
+  "SENTINEL": {
+    "name": "Sentinel",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Gain 5 Block. If this card is Exhausted, gain 2 Energy.",
+    "text_upgraded": "Gain 8 Block. If this card is Exhausted, gain 3 Energy."
+  },
+  "SEVER_SOUL": {
+    "name": "Sever Soul",
+    "type": "ATTACK",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "2",
+    "cost_upgraded": null,
+    "text": "Exhaust all non-Attack cards in your hand. Deal 16 damage.",
+    "text_upgraded": "Exhaust all non-Attack cards in your hand. Deal 22 damage."
+  },
+  "SHOCKWAVE": {
+    "name": "Shockwave",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "2",
+    "cost_upgraded": null,
+    "text": "Apply 3 Weak and Vulnerable to ALL enemies. Exhaust.",
+    "text_upgraded": "Apply 5 Weak and Vulnerable to ALL enemies. Exhaust."
+  },
+  "SPOT_WEAKNESS": {
+    "name": "Spot Weakness",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "If the enemy intends to attack, gain 3 Strength.",
+    "text_upgraded": "If the enemy intends to attack, gain 4 Strength."
+  },
+  "UPPERCUT": {
+    "name": "Uppercut",
+    "type": "ATTACK",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "2",
+    "cost_upgraded": null,
+    "text": "Deal 13 damage. Apply 1 Weak. Apply 1 Vulnerable.",
+    "text_upgraded": "Deal 13 damage. Apply 2 Weak. Apply 2 Vulnerable."
+  },
+  "WHIRLWIND": {
+    "name": "Whirlwind",
+    "type": "ATTACK",
+    "rarity": "UNCOMMON",
+    "color": "RED",
+    "cost": "X",
+    "cost_upgraded": null,
+    "text": "Deal 5 damage to ALL enemies X times.",
+    "text_upgraded": "Deal 8 damage to ALL enemies X times."
+  },
+  "BARRICADE": {
+    "name": "Barricade",
+    "type": "POWER",
+    "rarity": "RARE",
+    "color": "RED",
+    "cost": "3",
+    "cost_upgraded": "2",
+    "text": "Block is not removed at the start of your turn.",
+    "text_upgraded": null
+  },
+  "BERSERK": {
+    "name": "Berserk",
+    "type": "POWER",
+    "rarity": "RARE",
+    "color": "RED",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Gain 2 Vulnerable. At the start of your turn, gain 1 Energy.",
+    "text_upgraded": "Gain 1 Vulnerable. At the start of your turn, gain 1 Energy."
+  },
+  "BLUDGEON": {
+    "name": "Bludgeon",
+    "type": "ATTACK",
+    "rarity": "RARE",
+    "color": "RED",
+    "cost": "3",
+    "cost_upgraded": null,
+    "text": "Deal 32 damage.",
+    "text_upgraded": "Deal 42 damage."
+  },
+  "BRUTALITY": {
+    "name": "Brutality",
+    "type": "POWER",
+    "rarity": "RARE",
+    "color": "RED",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "At the start of your turn, lose 1 HP and draw 1 card.",
+    "text_upgraded": "Innate. At the start of your turn, lose 1 HP and draw 1 card."
+  },
+  "CORRUPTION": {
+    "name": "Corruption",
+    "type": "POWER",
+    "rarity": "RARE",
+    "color": "RED",
+    "cost": "3",
+    "cost_upgraded": "2",
+    "text": "Skills cost 0. Whenever you play a Skill, Exhaust it.",
+    "text_upgraded": null
+  },
+  "DEMON_FORM": {
+    "name": "Demon Form",
+    "type": "POWER",
+    "rarity": "RARE",
+    "color": "RED",
+    "cost": "3",
+    "cost_upgraded": null,
+    "text": "At the start of your turn, gain 2 Strength.",
+    "text_upgraded": "At the start of your turn, gain 3 Strength."
+  },
+  "DOUBLE_TAP": {
+    "name": "Double Tap",
+    "type": "SKILL",
+    "rarity": "RARE",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "This turn, your next Attack is played twice.",
+    "text_upgraded": "This turn, your next 2 Attacks are played twice."
+  },
+  "EXHUME": {
+    "name": "Exhume",
+    "type": "SKILL",
+    "rarity": "RARE",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": "0",
+    "text": "Put a card from your exhaust pile into your hand. Exhaust.",
+    "text_upgraded": null
+  },
+  "FEED": {
+    "name": "Feed",
+    "type": "ATTACK",
+    "rarity": "RARE",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Deal 10 damage. If Fatal, raise your Max HP by 3. Exhaust.",
+    "text_upgraded": "Deal 12 damage. If Fatal, raise your Max HP by 4. Exhaust."
+  },
+  "FIEND_FIRE": {
+    "name": "Fiend Fire",
+    "type": "ATTACK",
+    "rarity": "RARE",
+    "color": "RED",
+    "cost": "2",
+    "cost_upgraded": null,
+    "text": "Exhaust your hand. Deal 7 damage for each card Exhausted. Exhaust.",
+    "text_upgraded": "Exhaust your hand. Deal 10 damage for each card Exhausted. Exhaust."
+  },
+  "IMMOLATE": {
+    "name": "Immolate",
+    "type": "ATTACK",
+    "rarity": "RARE",
+    "color": "RED",
+    "cost": "2",
+    "cost_upgraded": null,
+    "text": "Deal 21 damage to ALL enemies. Add a Burn into your discard pile.",
+    "text_upgraded": "Deal 28 damage to ALL enemies. Add a Burn into your discard pile."
+  },
+  "IMPERVIOUS": {
+    "name": "Impervious",
+    "type": "SKILL",
+    "rarity": "RARE",
+    "color": "RED",
+    "cost": "2",
+    "cost_upgraded": null,
+    "text": "Gain 30 Block. Exhaust.",
+    "text_upgraded": "Gain 40 Block. Exhaust."
+  },
+  "JUGGERNAUT": {
+    "name": "Juggernaut",
+    "type": "POWER",
+    "rarity": "RARE",
+    "color": "RED",
+    "cost": "2",
+    "cost_upgraded": null,
+    "text": "Whenever you gain Block, deal 5 damage to a random enemy.",
+    "text_upgraded": "Whenever you gain Block, deal 7 damage to a random enemy."
+  },
+  "LIMIT_BREAK": {
+    "name": "Limit Break",
+    "type": "SKILL",
+    "rarity": "RARE",
+    "color": "RED",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Double your Strength. Exhaust.",
+    "text_upgraded": "Double your Strength."
+  },
+  "OFFERING": {
+    "name": "Offering",
+    "type": "SKILL",
+    "rarity": "RARE",
+    "color": "RED",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Lose 6 HP. Gain 2 Energy. Draw 3 cards. Exhaust.",
+    "text_upgraded": "Lose 6 HP. Gain 2 Energy. Draw 5 cards. Exhaust."
+  },
+  "REAPER": {
+    "name": "Reaper",
+    "type": "ATTACK",
+    "rarity": "RARE",
+    "color": "RED",
+    "cost": "2",
+    "cost_upgraded": null,
+    "text": "Deal 4 damage to ALL enemies. Heal HP equal to unblocked damage. Exhaust.",
+    "text_upgraded": "Deal 5 damage to ALL enemies. Heal HP equal to unblocked damage. Exhaust."
+  },
+  "BANDAGE_UP": {
+    "name": "Bandage Up",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Heal 4 HP. Exhaust.",
+    "text_upgraded": "Heal 6 HP. Exhaust."
+  },
+  "BLIND": {
+    "name": "Blind",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Apply 2 Weak.",
+    "text_upgraded": "Apply 2 Weak to ALL enemies."
+  },
+  "DARK_SHACKLES": {
+    "name": "Dark Shackles",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Enemy loses 9 Strength this turn. Exhaust.",
+    "text_upgraded": "Enemy loses 15 Strength this turn. Exhaust."
+  },
+  "DEEP_BREATH": {
+    "name": "Deep Breath",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Shuffle your discard pile into your draw pile. Draw 1 card.",
+    "text_upgraded": "Shuffle your discard pile into your draw pile. Draw 2 cards."
+  },
+  "DISCOVERY": {
+    "name": "Discovery",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "COLORLESS",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Choose 1 of 3 random cards to add into your hand. It costs 0 this turn. Exhaust.",
+    "text_upgraded": "Choose 1 of 3 random cards to add into your hand. It costs 0 this turn."
+  },
+  "DRAMATIC_ENTRANCE": {
+    "name": "Dramatic Entrance",
+    "type": "ATTACK",
+    "rarity": "UNCOMMON",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Innate. Deal 8 damage to ALL enemies. Exhaust.",
+    "text_upgraded": "Innate. Deal 12 damage to ALL enemies. Exhaust."
+  },
+  "ENLIGHTENMENT": {
+    "name": "Enlightenment",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Reduce the cost of all cards in your hand to 1 this turn.",
+    "text_upgraded": "Reduce the cost of all cards in your hand to 1 this combat."
+  },
+  "FINESSE": {
+    "name": "Finesse",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Gain 2 Block. Draw 1 card.",
+    "text_upgraded": "Gain 4 Block. Draw 1 card."
+  },
+  "FLASH_OF_STEEL": {
+    "name": "Flash of Steel",
+    "type": "ATTACK",
+    "rarity": "UNCOMMON",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Deal 3 damage. Draw 1 card.",
+    "text_upgraded": "Deal 6 damage. Draw 1 card."
+  },
+  "FORETHOUGHT": {
+    "name": "Forethought",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Put a card from your hand to the bottom of your draw pile. It costs 0 until played.",
+    "text_upgraded": "Put any number of cards from your hand to the bottom of your draw pile. They cost 0 until played."
+  },
+  "GOOD_INSTINCTS": {
+    "name": "Good Instincts",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Gain 6 Block.",
+    "text_upgraded": "Gain 9 Block."
+  },
+  "IMPATIENCE": {
+    "name": "Impatience",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "If you have no Attacks in your hand, draw 2 cards.",
+    "text_upgraded": "If you have no Attacks in your hand, draw 3 cards."
+  },
+  "JACK_OF_ALL_TRADES": {
+    "name": "Jack of All Trades",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Add 1 random Colorless card into your hand. Exhaust.",
+    "text_upgraded": "Add 2 random Colorless cards into your hand. Exhaust."
+  },
+  "MADNESS": {
+    "name": "Madness",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "COLORLESS",
+    "cost": "1",
+    "cost_upgraded": "0",
+    "text": "Reduce the cost of a random card in your hand to 0 this combat. Exhaust.",
+    "text_upgraded": null
+  },
+  "MIND_BLAST": {
+    "name": "Mind Blast",
+    "type": "ATTACK",
+    "rarity": "UNCOMMON",
+    "color": "COLORLESS",
+    "cost": "2",
+    "cost_upgraded": "1",
+    "text": "Innate. Deal damage equal to the number of cards in your draw pile.",
+    "text_upgraded": null
+  },
+  "PANACEA": {
+    "name": "Panacea",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Gain 1 Artifact. Exhaust.",
+    "text_upgraded": "Gain 2 Artifact. Exhaust."
+  },
+  "PANIC_BUTTON": {
+    "name": "Panic Button",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Gain 30 Block. You cannot gain Block from cards for 2 turns. Exhaust.",
+    "text_upgraded": "Gain 40 Block. You cannot gain Block from cards for 2 turns. Exhaust."
+  },
+  "PURITY": {
+    "name": "Purity",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Exhaust up to 3 cards in your hand. Exhaust.",
+    "text_upgraded": "Exhaust up to 5 cards in your hand. Exhaust."
+  },
+  "SWIFT_STRIKE": {
+    "name": "Swift Strike",
+    "type": "ATTACK",
+    "rarity": "UNCOMMON",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Deal 7 damage.",
+    "text_upgraded": "Deal 10 damage."
+  },
+  "TRIP": {
+    "name": "Trip",
+    "type": "SKILL",
+    "rarity": "UNCOMMON",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Apply 2 Vulnerable.",
+    "text_upgraded": "Apply 2 Vulnerable to ALL enemies."
+  },
+  "APOTHEOSIS": {
+    "name": "Apotheosis",
+    "type": "SKILL",
+    "rarity": "RARE",
+    "color": "COLORLESS",
+    "cost": "2",
+    "cost_upgraded": "1",
+    "text": "Upgrade ALL your cards for the rest of combat. Exhaust.",
+    "text_upgraded": null
+  },
+  "CHRYSALIS": {
+    "name": "Chrysalis",
+    "type": "SKILL",
+    "rarity": "RARE",
+    "color": "COLORLESS",
+    "cost": "2",
+    "cost_upgraded": null,
+    "text": "Shuffle 3 random Skills into your draw pile. They cost 0 this combat. Exhaust.",
+    "text_upgraded": "Shuffle 5 random Skills into your draw pile. They cost 0 this combat. Exhaust."
+  },
+  "HAND_OF_GREED": {
+    "name": "Hand of Greed",
+    "type": "ATTACK",
+    "rarity": "RARE",
+    "color": "COLORLESS",
+    "cost": "2",
+    "cost_upgraded": null,
+    "text": "Deal 20 damage. If Fatal, gain 20 Gold.",
+    "text_upgraded": "Deal 25 damage. If Fatal, gain 25 Gold."
+  },
+  "MAGNETISM": {
+    "name": "Magnetism",
+    "type": "POWER",
+    "rarity": "RARE",
+    "color": "COLORLESS",
+    "cost": "2",
+    "cost_upgraded": "1",
+    "text": "At the start of your turn, add a random Colorless card into your hand.",
+    "text_upgraded": null
+  },
+  "MASTER_OF_STRATEGY": {
+    "name": "Master of Strategy",
+    "type": "SKILL",
+    "rarity": "RARE",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Draw 3 cards. Exhaust.",
+    "text_upgraded": "Draw 4 cards. Exhaust."
+  },
+  "MAYHEM": {
+    "name": "Mayhem",
+    "type": "POWER",
+    "rarity": "RARE",
+    "color": "COLORLESS",
+    "cost": "2",
+    "cost_upgraded": "1",
+    "text": "At the start of your turn, play the top card of your draw pile.",
+    "text_upgraded": null
+  },
+  "METAMORPHOSIS": {
+    "name": "Metamorphosis",
+    "type": "SKILL",
+    "rarity": "RARE",
+    "color": "COLORLESS",
+    "cost": "2",
+    "cost_upgraded": null,
+    "text": "Shuffle 3 random Attacks into your draw pile. They cost 0 this combat. Exhaust.",
+    "text_upgraded": "Shuffle 5 random Attacks into your draw pile. They cost 0 this combat. Exhaust."
+  },
+  "PANACHE": {
+    "name": "Panache",
+    "type": "POWER",
+    "rarity": "RARE",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Every time you play 5 cards in a single turn, deal 10 damage to ALL enemies.",
+    "text_upgraded": "Every time you play 5 cards in a single turn, deal 14 damage to ALL enemies."
+  },
+  "SADISTIC_NATURE": {
+    "name": "Sadistic Nature",
+    "type": "POWER",
+    "rarity": "RARE",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Whenever you apply a debuff to an enemy, they take 5 damage.",
+    "text_upgraded": "Whenever you apply a debuff to an enemy, they take 7 damage."
+  },
+  "SECRET_TECHNIQUE": {
+    "name": "Secret Technique",
+    "type": "SKILL",
+    "rarity": "RARE",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Put a Skill from your draw pile into your hand. Exhaust.",
+    "text_upgraded": "Put a Skill from your draw pile into your hand."
+  },
+  "SECRET_WEAPON": {
+    "name": "Secret Weapon",
+    "type": "SKILL",
+    "rarity": "RARE",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Put an Attack from your draw pile into your hand. Exhaust.",
+    "text_upgraded": "Put an Attack from your draw pile into your hand."
+  },
+  "THE_BOMB": {
+    "name": "The Bomb",
+    "type": "SKILL",
+    "rarity": "RARE",
+    "color": "COLORLESS",
+    "cost": "2",
+    "cost_upgraded": null,
+    "text": "At the end of 3 turns, deal 40 damage to ALL enemies.",
+    "text_upgraded": "At the end of 3 turns, deal 50 damage to ALL enemies."
+  },
+  "THINKING_AHEAD": {
+    "name": "Thinking Ahead",
+    "type": "SKILL",
+    "rarity": "RARE",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Draw 2 cards. Put a card from your hand on top of your draw pile. Exhaust.",
+    "text_upgraded": "Draw 2 cards. Put a card from your hand on top of your draw pile."
+  },
+  "TRANSMUTATION": {
+    "name": "Transmutation",
+    "type": "SKILL",
+    "rarity": "RARE",
+    "color": "COLORLESS",
+    "cost": "X",
+    "cost_upgraded": null,
+    "text": "Add X random Colorless cards into your hand. They cost 0 this turn. Exhaust.",
+    "text_upgraded": "Add X random Upgraded Colorless cards into your hand. They cost 0 this turn. Exhaust."
+  },
+  "VIOLENCE": {
+    "name": "Violence",
+    "type": "SKILL",
+    "rarity": "RARE",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Put 3 random Attacks from your draw pile into your hand. Exhaust.",
+    "text_upgraded": "Put 4 random Attacks from your draw pile into your hand. Exhaust."
+  },
+  "APPARITION": {
+    "name": "Apparition",
+    "type": "SKILL",
+    "rarity": "SPECIAL",
+    "color": "COLORLESS",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Ethereal. Gain 1 Intangible. Exhaust.",
+    "text_upgraded": "Gain 1 Intangible. Exhaust."
+  },
+  "BECOME_ALMIGHTY": {
+    "name": "Become Almighty",
+    "type": "POWER",
+    "rarity": "SPECIAL",
+    "color": "COLORLESS",
+    "cost": "Unplayable",
+    "cost_upgraded": null,
+    "text": "Gain 3 Strength.",
+    "text_upgraded": "Gain 4 Strength."
+  },
+  "BETA": {
+    "name": "Beta",
+    "type": "SKILL",
+    "rarity": "SPECIAL",
+    "color": "COLORLESS",
+    "cost": "2",
+    "cost_upgraded": "1",
+    "text": "Shuffle an Omega into your draw pile. Exhaust.",
+    "text_upgraded": null
+  },
+  "BITE": {
+    "name": "Bite",
+    "type": "ATTACK",
+    "rarity": "SPECIAL",
+    "color": "COLORLESS",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Deal 7 damage. Heal 2 HP.",
+    "text_upgraded": "Deal 8 damage. Heal 3 HP."
+  },
+  "EXPUNGER": {
+    "name": "Expunger",
+    "type": "ATTACK",
+    "rarity": "SPECIAL",
+    "color": "COLORLESS",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Deal 9 damage X times.",
+    "text_upgraded": "Deal 15 damage X times."
+  },
+  "FAME_AND_FORTUNE": {
+    "name": "Fame and Fortune",
+    "type": "SKILL",
+    "rarity": "SPECIAL",
+    "color": "COLORLESS",
+    "cost": "Unplayable",
+    "cost_upgraded": null,
+    "text": "Gain 25 Gold.",
+    "text_upgraded": "Gain 30 Gold."
+  },
+  "INSIGHT": {
+    "name": "Insight",
+    "type": "SKILL",
+    "rarity": "SPECIAL",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Retain. Draw 2 cards. Exhaust.",
+    "text_upgraded": "Retain. Draw 3 cards. Exhaust."
+  },
+  "JAX": {
+    "name": "J.A.X.",
+    "type": "SKILL",
+    "rarity": "SPECIAL",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Lose 3 HP. Gain 2 Strength.",
+    "text_upgraded": "Lose 3 HP. Gain 3 Strength."
+  },
+  "LIVE_FOREVER": {
+    "name": "Live Forever",
+    "type": "POWER",
+    "rarity": "SPECIAL",
+    "color": "COLORLESS",
+    "cost": "Unplayable",
+    "cost_upgraded": null,
+    "text": "Gain 6 Plated Armor.",
+    "text_upgraded": "Gain 8 Plated Armor."
+  },
+  "MIRACLE": {
+    "name": "Miracle",
+    "type": "SKILL",
+    "rarity": "SPECIAL",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Retain. Gain 1 Energy. Exhaust.",
+    "text_upgraded": "Retain. Gain 2 Energy. Exhaust."
+  },
+  "OMEGA": {
+    "name": "Omega",
+    "type": "POWER",
+    "rarity": "SPECIAL",
+    "color": "COLORLESS",
+    "cost": "3",
+    "cost_upgraded": null,
+    "text": "At the end of your turn, deal 50 damage to ALL enemies.",
+    "text_upgraded": "At the end of your turn, deal 60 damage to ALL enemies."
+  },
+  "RITUAL_DAGGER": {
+    "name": "Ritual Dagger",
+    "type": "ATTACK",
+    "rarity": "SPECIAL",
+    "color": "COLORLESS",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Deal 15 damage. If Fatal, permanently increase this card's damage by 3. Exhaust.",
+    "text_upgraded": "Deal 15 damage. If Fatal, permanently increase this card's damage by 5. Exhaust."
+  },
+  "SAFETY": {
+    "name": "Safety",
+    "type": "SKILL",
+    "rarity": "SPECIAL",
+    "color": "COLORLESS",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Retain. Gain 12 Block. Exhaust.",
+    "text_upgraded": "Retain. Gain 16 Block. Exhaust."
+  },
+  "SHIV": {
+    "name": "Shiv",
+    "type": "ATTACK",
+    "rarity": "SPECIAL",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Deal 4 damage. Exhaust.",
+    "text_upgraded": "Deal 6 damage. Exhaust."
+  },
+  "SMITE": {
+    "name": "Smite",
+    "type": "ATTACK",
+    "rarity": "SPECIAL",
+    "color": "COLORLESS",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Retain. Deal 12 damage. Exhaust.",
+    "text_upgraded": "Retain. Deal 16 damage. Exhaust."
+  },
+  "THROUGH_VIOLENCE": {
+    "name": "Through Violence",
+    "type": "ATTACK",
+    "rarity": "SPECIAL",
+    "color": "COLORLESS",
+    "cost": "0",
+    "cost_upgraded": null,
+    "text": "Retain. Deal 20 damage. Exhaust.",
+    "text_upgraded": "Retain. Deal 30 damage. Exhaust."
+  },
+  "CLUMSY": {
+    "name": "Clumsy",
+    "type": "CURSE",
+    "rarity": "CURSE",
+    "color": "CURSE",
+    "cost": "Unplayable",
+    "cost_upgraded": null,
+    "text": "Unplayable. Ethereal.",
+    "text_upgraded": null
+  },
+  "DECAY": {
+    "name": "Decay",
+    "type": "CURSE",
+    "rarity": "CURSE",
+    "color": "CURSE",
+    "cost": "Unplayable",
+    "cost_upgraded": null,
+    "text": "Unplayable. At the end of your turn, take 2 damage.",
+    "text_upgraded": null
+  },
+  "DOUBT": {
+    "name": "Doubt",
+    "type": "CURSE",
+    "rarity": "CURSE",
+    "color": "CURSE",
+    "cost": "Unplayable",
+    "cost_upgraded": null,
+    "text": "Unplayable. At the end of your turn, gain 1 Weak.",
+    "text_upgraded": null
+  },
+  "INJURY": {
+    "name": "Injury",
+    "type": "CURSE",
+    "rarity": "CURSE",
+    "color": "CURSE",
+    "cost": "Unplayable",
+    "cost_upgraded": null,
+    "text": "Unplayable.",
+    "text_upgraded": null
+  },
+  "NORMALITY": {
+    "name": "Normality",
+    "type": "CURSE",
+    "rarity": "CURSE",
+    "color": "CURSE",
+    "cost": "Unplayable",
+    "cost_upgraded": null,
+    "text": "Unplayable. While in hand, you cannot play more than 3 cards this turn.",
+    "text_upgraded": null
+  },
+  "PAIN": {
+    "name": "Pain",
+    "type": "CURSE",
+    "rarity": "CURSE",
+    "color": "CURSE",
+    "cost": "Unplayable",
+    "cost_upgraded": null,
+    "text": "Unplayable. While in hand, lose 1 HP whenever you play another card.",
+    "text_upgraded": null
+  },
+  "PARASITE": {
+    "name": "Parasite",
+    "type": "CURSE",
+    "rarity": "CURSE",
+    "color": "CURSE",
+    "cost": "Unplayable",
+    "cost_upgraded": null,
+    "text": "Unplayable. If transformed or removed from your deck, lose 3 Max HP.",
+    "text_upgraded": null
+  },
+  "REGRET": {
+    "name": "Regret",
+    "type": "CURSE",
+    "rarity": "CURSE",
+    "color": "CURSE",
+    "cost": "Unplayable",
+    "cost_upgraded": null,
+    "text": "Unplayable. At the end of your turn, lose HP equal to the number of cards in your hand.",
+    "text_upgraded": null
+  },
+  "SHAME": {
+    "name": "Shame",
+    "type": "CURSE",
+    "rarity": "CURSE",
+    "color": "CURSE",
+    "cost": "Unplayable",
+    "cost_upgraded": null,
+    "text": "Unplayable. At the end of your turn, gain 1 Frail.",
+    "text_upgraded": null
+  },
+  "WRITHE": {
+    "name": "Writhe",
+    "type": "CURSE",
+    "rarity": "CURSE",
+    "color": "CURSE",
+    "cost": "Unplayable",
+    "cost_upgraded": null,
+    "text": "Unplayable. Innate.",
+    "text_upgraded": null
+  },
+  "ASCENDERS_BANE": {
+    "name": "Ascender's Bane",
+    "type": "CURSE",
+    "rarity": "SPECIAL",
+    "color": "CURSE",
+    "cost": "Unplayable",
+    "cost_upgraded": null,
+    "text": "Unplayable. Ethereal. Cannot be removed from your deck.",
+    "text_upgraded": null
+  },
+  "CURSE_OF_THE_BELL": {
+    "name": "Curse of the Bell",
+    "type": "CURSE",
+    "rarity": "SPECIAL",
+    "color": "CURSE",
+    "cost": "Unplayable",
+    "cost_upgraded": null,
+    "text": "Unplayable. Cannot be removed from your deck.",
+    "text_upgraded": null
+  },
+  "NECRONOMICURSE": {
+    "name": "Necronomicurse",
+    "type": "CURSE",
+    "rarity": "SPECIAL",
+    "color": "CURSE",
+    "cost": "Unplayable",
+    "cost_upgraded": null,
+    "text": "Unplayable. There is no escape from this Curse.",
+    "text_upgraded": null
+  },
+  "PRIDE": {
+    "name": "Pride",
+    "type": "CURSE",
+    "rarity": "SPECIAL",
+    "color": "CURSE",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Innate. At the end of your turn, put a copy of this card on top of your draw pile. Exhaust.",
+    "text_upgraded": null
+  },
+  "BURN": {
+    "name": "Burn",
+    "type": "STATUS",
+    "rarity": "COMMON",
+    "color": "COLORLESS",
+    "cost": "Unplayable",
+    "cost_upgraded": null,
+    "text": "Unplayable. At the end of your turn, take 2 damage.",
+    "text_upgraded": null
+  },
+  "DAZED": {
+    "name": "Dazed",
+    "type": "STATUS",
+    "rarity": "COMMON",
+    "color": "COLORLESS",
+    "cost": "Unplayable",
+    "cost_upgraded": null,
+    "text": "Unplayable. Ethereal.",
+    "text_upgraded": null
+  },
+  "SLIMED": {
+    "name": "Slimed",
+    "type": "STATUS",
+    "rarity": "COMMON",
+    "color": "COLORLESS",
+    "cost": "1",
+    "cost_upgraded": null,
+    "text": "Exhaust.",
+    "text_upgraded": null
+  },
+  "VOID": {
+    "name": "Void",
+    "type": "STATUS",
+    "rarity": "COMMON",
+    "color": "COLORLESS",
+    "cost": "Unplayable",
+    "cost_upgraded": null,
+    "text": "Unplayable. Ethereal. Whenever this card is drawn, lose 1 Energy.",
+    "text_upgraded": null
+  },
+  "WOUND": {
+    "name": "Wound",
+    "type": "STATUS",
+    "rarity": "COMMON",
+    "color": "COLORLESS",
+    "cost": "Unplayable",
+    "cost_upgraded": null,
+    "text": "Unplayable.",
+    "text_upgraded": null
+  }
+}
