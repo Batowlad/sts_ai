@@ -116,7 +116,7 @@ class GameInterface:
 
     
     def describe_card(self):
-        
+        print(1)
 
 
     def encode_state(self) -> str:
