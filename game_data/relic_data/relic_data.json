@@ -1,0 +1,896 @@
+{
+  "BURNING_BLOOD": {
+    "name": "Burning Blood",
+    "rarity": "STARTER",
+    "character": "Ironclad",
+    "text": "At the end of combat, heal 6 HP."
+  },
+  "AKABEKO": {
+    "name": "Akabeko",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Your first Attack each combat deals 8 additional damage."
+  },
+  "ANCHOR": {
+    "name": "Anchor",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Start each combat with 10 Block."
+  },
+  "ANCIENT_TEA_SET": {
+    "name": "Ancient Tea Set",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Whenever you enter a Rest Site, start the next combat with 2 Energy."
+  },
+  "ART_OF_WAR": {
+    "name": "Art of War",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "If you do not play any Attacks during your turn, gain an additional 1 Energy next turn."
+  },
+  "BAG_OF_MARBLES": {
+    "name": "Bag of Marbles",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "At the start of each combat, apply 1 Vulnerable to ALL enemies."
+  },
+  "BAG_OF_PREPARATION": {
+    "name": "Bag of Preparation",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "At the start of each combat, draw 2 additional cards."
+  },
+  "BLOOD_VIAL": {
+    "name": "Blood Vial",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "At the start of each combat, heal 2 HP."
+  },
+  "BRONZE_SCALES": {
+    "name": "Bronze Scales",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Start each combat with 3 Thorns."
+  },
+  "CENTENNIAL_PUZZLE": {
+    "name": "Centennial Puzzle",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "The first time you lose HP each combat, draw 3 cards."
+  },
+  "CERAMIC_FISH": {
+    "name": "Ceramic Fish",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Whenever you add a card to your deck, gain 9 Gold."
+  },
+  "DREAM_CATCHER": {
+    "name": "Dream Catcher",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Whenever you Rest, you may add a card into your deck."
+  },
+  "HAPPY_FLOWER": {
+    "name": "Happy Flower",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Every 3 turns, gain 1 Energy."
+  },
+  "JUZU_BRACELET": {
+    "name": "Juzu Bracelet",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Normal enemy combats are no longer encountered in? rooms."
+  },
+  "LANTERN": {
+    "name": "Lantern",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Start each combat with an additional 1 Energy."
+  },
+  "MAW_BANK": {
+    "name": "Maw Bank",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Whenever you climb a floor, gain 12 Gold. No longer works when you spend any Gold at a shop."
+  },
+  "MEAL_TICKET": {
+    "name": "Meal Ticket",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Whenever you enter a shop, heal 15 HP."
+  },
+  "NUNCHAKU": {
+    "name": "Nunchaku",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Every time you play 10 Attacks, gain 1 Energy."
+  },
+  "ODDLY_SMOOTH_STONE": {
+    "name": "Oddly Smooth Stone",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Start each combat with 1 Dexterity."
+  },
+  "OMAMORI": {
+    "name": "Omamori",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Negate the next 2 Curses you obtain."
+  },
+  "ORICHALCUM": {
+    "name": "Orichalcum",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "If you end your turn without Block, gain 6 Block."
+  },
+  "PEN_NIB": {
+    "name": "Pen Nib",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Every 10th Attack you play deals double damage."
+  },
+  "POTION_BELT": {
+    "name": "Potion Belt",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Upon pickup, gain 2 Potion slots."
+  },
+  "PRESERVED_INSECT": {
+    "name": "Preserved Insect",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Enemies in Elite combats have 25% less HP."
+  },
+  "RED_SKULL": {
+    "name": "Red Skull",
+    "rarity": "COMMON",
+    "character": "Ironclad",
+    "text": "While your HP is at or below 50%, you have 3 additional Strength."
+  },
+  "REGAL_PILLOW": {
+    "name": "Regal Pillow",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Whenever you Rest, heal an additional 15 HP."
+  },
+  "SMILING_MASK": {
+    "name": "Smiling Mask",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "The Merchant's card removal service now always costs 50 Gold."
+  },
+  "STRAWBERRY": {
+    "name": "Strawberry",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Upon pickup, raise your Max HP by 7."
+  },
+  "THE_BOOT": {
+    "name": "The Boot",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Whenever you would deal 4 or less unblocked attack damage, increase it to 5."
+  },
+  "TINY_CHEST": {
+    "name": "Tiny Chest",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Every 4th? room is a Treasure room."
+  },
+  "TOY_ORNITHOPTER": {
+    "name": "Toy Ornithopter",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Whenever you use a potion, heal 5 HP."
+  },
+  "VAJRA": {
+    "name": "Vajra",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Start each combat with 1 Strength."
+  },
+  "WAR_PAINT": {
+    "name": "War Paint",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Upon pickup, Upgrade 2 random Skills."
+  },
+  "WHETSTONE": {
+    "name": "Whetstone",
+    "rarity": "COMMON",
+    "character": null,
+    "text": "Upon pickup, Upgrade 2 random Attacks."
+  },
+  "BLUE_CANDLE": {
+    "name": "Blue Candle",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "Unplayable Curse cards can now be played. Whenever you play a Curse, lose 1 HP and Exhaust it."
+  },
+  "BOTTLED_FLAME": {
+    "name": "Bottled Flame",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "Upon pickup, choose an Attack. Start each combat with this card in your hand."
+  },
+  "BOTTLED_LIGHTNING": {
+    "name": "Bottled Lightning",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "Upon pickup, choose a Skill. Start each combat with this card in your hand."
+  },
+  "BOTTLED_TORNADO": {
+    "name": "Bottled Tornado",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "Upon pickup, choose a Power card. Start each combat with this card in your hand."
+  },
+  "DARKSTONE_PERIAPT": {
+    "name": "Darkstone Periapt",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "Whenever you obtain a Curse, increase your Max HP by 6."
+  },
+  "ETERNAL_FEATHER": {
+    "name": "Eternal Feather",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "For every 5 cards in your deck, heal 3 HP whenever you enter a Rest Site."
+  },
+  "FROZEN_EGG": {
+    "name": "Frozen Egg",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "Whenever you add a Power card into your deck, Upgrade it."
+  },
+  "GREMLIN_HORN": {
+    "name": "Gremlin Horn",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "Whenever an enemy dies, gain 1 Energy and draw 1 card."
+  },
+  "HORN_CLEAT": {
+    "name": "Horn Cleat",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "At the start of your 2nd turn, gain 14 Block."
+  },
+  "INK_BOTTLE": {
+    "name": "Ink Bottle",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "Whenever you play 10 cards, draw 1 card."
+  },
+  "KUNAI": {
+    "name": "Kunai",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "Every time you play 3 Attacks in a single turn, gain 1 Dexterity."
+  },
+  "LETTER_OPENER": {
+    "name": "Letter Opener",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "Every time you play 3 Skills in a single turn, deal 5 damage to ALL enemies."
+  },
+  "MATRYOSHKA": {
+    "name": "Matryoshka",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "The next 2 non-Boss chests you open contain 2 Relics."
+  },
+  "MEAT_ON_THE_BONE": {
+    "name": "Meat on the Bone",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "If your HP is at or below 50% at the end of combat, heal 12 HP."
+  },
+  "MERCURY_HOURGLASS": {
+    "name": "Mercury Hourglass",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "At the start of your turn, deal 3 damage to ALL enemies."
+  },
+  "MOLTEN_EGG": {
+    "name": "Molten Egg",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "Whenever you add an Attack into your deck, Upgrade it."
+  },
+  "MUMMIFIED_HAND": {
+    "name": "Mummified Hand",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "Whenever you play a Power card, a random card in your hand costs 0 that turn."
+  },
+  "ORNAMENTAL_FAN": {
+    "name": "Ornamental Fan",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "Every time you play 3 Attacks in a single turn, gain 4 Block."
+  },
+  "PANTOGRAPH": {
+    "name": "Pantograph",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "At the start of Boss combats, heal 25 HP."
+  },
+  "PAPER_PHROG": {
+    "name": "Paper Phrog",
+    "rarity": "UNCOMMON",
+    "character": "Ironclad",
+    "text": "Enemies with Vulnerable take 75% more damage rather than 50%."
+  },
+  "PEAR": {
+    "name": "Pear",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "Upon pickup, raise your Max HP by 10."
+  },
+  "QUESTION_CARD": {
+    "name": "Question Card",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "Future card rewards have 1 additional card to choose from."
+  },
+  "SELF_FORMING_CLAY": {
+    "name": "Self-Forming Clay",
+    "rarity": "UNCOMMON",
+    "character": "Ironclad",
+    "text": "Whenever you lose HP, gain 3 Block next turn."
+  },
+  "SHURIKEN": {
+    "name": "Shuriken",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "Every time you play 3 Attacks in a single turn, gain 1 Strength."
+  },
+  "SINGING_BOWL": {
+    "name": "Singing Bowl",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "When adding cards into your deck, you may raise your Max HP by 2 instead."
+  },
+  "STRIKE_DUMMY": {
+    "name": "Strike Dummy",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "Cards containing \"Strike\" deal 3 additional damage."
+  },
+  "SUNDIAL": {
+    "name": "Sundial",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "Every 3 times you shuffle your draw pile, gain 2 Energy."
+  },
+  "THE_COURIER": {
+    "name": "The Courier",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "The Merchant restocks cards, relics, and potions. All prices are reduced by 20%."
+  },
+  "TOXIC_EGG": {
+    "name": "Toxic Egg",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "Whenever you add a Skill into your deck, Upgrade it."
+  },
+  "WHITE_BEAST_STATUE": {
+    "name": "White Beast Statue",
+    "rarity": "UNCOMMON",
+    "character": null,
+    "text": "Potions always appear in combat rewards."
+  },
+  "BIRD_FACED_URN": {
+    "name": "Bird-Faced Urn",
+    "rarity": "RARE",
+    "character": null,
+    "text": "Whenever you play a Power card, heal 2 HP."
+  },
+  "CALIPERS": {
+    "name": "Calipers",
+    "rarity": "RARE",
+    "character": null,
+    "text": "At the start of your turn, lose 15 Block rather than all of your Block."
+  },
+  "CAPTAINS_WHEEL": {
+    "name": "Captain's Wheel",
+    "rarity": "RARE",
+    "character": null,
+    "text": "At the start of your 3rd turn, gain 18 Block."
+  },
+  "CHAMPION_BELT": {
+    "name": "Champion Belt",
+    "rarity": "RARE",
+    "character": "Ironclad",
+    "text": "Whenever you apply Vulnerable, apply 1 Weak."
+  },
+  "CHARONS_ASHES": {
+    "name": "Charon's Ashes",
+    "rarity": "RARE",
+    "character": "Ironclad",
+    "text": "Whenever you Exhaust a card, deal 3 damage to ALL enemies."
+  },
+  "DEAD_BRANCH": {
+    "name": "Dead Branch",
+    "rarity": "RARE",
+    "character": null,
+    "text": "Whenever you Exhaust a card, add a random card into your hand."
+  },
+  "DU_VU_DOLL": {
+    "name": "Du-Vu Doll",
+    "rarity": "RARE",
+    "character": null,
+    "text": "For each Curse in your deck, start each combat with 1 Strength."
+  },
+  "FOSSILIZED_HELIX": {
+    "name": "Fossilized Helix",
+    "rarity": "RARE",
+    "character": null,
+    "text": "Prevent the first time you would lose HP each combat."
+  },
+  "GAMBLING_CHIP": {
+    "name": "Gambling Chip",
+    "rarity": "RARE",
+    "character": null,
+    "text": "At the start of each combat, discard any number of cards, then draw that many cards."
+  },
+  "GINGER": {
+    "name": "Ginger",
+    "rarity": "RARE",
+    "character": null,
+    "text": "You can no longer become Weakened."
+  },
+  "GIRYA": {
+    "name": "Girya",
+    "rarity": "RARE",
+    "character": null,
+    "text": "You can now gain Strength at Rest Sites (up to 3 times)."
+  },
+  "ICE_CREAM": {
+    "name": "Ice Cream",
+    "rarity": "RARE",
+    "character": null,
+    "text": "Energy is now conserved between turns."
+  },
+  "INCENSE_BURNER": {
+    "name": "Incense Burner",
+    "rarity": "RARE",
+    "character": null,
+    "text": "Every 6 turns, gain 1 Intangible."
+  },
+  "LIZARD_TAIL": {
+    "name": "Lizard Tail",
+    "rarity": "RARE",
+    "character": null,
+    "text": "When you would die, heal to 50% of your Max HP instead (works once)."
+  },
+  "MAGIC_FLOWER": {
+    "name": "Magic Flower",
+    "rarity": "RARE",
+    "character": "Ironclad",
+    "text": "Healing is 50% more effective during combat."
+  },
+  "MANGO": {
+    "name": "Mango",
+    "rarity": "RARE",
+    "character": null,
+    "text": "Upon pickup, raise your Max HP by 14."
+  },
+  "OLD_COIN": {
+    "name": "Old Coin",
+    "rarity": "RARE",
+    "character": null,
+    "text": "Upon pickup, gain 300 Gold."
+  },
+  "PEACE_PIPE": {
+    "name": "Peace Pipe",
+    "rarity": "RARE",
+    "character": null,
+    "text": "You can now remove cards from your deck at Rest Sites."
+  },
+  "POCKETWATCH": {
+    "name": "Pocketwatch",
+    "rarity": "RARE",
+    "character": null,
+    "text": "Whenever you play 3 or less cards during your turn, draw 3 additional cards at the start of your next turn."
+  },
+  "PRAYER_WHEEL": {
+    "name": "Prayer Wheel",
+    "rarity": "RARE",
+    "character": null,
+    "text": "Normal enemies drop an additional card reward."
+  },
+  "SHOVEL": {
+    "name": "Shovel",
+    "rarity": "RARE",
+    "character": null,
+    "text": "You can now Dig for relics at Rest Sites."
+  },
+  "STONE_CALENDAR": {
+    "name": "Stone Calendar",
+    "rarity": "RARE",
+    "character": null,
+    "text": "At the end of turn 7, deal 52 damage to ALL enemies."
+  },
+  "THREAD_AND_NEEDLE": {
+    "name": "Thread and Needle",
+    "rarity": "RARE",
+    "character": null,
+    "text": "Start each combat with 4 Plated Armor."
+  },
+  "TORII": {
+    "name": "Torii",
+    "rarity": "RARE",
+    "character": null,
+    "text": "Whenever you would receive 5 or less unblocked attack damage, reduce it to 1."
+  },
+  "TUNGSTEN_ROD": {
+    "name": "Tungsten Rod",
+    "rarity": "RARE",
+    "character": null,
+    "text": "Whenever you would lose HP, lose 1 less."
+  },
+  "TURNIP": {
+    "name": "Turnip",
+    "rarity": "RARE",
+    "character": null,
+    "text": "You can no longer become Frail."
+  },
+  "UNCEASING_TOP": {
+    "name": "Unceasing Top",
+    "rarity": "RARE",
+    "character": null,
+    "text": "Whenever you have no cards in hand during your turn, draw a card."
+  },
+  "WING_BOOTS": {
+    "name": "Wing Boots",
+    "rarity": "RARE",
+    "character": null,
+    "text": "You may ignore paths when choosing the next room to travel to 3 times."
+  },
+  "ASTROLABE": {
+    "name": "Astrolabe",
+    "rarity": "BOSS",
+    "character": null,
+    "text": "Upon pickup, Transform 3 cards, then Upgrade them."
+  },
+  "BLACK_BLOOD": {
+    "name": "Black Blood",
+    "rarity": "BOSS",
+    "character": "Ironclad",
+    "text": "Replaces Burning Blood. At the end of combat, heal 12 HP."
+  },
+  "BLACK_STAR": {
+    "name": "Black Star",
+    "rarity": "BOSS",
+    "character": null,
+    "text": "Elites drop an additional relic when defeated."
+  },
+  "BUSTED_CROWN": {
+    "name": "Busted Crown",
+    "rarity": "BOSS",
+    "character": null,
+    "text": "Gain 1 Energy at the start of your turn. Future card rewards have 2 less cards to choose from."
+  },
+  "CALLING_BELL": {
+    "name": "Calling Bell",
+    "rarity": "BOSS",
+    "character": null,
+    "text": "Upon pickup, obtain a unique Curse and 3 relics."
+  },
+  "COFFEE_DRIPPER": {
+    "name": "Coffee Dripper",
+    "rarity": "BOSS",
+    "character": null,
+    "text": "Gain 1 Energy at the start of your turn. You can no longer Rest at Rest Sites."
+  },
+  "CURSED_KEY": {
+    "name": "Cursed Key",
+    "rarity": "BOSS",
+    "character": null,
+    "text": "Gain 1 Energy at the start of your turn. Whenever you open a non-Boss chest, obtain a Curse."
+  },
+  "ECTOPLASM": {
+    "name": "Ectoplasm",
+    "rarity": "BOSS",
+    "character": null,
+    "text": "Gain 1 Energy at the start of your turn. You can no longer gain Gold."
+  },
+  "EMPTY_CAGE": {
+    "name": "Empty Cage",
+    "rarity": "BOSS",
+    "character": null,
+    "text": "Upon pickup, remove 2 cards from your deck."
+  },
+  "FUSION_HAMMER": {
+    "name": "Fusion Hammer",
+    "rarity": "BOSS",
+    "character": null,
+    "text": "Gain 1 Energy at the start of your turn. You can no longer Smith at Rest Sites."
+  },
+  "MARK_OF_PAIN": {
+    "name": "Mark of Pain",
+    "rarity": "BOSS",
+    "character": "Ironclad",
+    "text": "Gain 1 Energy at the start of your turn. At the start of combat, shuffle 2 Wounds into your draw pile."
+  },
+  "PANDORAS_BOX": {
+    "name": "Pandora's Box",
+    "rarity": "BOSS",
+    "character": null,
+    "text": "Upon pickup, Transform all Strike and Defend cards."
+  },
+  "PHILOSOPHERS_STONE": {
+    "name": "Philosopher's Stone",
+    "rarity": "BOSS",
+    "character": null,
+    "text": "Gain 1 Energy at the start of your turn. ALL enemies start combat with 1 Strength."
+  },
+  "RUNIC_CUBE": {
+    "name": "Runic Cube",
+    "rarity": "BOSS",
+    "character": "Ironclad",
+    "text": "Whenever you lose HP, draw 1 card."
+  },
+  "RUNIC_DOME": {
+    "name": "Runic Dome",
+    "rarity": "BOSS",
+    "character": null,
+    "text": "Gain 1 Energy at the start of your turn. You can no longer see enemy intents."
+  },
+  "RUNIC_PYRAMID": {
+    "name": "Runic Pyramid",
+    "rarity": "BOSS",
+    "character": null,
+    "text": "At the end of your turn, you no longer discard your hand."
+  },
+  "SACRED_BARK": {
+    "name": "Sacred Bark",
+    "rarity": "BOSS",
+    "character": null,
+    "text": "Double the effectiveness of potions."
+  },
+  "SLAVERS_COLLAR": {
+    "name": "Slaver's Collar",
+    "rarity": "BOSS",
+    "character": null,
+    "text": "During Boss and Elite combats, gain 1 Energy at the start of your turn."
+  },
+  "SNECKO_EYE": {
+    "name": "Snecko Eye",
+    "rarity": "BOSS",
+    "character": null,
+    "text": "At the start of your turn, draw 2 additional cards. Start each combat Confused."
+  },
+  "SOZU": {
+    "name": "Sozu",
+    "rarity": "BOSS",
+    "character": null,
+    "text": "Gain 1 Energy at the start of your turn. You can no longer obtain potions."
+  },
+  "TINY_HOUSE": {
+    "name": "Tiny House",
+    "rarity": "BOSS",
+    "character": null,
+    "text": "Upon pickup, obtain 1 potion. Gain 50 Gold. Raise your Max HP by 5. Obtain 1 card. Upgrade 1 random card."
+  },
+  "VELVET_CHOKER": {
+    "name": "Velvet Choker",
+    "rarity": "BOSS",
+    "character": null,
+    "text": "Gain 1 Energy at the start of your turn. You cannot play more than 6 cards per turn."
+  },
+  "BRIMSTONE": {
+    "name": "Brimstone",
+    "rarity": "SHOP",
+    "character": "Ironclad",
+    "text": "At the start of your turn, gain 2 Strength and ALL enemies gain 1 Strength."
+  },
+  "CAULDRON": {
+    "name": "Cauldron",
+    "rarity": "SHOP",
+    "character": null,
+    "text": "Upon pickup, brews 5 random potions."
+  },
+  "CHEMICAL_X": {
+    "name": "Chemical X",
+    "rarity": "SHOP",
+    "character": null,
+    "text": "The effects of your cost X cards are increased by 2."
+  },
+  "CLOCKWORK_SOUVENIR": {
+    "name": "Clockwork Souvenir",
+    "rarity": "SHOP",
+    "character": null,
+    "text": "Start each combat with 1 Artifact."
+  },
+  "DOLLYS_MIRROR": {
+    "name": "Dolly's Mirror",
+    "rarity": "SHOP",
+    "character": null,
+    "text": "Upon pickup, obtain an additional copy of a card in your deck."
+  },
+  "FROZEN_EYE": {
+    "name": "Frozen Eye",
+    "rarity": "SHOP",
+    "character": null,
+    "text": "When viewing your Draw Pile, the cards are now shown in order."
+  },
+  "HAND_DRILL": {
+    "name": "Hand Drill",
+    "rarity": "SHOP",
+    "character": null,
+    "text": "Whenever you break an enemy's Block, apply 2 Vulnerable."
+  },
+  "LEES_WAFFLE": {
+    "name": "Lee's Waffle",
+    "rarity": "SHOP",
+    "character": null,
+    "text": "Upon pickup, raise your Max HP by 7 and heal all of your HP."
+  },
+  "MEDICAL_KIT": {
+    "name": "Medical Kit",
+    "rarity": "SHOP",
+    "character": null,
+    "text": "Unplayable Status cards can now be played. Whenever you play a Status card, Exhaust it."
+  },
+  "MEMBERSHIP_CARD": {
+    "name": "Membership Card",
+    "rarity": "SHOP",
+    "character": null,
+    "text": "50% discount on all products!"
+  },
+  "ORANGE_PELLETS": {
+    "name": "Orange Pellets",
+    "rarity": "SHOP",
+    "character": null,
+    "text": "Whenever you play a Power, Attack, and Skill in the same turn, remove all of your debuffs."
+  },
+  "ORRERY": {
+    "name": "Orrery",
+    "rarity": "SHOP",
+    "character": null,
+    "text": "Upon pickup, choose and add 5 cards to your deck."
+  },
+  "PRISMATIC_SHARD": {
+    "name": "Prismatic Shard",
+    "rarity": "SHOP",
+    "character": null,
+    "text": "Combat reward screens now contain Colorless cards and cards from other colors."
+  },
+  "SLING_OF_COURAGE": {
+    "name": "Sling of Courage",
+    "rarity": "SHOP",
+    "character": null,
+    "text": "Start each Elite combat with 2 Strength."
+  },
+  "STRANGE_SPOON": {
+    "name": "Strange Spoon",
+    "rarity": "SHOP",
+    "character": null,
+    "text": "Cards which Exhaust when played will instead discard 50% of the time."
+  },
+  "THE_ABACUS": {
+    "name": "The Abacus",
+    "rarity": "SHOP",
+    "character": null,
+    "text": "Whenever you shuffle your draw pile, gain 6 Block."
+  },
+  "TOOLBOX": {
+    "name": "Toolbox",
+    "rarity": "SHOP",
+    "character": null,
+    "text": "At the start of each combat, choose 1 of 3 random Colorless cards and add the chosen card into your hand."
+  },
+  "BLOODY_IDOL": {
+    "name": "Bloody Idol",
+    "rarity": "SPECIAL",
+    "character": null,
+    "text": "Whenever you gain Gold, heal 5 HP."
+  },
+  "CULTIST_HEADPIECE": {
+    "name": "Cultist Headpiece",
+    "rarity": "SPECIAL",
+    "character": null,
+    "text": "You feel more talkative."
+  },
+  "ENCHIRIDION": {
+    "name": "Enchiridion",
+    "rarity": "SPECIAL",
+    "character": null,
+    "text": "At the start of each combat, add a random Power card into your hand. It costs 0 for that turn."
+  },
+  "FACE_OF_CLERIC": {
+    "name": "Face Of Cleric",
+    "rarity": "SPECIAL",
+    "character": null,
+    "text": "At the end of combat, raise your Max HP by 1."
+  },
+  "GOLDEN_IDOL": {
+    "name": "Golden Idol",
+    "rarity": "SPECIAL",
+    "character": null,
+    "text": "Enemies drop 25% more Gold."
+  },
+  "GREMLIN_VISAGE": {
+    "name": "Gremlin Visage",
+    "rarity": "SPECIAL",
+    "character": null,
+    "text": "Start each combat with 1 Weak."
+  },
+  "MARK_OF_THE_BLOOM": {
+    "name": "Mark of the Bloom",
+    "rarity": "SPECIAL",
+    "character": null,
+    "text": "You can no longer heal."
+  },
+  "MUTAGENIC_STRENGTH": {
+    "name": "Mutagenic Strength",
+    "rarity": "SPECIAL",
+    "character": null,
+    "text": "Start each combat with 3 Strength. At the end of your first turn, lose 3 Strength."
+  },
+  "NLOTHS_GIFT": {
+    "name": "N'loth's Gift",
+    "rarity": "SPECIAL",
+    "character": null,
+    "text": "Triple the chance of finding Rare cards from combat rewards."
+  },
+  "NLOTHS_HUNGRY_FACE": {
+    "name": "N'loth's Hungry Face",
+    "rarity": "SPECIAL",
+    "character": null,
+    "text": "The next non-Boss chest you open is empty."
+  },
+  "NECRONOMICON": {
+    "name": "Necronomicon",
+    "rarity": "SPECIAL",
+    "character": null,
+    "text": "The first Attack played each turn that costs 2 or more is played twice. Upon pickup, obtain a special Curse."
+  },
+  "NEOWS_LAMENT": {
+    "name": "Neow's Lament",
+    "rarity": "SPECIAL",
+    "character": null,
+    "text": "Enemies in your first 3 combats will have 1 HP."
+  },
+  "NILRYS_CODEX": {
+    "name": "Nilry's Codex",
+    "rarity": "SPECIAL",
+    "character": null,
+    "text": "At the end of your turn, you may shuffle 1 of 3 random cards into your draw pile."
+  },
+  "ODD_MUSHROOM": {
+    "name": "Odd Mushroom",
+    "rarity": "SPECIAL",
+    "character": null,
+    "text": "When Vulnerable, take 25% more attack damage rather than 50%."
+  },
+  "RED_MASK": {
+    "name": "Red Mask",
+    "rarity": "SPECIAL",
+    "character": null,
+    "text": "At the start of each combat, apply 1 Weak to ALL enemies."
+  },
+  "SPIRIT_POOP": {
+    "name": "Spirit Poop",
+    "rarity": "SPECIAL",
+    "character": null,
+    "text": "It's unpleasant."
+  },
+  "SSSERPENT_HEAD": {
+    "name": "Ssserpent Head",
+    "rarity": "SPECIAL",
+    "character": null,
+    "text": "Whenever you enter a? room, gain 50 Gold."
+  },
+  "WARPED_TONGS": {
+    "name": "Warped Tongs",
+    "rarity": "SPECIAL",
+    "character": null,
+    "text": "At the start of your turn, Upgrade a random card in your hand for the rest of combat."
+  }
+}

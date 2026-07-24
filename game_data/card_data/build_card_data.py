@@ -9,7 +9,7 @@ enum names, so `card_text.py` / the state encoder can look up by `card.id.name`.
 Scope: only the sets the Ironclad-complete engine actually plays — Ironclad,
 Colorless, Curses, Statuses. Other classes are deliberately excluded.
 
-Re-run after editing the sheet:  python env/build_card_data.py
+Re-run after editing the sheet:  python game_data/card_data/build_card_data.py
 
 The sheet encodes upgrades two ways, both handled here:
   * inline  "Deal 8 (10) damage."   -> base uses 8, upgraded uses 10
@@ -22,9 +22,10 @@ from pathlib import Path
 import openpyxl
 
 HERE = Path(__file__).resolve().parent
-XLSX = HERE / "Slay the Spire Reference.xlsx"
+REPO = HERE.parent.parent
+XLSX = HERE.parent / "Slay the Spire Reference.xlsx"          # game_data/…
 OUT = HERE / "card_data.json"
-BINDINGS = HERE.parent / "sts_lightspeed" / "bindings" / "slaythespire.cpp"
+BINDINGS = REPO / "sts_lightspeed" / "bindings" / "slaythespire.cpp"
 
 # (section label, first data row, last data row, CardColor) — row numbers are the
 # 0-based indices into iter_rows() output, verified against the sheet layout.
@@ -135,7 +136,7 @@ def main() -> None:
         raise SystemExit("Unmapped cards:\n  " + "\n  ".join(problems))
 
     OUT.write_text(json.dumps(cards, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(f"Wrote {len(cards)} cards -> {OUT.relative_to(HERE.parent)}")
+    print(f"Wrote {len(cards)} cards -> {OUT.relative_to(REPO)}")
     print(f"Bracket tokens seen (should all be energy orbs): {sorted(bracket_tokens)}")
     by_color: dict[str, int] = {}
     for c in cards.values():
