@@ -69,6 +69,9 @@ def describe(a, gc):
 # TODO: GameInterface class — step(), legal_actions(), reset(), run-combat-via-Agent, etc.
 
 
+from game_data.card_data.card_text import describe_card
+
+
 class GameInterface:
     def __init__(self):
         self.gc = sts.GameContext(sts.CharacterClass.IRONCLAD, 42, 0)
@@ -115,8 +118,13 @@ class GameInterface:
             sts.GameAction(idx1=action).execute(self.gc)
 
     
-    def describe_card(self):
-        print(1)
+    def describe_card(self, id):
+        card = sts.Card(id)
+        return describe_card(card.id) #ADD UPGRADE READ CAPABILITY
+
+
+    def view_deck(self):
+        return self.gc.deck
 
 
     def encode_state(self) -> str:
@@ -139,12 +147,12 @@ class GameInterface:
         elif self.gc.screen_state == sts.ScreenState.MAP_SCREEN:
             return f"{self.view_map()}\nCurrent map node: ({map_x}, {map_y})"
         elif self.gc.screen_state == sts.ScreenState.EVENT_SCREEN:
-            print(1)
+            print("HP: {cur_hp}/{max_hp}, Gold amount: {gold}, Deck: {deck}")
         elif self.gc.screen_state == sts.ScreenState.REST_ROOM:
-            print("HP: {cur_hp}/{max_hp}")
+            print("HP: {cur_hp}/{max_hp}, Deck: {deck}")
         elif self.gc.screen_state == sts.ScreenState.CARD_SELECT:
-            print(1)
+            print("Deck: {deck}")
         elif self.gc.screen_state == sts.ScreenState.SHOP_ROOM:
-            print("Gold amount: {gold}")
+            print("Gold amount: {gold}, potion slots: {potion_count}/{potion_capacity}")
         elif self.gc.screen_state == sts.ScreenState.BOSS_RELIC_REWARDS:
             print(1)
