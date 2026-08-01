@@ -19,12 +19,17 @@ MINGW_BIN = os.environ.get("STS_MINGW_BIN", r"C:\msys64\mingw64\bin")
 
 if BUILD_DIR not in sys.path:
     sys.path.insert(0, BUILD_DIR)
+# Scripts run from inside env/ (e.g. `python test.py`) only get env/ on sys.path,
+# so top-level packages like game_data are invisible without this.
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
 if hasattr(os, "add_dll_directory") and os.path.isdir(MINGW_BIN):
     os.add_dll_directory(MINGW_BIN)
 
 import slaythespire as sts  # noqa: E402
 
 from event_options import describe_event_option  # noqa: E402
+from game_data.card_data.card_text import describe_card  # noqa: E402
 
 REST_ROOM_OPTIONS = {
     0: "rest (heal 30% max HP)",
@@ -67,9 +72,6 @@ def describe(a, gc):
     return f"{ss} option {a.idx1}"
 
 # TODO: GameInterface class — step(), legal_actions(), reset(), run-combat-via-Agent, etc.
-
-
-from game_data.card_data.card_text import describe_card
 
 
 class GameInterface:
@@ -118,47 +120,10 @@ class GameInterface:
             sts.GameAction(idx1=action).execute(self.gc)
 
     
-    def describe_card(self, id):
-        card = sts.Card(id)
-        return describe_card(card.id) #ADD UPGRADE READ CAPABILITY
+    def describe_card(self, card, upgraded=None):
+        # card_text.describe_card takes a Card, a CardId, or a plain id string.
+        return describe_card(card, upgraded)
 
 
     def view_deck(self):
         return self.gc.deck
-
-
-    def encode_state(self) -> str:
-        cur_screen = self.gc.screen_state
-        cur_hp = self.gc.cur_hp
-        max_hp = self.gc.max_hp
-        gold = self.gc.gold
-        potion_count = self.gc.potion_count
-        potion_capacity = self.gc.potion_capacity
-
-        map_x = self.gc.cur_map_node_x
-        map_y = self.gc.cur_map_node_y
-
-        deck = self.gc.deck
-        relics = self.gc.relics
-        potions = self.gc.potions
-
-        # BATTLE LIVE VIEW
-        player_view = self.bc.player
-        monsters_view = self.bc.monsters
-        cards_view = self.bc.cards
-
-        # return f"Current screen: {cur_screen}, HP: {cur_hp}/{max_hp}, Gold amount: {gold}, Potion count: {potion_count}, Current map node: ({map_x}, {map_y}, Deck: {deck})"
-        if self.gc.screen_state == sts.ScreenState.BATTLE:
-            return f"HP: {cur_hp}/{max_hp}, Player: {player_view}, Monsters: {monsters_view}, Cards: {cards_view}, Deck: {deck}" # VERY VERY LIKELY TO BE EDITED
-        elif self.gc.screen_state == sts.ScreenState.MAP_SCREEN:
-            return f"{self.view_map()}\nCurrent map node: ({map_x}, {map_y}), HP: {cur_hp}/{max_hp}, Gold amount: {gold}"
-        elif self.gc.screen_state == sts.ScreenState.EVENT_SCREEN:
-            return f"HP: {cur_hp}/{max_hp}, Gold amount: {gold}, Deck: {deck}"
-        elif self.gc.screen_state == sts.ScreenState.REST_ROOM:
-            return f"HP: {cur_hp}/{max_hp}, Deck: {deck}"
-        elif self.gc.screen_state == sts.ScreenState.CARD_SELECT:
-            return f"Deck: {deck}"
-        elif self.gc.screen_state == sts.ScreenState.SHOP_ROOM:
-            return f"Gold amount: {gold}, potion slots: {potion_count}/{potion_capacity}"
-        elif self.gc.screen_state == sts.ScreenState.BOSS_RELIC_REWARDS:
-            return 1
