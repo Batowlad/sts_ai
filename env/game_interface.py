@@ -141,18 +141,24 @@ class GameInterface:
         deck = self.gc.deck
         relics = self.gc.relics
         potions = self.gc.potions
+
+        # BATTLE LIVE VIEW
+        player_view = self.bc.player
+        monsters_view = self.bc.monsters
+        cards_view = self.bc.cards
+
         # return f"Current screen: {cur_screen}, HP: {cur_hp}/{max_hp}, Gold amount: {gold}, Potion count: {potion_count}, Current map node: ({map_x}, {map_y}, Deck: {deck})"
         if self.gc.screen_state == sts.ScreenState.BATTLE:
-            print(1)
+            return f"HP: {cur_hp}/{max_hp}, Player: {player_view}, Monsters: {monsters_view}, Cards: {cards_view}, Deck: {deck}" # VERY VERY LIKELY TO BE EDITED
         elif self.gc.screen_state == sts.ScreenState.MAP_SCREEN:
-            return f"{self.view_map()}\nCurrent map node: ({map_x}, {map_y})"
+            return f"{self.view_map()}\nCurrent map node: ({map_x}, {map_y}), HP: {cur_hp}/{max_hp}, Gold amount: {gold}"
         elif self.gc.screen_state == sts.ScreenState.EVENT_SCREEN:
-            print("HP: {cur_hp}/{max_hp}, Gold amount: {gold}, Deck: {deck}")
+            return f"HP: {cur_hp}/{max_hp}, Gold amount: {gold}, Deck: {deck}"
         elif self.gc.screen_state == sts.ScreenState.REST_ROOM:
-            print("HP: {cur_hp}/{max_hp}, Deck: {deck}")
+            return f"HP: {cur_hp}/{max_hp}, Deck: {deck}"
         elif self.gc.screen_state == sts.ScreenState.CARD_SELECT:
-            print("Deck: {deck}")
+            return f"Deck: {deck}"
         elif self.gc.screen_state == sts.ScreenState.SHOP_ROOM:
-            print("Gold amount: {gold}, potion slots: {potion_count}/{potion_capacity}")
+            return f"Gold amount: {gold}, potion slots: {potion_count}/{potion_capacity}"
         elif self.gc.screen_state == sts.ScreenState.BOSS_RELIC_REWARDS:
-            print(1)
+            return 1
