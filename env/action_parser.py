@@ -16,6 +16,8 @@ def get_funcs():
                 if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
                     funcs.append(item.name)
 
+    funcs.append("encode_state")
+
     return funcs
 
 def parse_action(text: str):
