@@ -1,4 +1,4 @@
-# sts-llm-agent
+# sts-ai-agent
 
 LLM agent for Slay the Spire, on top of the vendored `sts_lightspeed` C++ engine.
 
