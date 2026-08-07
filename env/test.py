@@ -17,7 +17,8 @@ print(game_interface.gc.screen_state) # STATE OF SCREEN
 
 game_interface.step(2) #starting bs choice
 
-print(encode_state(game_interface))# STATE AT MAP SCREEN
 print(f"Legal actions: {game_interface.legal_actions()}")
 print(game_interface.gc.screen_state) # STATE OF SCREEN
-print(game_interface.bc_initiated)
+game_interface.bc.init(game_interface.gc)
+game_interface.bc_initiated == True
+print(encode_state(game_interface))# STATE AT BATTLE SCREEN

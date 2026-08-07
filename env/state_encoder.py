@@ -24,7 +24,7 @@ def encode_state(gi) -> str:
 
         # return f"Current screen: {cur_screen}, HP: {cur_hp}/{max_hp}, Gold amount: {gold}, Potion count: {potion_count}, Current map node: ({map_x}, {map_y}, Deck: {deck})"
         if gi.gc.screen_state == sts.ScreenState.BATTLE:
-            return f"HP: {cur_hp}/{max_hp}, {player_view}, Monsters: {monsters_view}, Cards: {cards_view}, Deck: {deck}" # VERY VERY LIKELY TO BE EDITED
+            return f"{player_view}, Monsters: {monsters_view}, Cards: {cards_view}, Deck: {deck}" # VERY VERY LIKELY TO BE EDITED
         elif gi.gc.screen_state == sts.ScreenState.MAP_SCREEN:
             if map_y == -1:
                  return f"Position: not yet on the map (choose a starting node), HP: {cur_hp}/{max_hp}, Gold amount: {gold}"

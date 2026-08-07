@@ -78,7 +78,7 @@ class GameInterface:
     def __init__(self):
         self.gc = sts.GameContext(sts.CharacterClass.IRONCLAD, 42, 0)
         self.bc = sts.BattleContext()
-        self.map = sts.SpireMap(42, 0, 0, False) # TODO: CHANGE 3rd value based on act (add later)!!!!!!!!!!!!!!
+        self.map = sts.SpireMap(42, 0, 1, False)
         self.bc_initiated = False
 
     def legal_actions(self):
