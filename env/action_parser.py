@@ -21,19 +21,18 @@ def get_funcs():
     return funcs
 
 from game_interface import GameInterface
-from state_encoder import encode_state
+# from state_encoder import encode_state
 
 
-def parse_action(text: str):
+def parse_action(text: str, encode_state, gi):
     print(get_funcs())
     text_list = text.split()
     for func in get_funcs():
         for word in text_list:
             if word in func:
                 if func == "encode_state":
-                    print(encode_state(GameInterface)) #print for debug
+                    return encode_state(gi) #print for debug
                 else:
-                    GameInterface.func()
+                    return getattr(GameInterface, func)()
 
-
-parse_action("encode") #debug
+# parse_action("encode") #debug

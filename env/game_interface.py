@@ -116,12 +116,13 @@ class GameInterface:
 
 
         # CHECK FOR BATTLE SCREEN TO INIT BATTLE
-        if self.bc_initiated == False:
-            self.bc.init(self.gc)
-            self.bc_initiated = True
-        if self.bc.outcome == sts.BattleOutcome.PLAYER_VICTORY or self.bc.outcome == sts.BattleOutcome.PLAYER_LOSS:
-            self.bc.exit_battle(self.gc)
-            self.bc_initiated = False
+        if self.gc.screen_state == sts.ScreenState.BATTLE: # WHEN SWITCHING TO BATTLE
+            if self.bc_initiated == False:
+                self.bc.init(self.gc)
+                self.bc_initiated = True
+            if self.bc.outcome == sts.BattleOutcome.PLAYER_VICTORY or self.bc.outcome == sts.BattleOutcome.PLAYER_LOSS:
+                self.bc.exit_battle(self.gc)
+                self.bc_initiated = False
 
     
     def describe_card(self, card, upgraded=None):
