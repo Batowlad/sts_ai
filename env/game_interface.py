@@ -102,7 +102,41 @@ class GameInterface:
 
     def step(self, action):
         if self.gc.screen_state == sts.ScreenState.BATTLE: # WHEN IN BATTLE
-            print(1)
+            # gc sits on the BATTLE screen for the whole fight; every decision
+            # goes through the BattleContext instead (see docs, "Combat").
+            if not self.bc_initiated:
+                self.bc.init(self.gc)
+                self.bc_initiated = True
+
+            if self.bc.outcome != sts.BattleOutcome.UNDECIDED:
+                raise RuntimeError(
+                    f"battle already over ({self.bc.outcome}) — no action to take"
+                )
+
+            if isinstance(action, sts.Action):
+                combat_action = action
+            else:
+                # `action` is an index into legal_actions() / the same order the
+                # policy was shown.
+                actions_list = sts.get_legal_actions(self.bc)
+                if not actions_list:
+                    # Only happens for the card-select tasks the engine doesn't
+                    # implement (Hologram/Meditate/Nightmare/Recycle/Setup/Seek).
+                    raise RuntimeError(
+                        f"no legal combat actions while the battle is undecided "
+                        f"(input_state={self.bc.input_state}, "
+                        f"task={self.bc.card_select_info.task})"
+                    )
+                if not isinstance(action, int) or not 0 <= action < len(actions_list):
+                    raise IndexError(
+                        f"action {action!r} is not a valid index into the "
+                        f"{len(actions_list)} legal combat actions"
+                    )
+                combat_action = actions_list[action]
+
+            # Applies the action and runs the engine (monster turns, shuffles,
+            # ...) up to the next decision point. Raises ValueError if illegal.
+            combat_action.execute(self.bc)
 
         elif self.gc.screen_state == sts.ScreenState.EVENT_SCREEN:
             # try:
@@ -120,7 +154,10 @@ class GameInterface:
             if self.bc_initiated == False:
                 self.bc.init(self.gc)
                 self.bc_initiated = True
-            if self.bc.outcome == sts.BattleOutcome.PLAYER_VICTORY or self.bc.outcome == sts.BattleOutcome.PLAYER_LOSS:
+            # The action above may have ended the fight; write hp/gold/potions/
+            # cards back to gc, which moves it off the BATTLE screen (REWARDS on
+            # a win, gc.outcome = PLAYER_LOSS on a defeat).
+            if self.bc.outcome != sts.BattleOutcome.UNDECIDED:
                 self.bc.exit_battle(self.gc)
                 self.bc_initiated = False
 
