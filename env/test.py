@@ -16,10 +16,12 @@ print(encode_state(game_interface))# STATE AT MAP SCREEN
 parse_action("I want to see the map", game_interface, encode_state) #parse view_map from string input
 print(game_interface.gc.screen_state) # STATE OF SCREEN
 
-game_interface.step(2) #starting bs choice
+print(parse_action("state", game_interface, encode_state)) #parse action test
 
+game_interface.step(2) #Move into combat
 print(f"Legal actions: {game_interface.legal_actions()}")
 print(game_interface.gc.screen_state) # STATE OF SCREEN
 print(encode_state(game_interface))# STATE AT BATTLE SCREEN
 
-print(parse_action("state", game_interface, encode_state))
+game_interface.step(1) #first action in combat
+print(encode_state(game_interface))# STATE AFTER FIRST COMBAT ACTION
