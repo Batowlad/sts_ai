@@ -29,18 +29,20 @@ def get_funcs():
 
     return funcs
 
-from game_interface import GameInterface
+# from game_interface import GameInterface
 # from state_encoder import encode_state
 
 
 def parse_action(text: str, gi, encode_state):
-    print(get_funcs())
+    # print(get_funcs()) #debugging
     text_list = text.split()
     for func in get_funcs():
         for word in text_list:
             if word in func:
                 if func == "encode_state":
                     return encode_state(gi) #print for debug
+                elif func == "step":
+                    return getattr(gi, func)(action) #TODO
                 else:
                     # Bind to the live instance — getattr on the class gives an
                     # unbound function that still wants self.

@@ -25,3 +25,5 @@ print(encode_state(game_interface))# STATE AT BATTLE SCREEN
 
 game_interface.step(1) #first action in combat
 print(encode_state(game_interface))# STATE AFTER FIRST COMBAT ACTION
+
+game_interface.reset() #reset the game
