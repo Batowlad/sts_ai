@@ -10,6 +10,18 @@ from game_interface import sts
 # so they're deliberately kept out of the no-arg table get_funcs() builds.
 SPECIAL_FUNCS = ("step", "card_describe")
 
+# The model has to actually be asking about a card before a bare word is read as
+# one: 31 card ids are ordinary English (DOUBT, SAFETY, RAGE, BLIND, TRIP...), so
+# an ungated search turns "I'm in doubt about this" into a card lookup.
+DESCRIBE_TRIGGERS = frozenset({
+    "describe", "description", "explain", "what", "what's", "whats",
+    "tell", "info", "card",
+})
+
+# Stripped off both ends of every word, since the model writes prose: 'bash?'
+# has to still match BASH. '+' is left alone -- it means "the upgraded text".
+PUNCTUATION = ".,!?;:\"'()[]"
+
 
 @cache
 def get_funcs():
@@ -39,17 +51,18 @@ def get_funcs():
 
 @cache
 def get_func_words():
-    """{word: method name} for every single word that can name a method.
+    """{word: method name} for every single word that can name a method on its own.
 
     Both the whole name and each underscore-separated part, so 'view_map',
-    'view map' and 'see the map' all reach view_map. setdefault means the first
-    method listed claims a shared part -- bare 'view' is view_map, not view_deck.
+    'view map' and 'see the map' all reach view_map. A part shared by several
+    methods ('view') names none of them and is dropped, which is what lets the
+    unambiguous half of 'view deck' decide instead of whichever word came first.
     """
-    lookup = {}
+    claims = {}
     for func in get_funcs():
         for key in (func, *func.split("_")):
-            lookup.setdefault(key, func)
-    return lookup
+            claims.setdefault(key, set()).add(func)
+    return {key: funcs.pop() for key, funcs in claims.items() if len(funcs) == 1}
 
 
 @cache
@@ -84,11 +97,15 @@ def _find_card(words):
 
 
 def parse_action(text: str, gi, encode_state):
-    words = text.lower().split()
+    words = [w for w in (w.strip(PUNCTUATION) for w in text.lower().split()) if w]
 
-    found = _find_card(words)
-    if found:
-        return gi.card_describe(*found)
+    # No trigger word means no card lookup, however card-like a word looks. If the
+    # trigger is there but names nothing, fall through -- 'describe the map' is
+    # still a perfectly good view_map.
+    if not DESCRIBE_TRIGGERS.isdisjoint(words):
+        found = _find_card(words)
+        if found:
+            return gi.card_describe(*found)
 
     func_words = get_func_words()
     for word in words:
@@ -110,6 +127,6 @@ if __name__ == "__main__":
     from state_encoder import encode_state
 
     gi = GameInterface()
-    for probe in ("describe bash", "describe bash+", "describe wild strike",
-                  "I want to see the map", "state", "2"):
+    for probe in ("describe bash", "what's bash+?", "tell me about wild strike",
+                  "I'm in doubt about this, show me the map", "state", "2"):
         print(f"{probe!r} -> {parse_action(probe, gi, encode_state)}")
