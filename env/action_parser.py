@@ -5,6 +5,7 @@ from functools import cache
 from pathlib import Path
 
 from game_interface import sts
+from game_data.card_data.card_text import CARD_DATA
 
 # Dispatched by hand below because they need arguments parsed out of the text,
 # so they're deliberately kept out of the no-arg table get_funcs() builds.
@@ -13,14 +14,25 @@ SPECIAL_FUNCS = ("step", "card_describe")
 # The model has to actually be asking about a card before a bare word is read as
 # one: 31 card ids are ordinary English (DOUBT, SAFETY, RAGE, BLIND, TRIP...), so
 # an ungated search turns "I'm in doubt about this" into a card lookup.
+# Matched against already-normalized words, so no apostrophes here: "what's"
+# reaches this set as 'whats'.
 DESCRIBE_TRIGGERS = frozenset({
-    "describe", "description", "explain", "what", "what's", "whats",
+    "describe", "description", "explain", "what", "whats",
     "tell", "info", "card",
 })
 
-# Stripped off both ends of every word, since the model writes prose: 'bash?'
-# has to still match BASH. '+' is left alone -- it means "the upgraded text".
-PUNCTUATION = ".,!?;:\"'()[]"
+
+def _normalize(word: str) -> str:
+    """Drop every non-alphanumeric character, keeping a trailing '+'.
+
+    The model writes prose, so 'bash?' has to still match BASH -- but stripping
+    the *ends* isn't enough: punctuation shows up mid-word too, and 'j.a.x.' is
+    JAX while "ascender's" is ASCENDERS. '+' survives because it means "the
+    upgraded text"; a word that is nothing but punctuation normalizes to '' and
+    parse_action drops it.
+    """
+    core = "".join(ch for ch in word if ch.isalnum())
+    return core + "+" if core and word.endswith("+") else core
 
 
 @cache
@@ -67,8 +79,27 @@ def get_func_words():
 
 @cache
 def get_card_ids():
-    """{'BASH': CardId.BASH, ...} so words in the text can name a card."""
-    return {name: cid for name, cid in sts.CardId.__members__.items() if name != "INVALID"}
+    """{'BASH': CardId.BASH, ...} so words in the text can name a card.
+
+    Keyed by enum member name *and* by display name, because the two disagree:
+    the Ironclad basics are STRIKE_RED/DEFEND_RED, so a plain 'strike' -- the
+    most common card in the game -- would otherwise name nothing at all.
+
+    Display names come from CARD_DATA, and that's what keeps them unambiguous:
+    STRIKE_BLUE/GREEN/PURPLE are all called 'Strike' too, but they're other
+    classes and CARD_DATA is scoped to the Ironclad pool. A member name always
+    wins over an alias, so an alias can never shadow a real card.
+    """
+    members = {n: cid for n, cid in sts.CardId.__members__.items() if n != "INVALID"}
+    cards = dict(members)
+    for name, data in CARD_DATA.items():
+        cid = members.get(name)
+        if cid is None:                      # data for a card this build lacks
+            continue
+        # Built exactly the way _find_card builds its lookup key, or it'd never match.
+        parts = [p for p in (_normalize(w) for w in data["name"].lower().split()) if p]
+        cards.setdefault("_".join(parts).upper(), cid)
+    return cards
 
 
 @cache
@@ -97,7 +128,7 @@ def _find_card(words):
 
 
 def parse_action(text: str, gi, encode_state):
-    words = [w for w in (w.strip(PUNCTUATION) for w in text.lower().split()) if w]
+    words = [w for w in (_normalize(w) for w in text.lower().split()) if w]
 
     # No trigger word means no card lookup, however card-like a word looks. If the
     # trigger is there but names nothing, fall through -- 'describe the map' is
