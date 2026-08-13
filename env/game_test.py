@@ -4,10 +4,10 @@ from action_parser import parse_action
 
 game_interface = GameInterface()
 
-input: str
-while input != "exit":
-    input = input("Enter: ")
+user_input = None
+while user_input != "exit":
+    user_input = input("Enter: ")
     try:
-        print(parse_action(input, game_interface, encode_state))
+        print(parse_action(user_input, game_interface, encode_state))
     except:
         print("Wrong input")

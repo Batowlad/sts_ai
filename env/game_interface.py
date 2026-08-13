@@ -17,6 +17,8 @@ BUILD_DIR = os.environ.get(
 # (with that one, the mingw DLLs sit next to python.exe and resolve for free).
 MINGW_BIN = os.environ.get("STS_MINGW_BIN", r"C:\msys64\mingw64\bin")
 
+
+########################## MAKING OTHER FOLDERS VISIBLE #####################
 if BUILD_DIR not in sys.path:
     sys.path.insert(0, BUILD_DIR)
 # Scripts run from inside env/ (e.g. `python test.py`) only get env/ on sys.path,
@@ -25,11 +27,13 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 if hasattr(os, "add_dll_directory") and os.path.isdir(MINGW_BIN):
     os.add_dll_directory(MINGW_BIN)
+#############################################################################
 
-import slaythespire as sts  # noqa: E402
 
-from event_options import describe_event_option  # noqa: E402
-from game_data.card_data.card_text import describe_card  # noqa: E402
+import slaythespire as sts  # type: ignore
+
+from event_options import describe_event_option
+from game_data.card_data.card_text import describe_card
 
 REST_ROOM_OPTIONS = {
     0: "rest (heal 30% max HP)",

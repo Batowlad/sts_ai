@@ -110,24 +110,3 @@ def card_glossary(cards, header: str | None = None) -> str:
         lines.append(describe_card(c))
     body = "\n".join(f"- {ln}" for ln in lines)
     return f"{header}\n{body}" if header else body
-
-
-if __name__ == "__main__":
-    # Standalone smoke test (no sts module needed): drive it with id strings and a
-    # tiny stand-in object that mimics an sts Card.
-    print(describe_card("BASH"))
-    print(describe_card("BASH", upgraded=True))
-    print(describe_card("BODY_SLAM", upgraded=True))   # cost drops 1 -> 0, text unchanged
-    print(describe_card("WOUND"))
-    print(describe_card("WHIRLWIND"))
-
-    class _FakeId:
-        def __init__(self, name): self.name = name
-    class _FakeCard:
-        def __init__(self, name, upgraded=False):
-            self.id = _FakeId(name); self.upgraded = upgraded
-
-    hand = [_FakeCard("STRIKE_RED"), _FakeCard("STRIKE_RED"),
-            _FakeCard("BASH", upgraded=True), _FakeCard("DEFEND_RED")]
-    print("\n" + card_glossary(hand, header="Cards in hand:"))
-    print(f"\nLoaded {len(CARD_DATA)} cards.")
