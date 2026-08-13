@@ -3,6 +3,9 @@ from state_encoder import encode_state
 from action_parser import parse_action
 
 game_interface = GameInterface()
+
+game_interface.reset() #reset the game
+
 print(game_interface.view_map())
 print(f"Legal actions: {game_interface.legal_actions()}")
 game_interface.step(2) #starting bs choice
@@ -10,7 +13,7 @@ print(f"Legal actions: {game_interface.legal_actions()}")
 # gi.step(1)
 # print(f"Legal actions{gi.legal_actions()}")
 
-print(game_interface.describe_card("BASH")) # DESCRIBING A CARD
+print(game_interface.card_describe("BASH")) # DESCRIBING A CARD
 
 print(encode_state(game_interface))# STATE AT MAP SCREEN
 parse_action("I want to see the map", game_interface, encode_state) #parse view_map from string input
@@ -25,5 +28,3 @@ print(encode_state(game_interface))# STATE AT BATTLE SCREEN
 
 game_interface.step(1) #first action in combat
 print(encode_state(game_interface))# STATE AFTER FIRST COMBAT ACTION
-
-game_interface.reset() #reset the game

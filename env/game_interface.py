@@ -154,15 +154,12 @@ class GameInterface:
             if self.bc_initiated == False:
                 self.bc.init(self.gc)
                 self.bc_initiated = True
-            # The action above may have ended the fight; write hp/gold/potions/
-            # cards back to gc, which moves it off the BATTLE screen (REWARDS on
-            # a win, gc.outcome = PLAYER_LOSS on a defeat).
             if self.bc.outcome != sts.BattleOutcome.UNDECIDED:
                 self.bc.exit_battle(self.gc)
                 self.bc_initiated = False
 
     
-    def describe_card(self, card, upgraded=None):
+    def card_describe(self, card, upgraded=None):
         # card_text.describe_card takes a Card, a CardId, or a plain id string.
         return describe_card(card, upgraded)
 

@@ -31,21 +31,28 @@ def get_funcs():
 
 # from game_interface import GameInterface
 # from state_encoder import encode_state
-
+from game_interface import sts
 
 def parse_action(text: str, gi, encode_state):
     # print(get_funcs()) #debugging
     text_list = text.split()
+    action_choice: int
+    saved_function: str
+
     for func in get_funcs():
         for word in text_list:
-            if word in func:
-                if func == "encode_state":
-                    return encode_state(gi) #print for debug
-                elif func == "step":
-                    return getattr(gi, func)(action) #TODO
-                else:
-                    # Bind to the live instance — getattr on the class gives an
-                    # unbound function that still wants self.
-                    return getattr(gi, func)()
+            try:                                    #IF IT IS A CARD_DESCRIBE FUNCTION
+                card = sts.Card(word)
+                getattr(gi, "card_describe")(word)
+            except:
+                if word.isdigit():                  #IF IT IS A STEP() FUNCTION
+                    action_choice = int(word)
+                if word in func:
+                    if func == "encode_state":      #IF IT IS ENCODE_STATE FUNCTION
+                        return encode_state(gi)
+                    elif func == "step":
+                        saved_function = func
+                    else:                           #IF IT IS SOME DIFF FUNCTION
+                        return getattr(gi, func)()
 
-# parse_action("encode") #debug
+    return getattr(gi, saved_function)(action_choice)
