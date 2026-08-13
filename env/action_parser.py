@@ -120,13 +120,3 @@ def parse_action(text: str, gi, encode_state):
             return gi.step(int(word))
 
     raise ValueError(f"no action could be parsed out of {text!r}")
-
-
-if __name__ == "__main__":
-    from game_interface import GameInterface
-    from state_encoder import encode_state
-
-    gi = GameInterface()
-    for probe in ("describe bash", "what's bash+?", "tell me about wild strike",
-                  "I'm in doubt about this, show me the map", "state", "2"):
-        print(f"{probe!r} -> {parse_action(probe, gi, encode_state)}")
