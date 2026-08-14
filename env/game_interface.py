@@ -255,16 +255,16 @@ class GameInterface:
             # ...) up to the next decision point. Raises ValueError if illegal.
             combat_action.execute(self.bc)
 
-        elif self.gc.screen_state == sts.ScreenState.EVENT_SCREEN:
-            # try:
-            #     self.gc.chooseEventOption(action.idx1)
-            # # OR 
-            # except:
-                sts.GameAction(idx1=action).execute(self.gc)
-        
-        elif self.gc.screen_state == sts.ScreenState.MAP_SCREEN:
-            sts.GameAction(idx1=action).execute(self.gc)
-
+        else: # FOR ALL THE OTHER SCREENS
+            actions_list = sts.GameAction.get_all_actions_in_state(self.gc)
+            if not actions_list:
+                raise RuntimeError(f"no legal actions on {self.gc.screen_state}")
+            if not isinstance(action, int) or not 0 <= action < len(actions_list):
+                raise IndexError(
+                    f"action {action!r} is not a valid index into the "
+                    f"{len(actions_list)} legal actions on {self.gc.screen_state}"
+                )
+            actions_list[action].execute(self.gc)
 
         # CHECK FOR BATTLE SCREEN TO INIT BATTLE
         if self.gc.screen_state == sts.ScreenState.BATTLE: # WHEN SWITCHING TO BATTLE

@@ -39,4 +39,6 @@ def encode_state(gi) -> str:
         elif gi.gc.screen_state == sts.ScreenState.SHOP_ROOM:
             return f"Gold amount: {gold}, potion slots: {potion_count}/{potion_capacity}"
         elif gi.gc.screen_state == sts.ScreenState.BOSS_RELIC_REWARDS:
-            return 1
+            return f"Deck: {deck}, Gold amount: {gold}, Relics: {relics}"
+        elif gi.gc.screen_state == sts.ScreenState.REWARDS:
+            return f"Deck: {deck}, Gold amount: {gold}, Relics: {relics}, Potion slots: {potion_count}/{potion_capacity}, Potions: {potions}"
