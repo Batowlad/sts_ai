@@ -227,6 +227,12 @@ views** into the battle — they reflect every executed action. The card piles
 (`hand`, `draw_pile`, …), `potions` and `card_select_info.cards` are returned
 as **copies**.
 
+For the text the policy actually reads, `env/game_interface.py::describe_battle(a, bc)`
+turns an action into a line like `"play Bash on Jaw Worm (enemy 0)"` /
+`"upgrade Defend"` — the combat counterpart of `describe(a, gc)`.
+`GameInterface.legal_actions()` returns those descriptions on the `BATTLE`
+screen, in the order `step()` indexes into.
+
 ### `BattleContext`
 
 **Constructors**
@@ -296,7 +302,7 @@ Action.from_bits(bits)              # reconstruct from .bits
 | `bits` | `int` | Raw stable encoding — good for replay logs. |
 | `is_valid(bc)` | `-> bool` | Full legality check against the battle state. |
 | `execute(bc)` | `-> None` | Apply + run the engine to the next decision point. **Raises `ValueError` if not valid.** |
-| `describe(bc)` | `-> str` | Human-readable, e.g. `{ use card (0) Strike -> (0) Jaw Worm }`. |
+| `describe(bc)` | `-> str` | Human-readable, e.g. `{ use card (0) Strike -> (0) Jaw Worm }`. Card selects only print the task name (the C++ helper doesn't know which pile the index is in) — use `env/game_interface.py::describe_battle(a, bc)` for those. |
 
 Hashable, comparable with `==` (by bits); `repr()` needs no battle context.
 
