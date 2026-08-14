@@ -56,14 +56,14 @@ class GameInterface:
             actions_list = sts.get_legal_actions(self.bc)
             # Same order as the list step() indexes into, so the position a
             # description sits at is the number to pass back.
-            return [describe_battle(a, self.bc) for a in actions_list]
+            return [f"{actions_list.index(a)}. {describe_battle(a, self.bc)}" for a in actions_list]
         else:
             actions_list = sts.GameAction.get_all_actions_in_state(self.gc)
             # print(actions_list) # debugging
             decoded_actions = []
             for x in actions_list:
                 action = describe(x, self.gc)
-                decoded_actions.append(action)
+                decoded_actions.append(f"{actions_list.index(x)}. {action}")
             return decoded_actions
         
     def reset(self):
