@@ -25,6 +25,11 @@ if BUILD_DIR not in sys.path:
 # so top-level packages like game_data are invisible without this.
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
+# ...and the mirror case: imported as `env.game_interface` from the repo root
+# (tests/, data/, eval/), env/ itself is not on sys.path, so the flat sibling
+# imports below (`event_options`) would not resolve.
+if str(_REPO_ROOT / "env") not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT / "env"))
 if hasattr(os, "add_dll_directory") and os.path.isdir(MINGW_BIN):
     os.add_dll_directory(MINGW_BIN)
 #############################################################################
@@ -33,7 +38,10 @@ if hasattr(os, "add_dll_directory") and os.path.isdir(MINGW_BIN):
 import slaythespire as sts  # type: ignore
 
 from event_options import describe_event_option
+from game_data.card_data import card_text
 from game_data.card_data.card_text import describe_card
+from game_data.potion_data import potion_text
+from game_data.relic_data import relic_text
 
 REST_ROOM_OPTIONS = {
     0: "rest (heal 30% max HP)",
@@ -46,6 +54,107 @@ REST_ROOM_OPTIONS = {
 }
 
 TREASURE_ROOM_OPTIONS = {0: "open the chest", 1: "skip the chest"}
+
+
+# Short display names for action lines. The full effect text belongs in the
+# glossaries the state encoder builds, not in every legal-action line.
+def _enum_name(enum_val) -> str:
+    """Fallback for ids the game_data tables don't cover (non-Ironclad pools):
+    RelicId.BLOOD_VIAL -> 'Blood Vial'."""
+    return str(enum_val).split(".")[-1].replace("_", " ").title()
+
+
+def _card_name(card) -> str:
+    """A Card -> 'Bash' / 'Bash+' (reward and shop cards can roll upgraded)."""
+    data = card_text.get(card)
+    name = data["name"] if data else _enum_name(getattr(card, "id", card))
+    return name + ("+" if getattr(card, "upgraded", False) else "")
+
+
+def _relic_name(relic) -> str:
+    data = relic_text.get(relic)
+    return data["name"] if data else _enum_name(relic)
+
+
+def _potion_name(potion) -> str:
+    data = potion_text.get(potion)
+    return data["name"] if data else _enum_name(potion)
+
+
+def _describe_reward(a, gc):
+    """REWARDS screen — dispatch on rewards_action_type, then idx1/idx2 index
+    into the matching list of `gc.rewards_container`."""
+    rt = a.rewards_action_type
+    r = gc.rewards_container
+
+    if rt == sts.RewardsActionType.CARD:
+        if a.idx2 == 5:
+            # not enumerated by get_all_actions_in_state, but constructible
+            return "skip the card reward (+2 max HP with Singing Bowl)"
+        bundles = r["cards"]
+        if a.idx1 < len(bundles) and a.idx2 < len(bundles[a.idx1]):
+            return f"take card: {_card_name(bundles[a.idx1][a.idx2])}"
+        return f"take card {a.idx2} of reward bundle {a.idx1}"
+
+    if rt == sts.RewardsActionType.GOLD:
+        gold = r["gold"]
+        # Engine quirk: getAllRewardActions enumerates every gold pile with
+        # idx1=0, so two piles show up as two identical lines (and executing
+        # either takes pile 0). Harmless, but don't read the duplicate as a bug.
+        if a.idx1 < len(gold):
+            return f"take {gold[a.idx1]} gold"
+        return "take the gold"
+
+    if rt == sts.RewardsActionType.RELIC:
+        relics = r["relics"]
+        if a.idx1 >= len(relics):
+            return f"take relic {a.idx1}"
+        text = f"take relic: {_relic_name(relics[a.idx1])}"
+        if r["sapphire_key"] and a.idx1 == len(relics) - 1:
+            text += " (forfeits the sapphire key)"
+        return text
+
+    if rt == sts.RewardsActionType.POTION:
+        potions = r["potions"]
+        if a.idx1 < len(potions):
+            return f"take potion: {_potion_name(potions[a.idx1])}"
+        return f"take potion {a.idx1}"
+
+    if rt == sts.RewardsActionType.KEY:
+        # sapphire wins if both are somehow set — mirrors executeRewardsAction
+        if r["sapphire_key"]:
+            suffix = " (forfeits the relic)" if r["relics"] else ""
+            return f"take the sapphire key{suffix}"
+        return "take the emerald key"
+
+    if rt == sts.RewardsActionType.SKIP:
+        return "leave the rewards screen"
+
+    return f"{rt} idx1={a.idx1} idx2={a.idx2}"
+
+
+def _describe_shop(a, gc):
+    """SHOP_ROOM screen — same dispatch, indices point into `gc.shop`."""
+    rt = a.rewards_action_type
+    s = gc.shop
+    i = a.idx1
+
+    if rt == sts.RewardsActionType.CARD and i < len(s["cards"]):
+        return f"buy card: {_card_name(s['cards'][i])} ({s['card_prices'][i]} gold)"
+
+    if rt == sts.RewardsActionType.RELIC and i < len(s["relics"]):
+        return f"buy relic: {_relic_name(s['relics'][i])} ({s['relic_prices'][i]} gold)"
+
+    if rt == sts.RewardsActionType.POTION and i < len(s["potions"]):
+        return f"buy potion: {_potion_name(s['potions'][i])} ({s['potion_prices'][i]} gold)"
+
+    if rt == sts.RewardsActionType.CARD_REMOVE:
+        return f"pay {s['remove_cost']} gold to remove a card from the deck"
+
+    if rt == sts.RewardsActionType.SKIP:
+        return "leave the shop"
+
+    return f"{rt} idx1={a.idx1} idx2={a.idx2}"
 
 
 def new_game(character=None, seed: int = 42, ascension: int = 0):
@@ -66,13 +175,17 @@ def describe(a, gc):
     if ss == sts.ScreenState.TREASURE_ROOM:
         return TREASURE_ROOM_OPTIONS.get(a.idx1, f"option {a.idx1}")
     if ss == sts.ScreenState.BOSS_RELIC_REWARDS:
-        return "skip the boss relics" if a.idx1 == 3 else f"take boss relic {a.idx1}"
+        if a.idx1 == 3:
+            return "skip the boss relics"
+        return f"take boss relic: {_relic_name(gc.boss_relics[a.idx1])}"
     if ss == sts.ScreenState.CARD_SELECT:
         return f"select card {a.idx1}"
     if ss == sts.ScreenState.MAP_SCREEN:
         return f"move to map node x={a.idx1}"
-    if ss in (sts.ScreenState.REWARDS, sts.ScreenState.SHOP_ROOM):
-        return f"{a.rewards_action_type} idx1={a.idx1} idx2={a.idx2}"
+    if ss == sts.ScreenState.REWARDS:
+        return _describe_reward(a, gc)
+    if ss == sts.ScreenState.SHOP_ROOM:
+        return _describe_shop(a, gc)
     return f"{ss} option {a.idx1}"
 
 # TODO: GameInterface class — step(), legal_actions(), reset(), run-combat-via-Agent, etc.

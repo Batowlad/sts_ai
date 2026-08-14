@@ -68,6 +68,9 @@ GameContext(character: CharacterClass, seed: int, ascension: int)
 | `event_data` | `int` | Phase/progress counter for multi-phase events (Cursed Tome pages, Scrap Ooze attempts, Colosseum round). |
 | `event_info` | `dict` | Raw per-event state (`hp_amount0..2`, `phase`, `gold_loss`, `gold`, `potion_idx`, `card_idx`, `relic_idx0/1`, `upgrade_one`, `clean_up_is_remove_card`, `skill/power/attack_card_deck_idx`, `event_data`). **Only the fields the current event uses are meaningful** — the rest are uninitialized garbage. |
 | `neow_rewards` | `list[NeowOption]` | The four Neow options; only meaningful while the `NEOW` event screen is active. |
+| `rewards_container` | `dict` | Pending rewards; only meaningful while `screen_state == REWARDS`. Keys: `gold` (`list[int]`), `cards` (`list[list[Card]]` — one inner list per reward bundle), `relics` (`list[RelicId]`), `potions` (`list[Potion]`), `emerald_key` / `sapphire_key` (`bool`). List positions line up with `GameAction.idx1` (and `idx2` for cards). |
+| `shop` | `dict` | Shop stock; only meaningful while `screen_state == SHOP_ROOM`. Keys: `cards` (7), `relics` (3), `potions` (3), the matching `card_prices` / `relic_prices` / `potion_prices` (**`-1` = empty slot**), and `remove_cost`. List positions line up with `GameAction.idx1`. |
+| `boss_relics` | `list[RelicId]` | The three boss relics on offer; only meaningful while `screen_state == BOSS_RELIC_REWARDS` (uninitialized garbage before the first boss). |
 
 **Read/write fields**
 
@@ -337,36 +340,40 @@ from drink. Otherwise, by `gc.screen_state`:
 | `MAP_SCREEN` | `idx1` = x-coordinate of the map node to move to (0–6) |
 | `REST_ROOM` | `idx1`: 0=rest, 1=smith/upgrade, 2=take ruby key, 3=Girya lift, 4=Peace Pipe toke, 5=Shovel dig, 6=skip |
 | `TREASURE_ROOM` | `idx1`: 0=open chest, 1=skip |
-| `BOSS_RELIC_REWARDS` | `idx1` = which boss relic (0–2), 3=skip |
+| `BOSS_RELIC_REWARDS` | `idx1` = which boss relic (0–2, index into `gc.boss_relics`), 3=skip |
 | `CARD_SELECT` | `idx1` = index into `gc.info.toSelectCards` |
 | `REWARDS` | dispatch on `rewards_action_type`, see below |
 | `SHOP_ROOM` | dispatch on `rewards_action_type`, see below |
 
-On **`REWARDS`**, `rewards_action_type` picks the reward kind:
+On **`REWARDS`**, `rewards_action_type` picks the reward kind, and the indices
+address `gc.rewards_container`:
 
-* `CARD` — `idx1` = which card-reward bundle, `idx2` = which card inside it
-  (`idx2 == 5` means Singing Bowl: +2 max HP instead of a card)
-* `GOLD` / `POTION` / `RELIC` — `idx1` = index of that reward
-* `KEY` / `SKIP` — indices unused
+* `CARD` — `idx1` = which card-reward bundle, `idx2` = which card inside it,
+  i.e. `gc.rewards_container["cards"][idx1][idx2]`.
+  (`idx2 == 5` means Singing Bowl: +2 max HP instead of a card. It is *valid*
+  but **not enumerated** by `get_all_actions_in_state` — build it by hand.)
+* `GOLD` / `POTION` / `RELIC` — `idx1` = index into
+  `gc.rewards_container["gold"] / ["potions"] / ["relics"]`
+* `KEY` — indices unused; takes the sapphire key if
+  `rewards_container["sapphire_key"]`, else the emerald one. Taking the
+  sapphire key removes the **last** relic reward, and symmetrically taking the
+  last relic clears the sapphire key — that's the chest key-or-relic choice.
+* `SKIP` — indices unused; leaves the rewards screen
 
-On **`SHOP_ROOM`**:
+On **`SHOP_ROOM`**, indices address `gc.shop`:
 
-* `CARD` — `idx1` = shop card slot (0–6)
-* `RELIC` / `POTION` — `idx1` = slot (0–2)
-* `CARD_REMOVE` — buy a card removal
+* `CARD` — `idx1` = shop card slot (0–6): `gc.shop["cards"][idx1]`,
+  price `gc.shop["card_prices"][idx1]`
+* `RELIC` / `POTION` — `idx1` = slot (0–2), same layout
+* `CARD_REMOVE` — buy a card removal for `gc.shop["remove_cost"]`
 * `SKIP` — leave the shop
 
-Example decoder:
+Use `env/game_interface.py::describe(a, gc)` — it decodes every screen into a
+human-readable line (`"take relic: Bronze Scales (forfeits the sapphire key)"`,
+`"buy card: Anger (52 gold)"`):
 
 ```python
-def describe(a, gc):
-    if a.is_potion_action:
-        verb = "discard" if a.is_potion_discard else "drink"
-        return f"{verb} potion in slot {a.idx1} ({gc.potions[a.idx1]})"
-    ss = gc.screen_state
-    if ss in (sts.ScreenState.REWARDS, sts.ScreenState.SHOP_ROOM):
-        return f"{a.rewards_action_type} idx1={a.idx1} idx2={a.idx2}"
-    return f"{ss} option {a.idx1}"
+from env.game_interface import sts, describe
 
 for a in sts.GameAction.get_all_actions_in_state(gc):
     print(describe(a, gc))
@@ -374,8 +381,13 @@ for a in sts.GameAction.get_all_actions_in_state(gc):
 
 Gotchas:
 
-* `describe(gc)` always returns `""` (C++ stub, see table above) — decode the
-  indices yourself as above. The `repr()` at least shows the raw idx values.
+* `GameAction.describe(gc)` always returns `""` (C++ stub, see table above) —
+  use `env/game_interface.py::describe(a, gc)`. The `repr()` at least shows the
+  raw idx values.
+* On `REWARDS`, `getAllRewardActions` enumerates every gold pile as
+  `GOLD idx1=0`, so a second pile appears as a **duplicate** action (and taking
+  either takes pile 0). Two identical "take N gold" lines are that quirk, not a
+  decoding bug.
 * `idx3` can be ignored: it is read out of bits 16–23, but no constructor ever
   writes there.
 * This is all separate from the in-combat `Action` class (fields
