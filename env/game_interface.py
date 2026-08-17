@@ -56,7 +56,7 @@ class GameInterface:
             actions_list = sts.get_legal_actions(self.bc)
             # Same order as the list step() indexes into, so the position a
             # description sits at is the number to pass back.
-            return [f"{actions_list.index(a)}. {describe_battle(a, self.bc)}" for a in actions_list]
+            return f"Enter a number of the action: {[f"{actions_list.index(a)}. {describe_battle(a, self.bc)}" for a in actions_list]}"
         else:
             actions_list = sts.GameAction.get_all_actions_in_state(self.gc)
             # print(actions_list) # debugging
@@ -64,7 +64,7 @@ class GameInterface:
             for x in actions_list:
                 action = describe(x, self.gc)
                 decoded_actions.append(f"{actions_list.index(x)}. {action}")
-            return decoded_actions
+            return f"Enter a number of the action: {decoded_actions}"
         
     def reset(self):
         self.gc = new_game() # to be tested
@@ -137,7 +137,14 @@ class GameInterface:
 
 
     def view_deck(self):
-        return self.gc.deck
+        deck = self.gc.deck
+        clean_deck = []
+        for card in deck:
+            card = str(card)
+            card = card.replace("<slaythespire.Card ", "")
+            card = card.replace(">", "")
+            clean_deck.append(card)
+        return clean_deck
 
     def view_relics(self):
         return self.gc.relics
