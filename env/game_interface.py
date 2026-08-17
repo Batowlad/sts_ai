@@ -146,11 +146,24 @@ class GameInterface:
             clean_deck.append(card)
         return clean_deck
 
-    def view_relics(self):
-        return self.gc.relics
+    def view_relics(self): #TODO
+        relics = self.gc.relics
+        clean_relics = []
+        for relic in relics:
+            relic = str(relic)
+            relic = relic.replace("<slaythespire.Card ", "") 
+            relic = relic.replace(">", "")
+            clean_relics.append(relic)
+        return clean_relics
 
     def view_potions(self):
-        return self.gc.potions
+        potions = self.gc.potions
+        clean_potions = []
+        for potion in potions:
+            potion = str(potion)
+            potion = potion.replace("Potion.", "")
+            clean_potions.append(potion)
+        return clean_potions
 
     
 ###############################################################
