@@ -57,6 +57,21 @@ class GameInterface:
             # Same order as the list step() indexes into, so the position a
             # description sits at is the number to pass back.
             return f"Enter a number of the action: {[f"{actions_list.index(a)}. {describe_battle(a, self.bc)}" for a in actions_list]}"
+        elif self.gc.screen_state == sts.ScreenState.MAP_SCREEN:
+            actions_list = sts.GameAction.get_all_actions_in_state(self.gc)
+            decoded_actions = []
+
+            cur_y = self.gc.cur_map_node_y
+
+            for x in actions_list:
+                action = describe(x, self.gc)
+
+                cur_x = int(action.replace("move to map node x=", ""))
+                room_type = self.map.get_room_type(cur_x, cur_y+1)
+                room_type = str(room_type).replace("Room.", "").capitalize()
+
+                decoded_actions.append(f"{actions_list.index(x)}. {action} ({room_type} Room)")
+            return f"Enter a number of the action: {decoded_actions}"
         else:
             actions_list = sts.GameAction.get_all_actions_in_state(self.gc)
             # print(actions_list) # debugging
