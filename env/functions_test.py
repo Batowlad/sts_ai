@@ -4,27 +4,34 @@ from action_parser import parse_action
 
 game_interface = GameInterface()
 
-game_interface.reset() #reset the game
+# print(game_interface.view_map()) #view map at the beggining
 
-print(game_interface.view_map())
-print(f"Legal actions: {game_interface.legal_actions()}")
-game_interface.step(2) #starting bs choice
-print(f"Legal actions: {game_interface.legal_actions()}")
-# gi.step(1)
-# print(f"Legal actions{gi.legal_actions()}")
+game_interface.step(2) #starting choice
+game_interface.step(0) #choose room
 
-print(game_interface.card_describe("BASH")) # DESCRIBING A CARD
+print(game_interface.view_map()) #view map at monster room
+# print(game_interface.gc.cur_map_node_x)
 
-print(encode_state(game_interface))# STATE AT MAP SCREEN
-parse_action("I want to see the map", game_interface, encode_state) #parse view_map from string input
-print(game_interface.gc.screen_state) # STATE OF SCREEN
+game_interface.step(1) #play strike
+game_interface.step(2) #play strike
+game_interface.step(2) #play strike
+game_interface.step(0) #end turn
+game_interface.step(0) #play bash
+game_interface.step(0) #play strike
+game_interface.step(0) #end turn
+game_interface.step(0) #play strike
+game_interface.step(2) #play strike
+game_interface.step(0) #collect rewards
+game_interface.step(0) #collect rewards
+game_interface.step(0) #collect rewards
+game_interface.step(0) #collect rewards
+game_interface.step(1) #go to shop
 
-print(parse_action("state", game_interface, encode_state)) #parse action test
+print(game_interface.view_map()) #view map at shop room
+# print(game_interface.gc.cur_map_node_x)
 
-game_interface.step(2) #Move into combat
-print(f"Legal actions: {game_interface.legal_actions()}")
-print(game_interface.gc.screen_state) # STATE OF SCREEN
-print(encode_state(game_interface))# STATE AT BATTLE SCREEN
+game_interface.step(14)
+game_interface.step(0)
 
-game_interface.step(1) #first action in combat
-print(encode_state(game_interface))# STATE AFTER FIRST COMBAT ACTION
+print(game_interface.view_map()) #view map at shop room
+# print(game_interface.gc.cur_map_node_x)

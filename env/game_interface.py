@@ -43,6 +43,7 @@ from game_data.card_data.card_text import describe_card
 from game_data.potion_data import potion_text
 from game_data.relic_data import relic_text
 
+import string #to check if its a special char in view_map()
 
 class GameInterface:
     def __init__(self):
@@ -82,10 +83,35 @@ class GameInterface:
             return f"Enter a number of the action: {decoded_actions}"
         
     def reset(self):
-        self.gc = new_game() # to be tested
+        self.gc = new_game()
 
     def view_map(self):
-        return self.map.__repr__()
+        map = self.map.__repr__()
+        cur_y = self.gc.cur_map_node_y
+
+        if cur_y == -1:
+            return map
+        if cur_y == 0:
+            cur_index = -1
+        else:
+            default = -1
+            cur_index = [default-(2*(x+1)) for x in range(cur_y)][-1]
+
+        map_list = str(map).splitlines()
+
+        cur_line = map_list[cur_index]
+        line_list = list(cur_line)
+        occurence = 0
+        for i in range(len(line_list)):
+            if line_list[i].isalpha() or line_list[i] in string.punctuation:
+                occurence += 1
+                if occurence == self.gc.cur_map_node_x:
+                    line_list[i] = line_list[i].replace(line_list[i], "X")
+                    break
+
+        map_list[cur_index] = "".join(line_list)
+        map = "\n".join(map_list)
+        return map
 
     def step(self, action):
         if self.gc.screen_state == sts.ScreenState.BATTLE: # WHEN IN BATTLE
