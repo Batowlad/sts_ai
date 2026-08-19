@@ -42,6 +42,8 @@ from game_data.card_data import card_text
 from game_data.card_data.card_text import describe_card
 from game_data.potion_data import potion_text
 from game_data.relic_data import relic_text
+from game_data.status_data import status_text
+from game_data.status_data.status_text import describe_status, status_glossary
 
 import string #to check if its a special char in view_map()
 
@@ -80,6 +82,8 @@ class GameInterface:
             for x in actions_list:
                 action = describe(x, self.gc)
                 decoded_actions.append(f"{actions_list.index(x)}. {action}")
+            if self.gc.screen_state == sts.ScreenState.REWARDS or self.gc.screen_state == sts.ScreenState.BOSS_RELIC_REWARDS:
+                return f"Enter a number of the action (You can only select one card/relic): {decoded_actions}"
             return f"Enter a number of the action: {decoded_actions}"
         
     def reset(self):
@@ -177,6 +181,34 @@ class GameInterface:
         return describe_card(card, upgraded)
 
 
+    def status_describe(self, status, amount=None, owner=None):
+        # status_text.describe_status takes a PlayerStatus/MonsterStatus or an id
+        # string. `amount` is the stack count; `owner` only matters for a bare string
+        # ('WEAK' means the player's by default, owner="MONSTER" for an enemy's).
+        return describe_status(status, amount, owner)
+
+
+    def view_statuses(self):
+        """Every status effect currently in play, described — yours and each enemy's."""
+        if self.gc.screen_state != sts.ScreenState.BATTLE or not self.bc_initiated:
+            return "No combat in progress, so nothing has any status effects."
+
+        blocks = []
+        player = _active_statuses(self.bc.player, sts.PlayerStatus)
+        blocks.append(status_glossary(player, header="You:") if player
+                      else "You: no status effects.")
+
+        for i, monster in enumerate(self.bc.monsters):
+            if monster.is_dead_or_escaped:
+                continue
+            header = f"{_monster_name(self.bc, i)}:"
+            active = _active_statuses(monster, sts.MonsterStatus)
+            blocks.append(status_glossary(active, header=header) if active
+                          else f"{header} no status effects.")
+
+        return "\n".join(blocks)
+
+
     def view_deck(self):
         deck = self.gc.deck
         clean_deck = []
@@ -258,6 +290,33 @@ def _relic_name(relic) -> str:
 def _potion_name(potion) -> str:
     data = potion_text.get(potion)
     return data["name"] if data else _enum_name(potion)
+
+
+def _active_statuses(holder, enum_cls):
+    """[(status, amount)] for everything currently on a Player or a Monster.
+
+    The engine has no "what am I carrying" accessor — you probe one id at a time — so
+    this walks the whole enum. `amount` is None for flag-only powers (Barricade,
+    Corruption, ...): the engine never puts those in its status map, so asking for a
+    value raises instead of returning 1. `status_data.json` is what says which is which.
+
+    The `or amount` catches a Monster quirk: its Strength lives in a field the status
+    bit doesn't track, so a debuffed enemy can be at -3 Strength with the bit unset.
+    """
+    active = []
+    for name, status in enum_cls.__members__.items():
+        if name == "INVALID":
+            continue
+        amount = None
+        data = status_text.get(status)
+        if data is None or data["stacks"]:
+            try:
+                amount = holder.get_status(status)
+            except IndexError:      # flag-only after all — describe it without a count
+                amount = None
+        if holder.has_status(status) or amount:
+            active.append((status, amount))
+    return active
 
 
 def _describe_reward(a, gc):

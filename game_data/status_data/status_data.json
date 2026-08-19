@@ -1,0 +1,1030 @@
+{
+  "PLAYER": {
+    "DOUBLE_DAMAGE": {
+      "name": "Double Damage",
+      "owner": "PLAYER",
+      "kind": "buff",
+      "stacks": true,
+      "text": "Your Attacks deal double damage this turn.",
+      "engine_note": null
+    },
+    "DRAW_REDUCTION": {
+      "name": "Draw Reduction",
+      "owner": "PLAYER",
+      "kind": "debuff",
+      "stacks": false,
+      "text": "You draw 1 fewer card next turn.",
+      "engine_note": null
+    },
+    "FRAIL": {
+      "name": "Frail",
+      "owner": "PLAYER",
+      "kind": "debuff",
+      "stacks": true,
+      "text": "You gain 25% less Block from cards. Decreases by 1 at the end of your turn.",
+      "engine_note": null
+    },
+    "INTANGIBLE": {
+      "name": "Intangible",
+      "owner": "PLAYER",
+      "kind": "buff",
+      "stacks": true,
+      "text": "All damage and HP loss you take is reduced to 1. Decreases by 1 at the end of your turn.",
+      "engine_note": null
+    },
+    "VULNERABLE": {
+      "name": "Vulnerable",
+      "owner": "PLAYER",
+      "kind": "debuff",
+      "stacks": true,
+      "text": "You take 50% more damage from attacks. Decreases by 1 at the end of your turn.",
+      "engine_note": null
+    },
+    "WEAK": {
+      "name": "Weak",
+      "owner": "PLAYER",
+      "kind": "debuff",
+      "stacks": true,
+      "text": "Your Attacks deal 25% less damage. Decreases by 1 at the end of your turn.",
+      "engine_note": null
+    },
+    "BIAS": {
+      "name": "Bias",
+      "owner": "PLAYER",
+      "kind": "debuff",
+      "stacks": true,
+      "text": "At the start of each turn, lose X Focus.",
+      "engine_note": null
+    },
+    "CONFUSED": {
+      "name": "Confused",
+      "owner": "PLAYER",
+      "kind": "debuff",
+      "stacks": false,
+      "text": "The cost of every card you draw is randomized (0-3) for the rest of combat.",
+      "engine_note": null
+    },
+    "CONSTRICTED": {
+      "name": "Constricted",
+      "owner": "PLAYER",
+      "kind": "debuff",
+      "stacks": true,
+      "text": "At the end of your turn, take X damage.",
+      "engine_note": null
+    },
+    "ENTANGLED": {
+      "name": "Entangled",
+      "owner": "PLAYER",
+      "kind": "debuff",
+      "stacks": false,
+      "text": "You cannot play Attacks this turn.",
+      "engine_note": null
+    },
+    "FASTING": {
+      "name": "Fasting",
+      "owner": "PLAYER",
+      "kind": "debuff",
+      "stacks": true,
+      "text": "You gain X less Energy at the start of each turn.",
+      "engine_note": null
+    },
+    "HEX": {
+      "name": "Hex",
+      "owner": "PLAYER",
+      "kind": "debuff",
+      "stacks": false,
+      "text": "Whenever you play a non-Attack card, shuffle a Dazed into your draw pile.",
+      "engine_note": null
+    },
+    "LOSE_DEXTERITY": {
+      "name": "Lose Dexterity",
+      "owner": "PLAYER",
+      "kind": "debuff",
+      "stacks": true,
+      "text": "At the end of your turn, lose X Dexterity.",
+      "engine_note": null
+    },
+    "LOSE_STRENGTH": {
+      "name": "Lose Strength",
+      "owner": "PLAYER",
+      "kind": "debuff",
+      "stacks": true,
+      "text": "At the end of your turn, lose X Strength.",
+      "engine_note": null
+    },
+    "NO_BLOCK": {
+      "name": "No Block",
+      "owner": "PLAYER",
+      "kind": "debuff",
+      "stacks": false,
+      "text": "You cannot gain Block from cards this turn.",
+      "engine_note": null
+    },
+    "NO_DRAW": {
+      "name": "No Draw",
+      "owner": "PLAYER",
+      "kind": "debuff",
+      "stacks": false,
+      "text": "You cannot draw any more cards this turn.",
+      "engine_note": null
+    },
+    "WRAITH_FORM": {
+      "name": "Wraith Form",
+      "owner": "PLAYER",
+      "kind": "debuff",
+      "stacks": true,
+      "text": "At the end of your turn, lose X Dexterity.",
+      "engine_note": null
+    },
+    "BARRICADE": {
+      "name": "Barricade",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": false,
+      "text": "Your Block is not removed at the start of your turn.",
+      "engine_note": null
+    },
+    "BLASPHEMER": {
+      "name": "Blasphemer",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": false,
+      "text": "You die at the start of your next turn.",
+      "engine_note": null
+    },
+    "CORRUPTION": {
+      "name": "Corruption",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": false,
+      "text": "Skills cost 0. Whenever you play a Skill, Exhaust it.",
+      "engine_note": null
+    },
+    "ELECTRO": {
+      "name": "Electro",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": false,
+      "text": "Your Lightning orbs hit ALL enemies.",
+      "engine_note": null
+    },
+    "SURROUNDED": {
+      "name": "Surrounded",
+      "owner": "PLAYER",
+      "kind": "debuff",
+      "stacks": false,
+      "text": "You are surrounded: enemies you are not facing deal 50% more damage to you.",
+      "engine_note": "the engine treats the last enemy you targeted as the one you face."
+    },
+    "MASTER_REALITY": {
+      "name": "Master Reality",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": false,
+      "text": "Cards created during combat enter play Upgraded.",
+      "engine_note": null
+    },
+    "PEN_NIB": {
+      "name": "Pen Nib",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": false,
+      "text": "Your next Attack deals double damage.",
+      "engine_note": null
+    },
+    "WRATH_NEXT_TURN": {
+      "name": "Wrath Next Turn",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": false,
+      "text": "You enter Wrath at the start of your next turn.",
+      "engine_note": null
+    },
+    "AMPLIFY": {
+      "name": "Amplify",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Your next X Power cards are played twice.",
+      "engine_note": null
+    },
+    "BLUR": {
+      "name": "Blur",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Your Block is not removed at the start of your next X turns.",
+      "engine_note": null
+    },
+    "BUFFER": {
+      "name": "Buffer",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Prevent the next X times you would lose HP.",
+      "engine_note": null
+    },
+    "COLLECT": {
+      "name": "Collect",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the start of each of your next X turns, put a Miracle into your hand.",
+      "engine_note": "the game puts in a Miracle+; the engine puts in a plain Miracle."
+    },
+    "DOUBLE_TAP": {
+      "name": "Double Tap",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Your next X Attacks are played twice.",
+      "engine_note": null
+    },
+    "DUPLICATION": {
+      "name": "Duplication",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Your next X cards are played twice.",
+      "engine_note": null
+    },
+    "ECHO_FORM": {
+      "name": "Echo Form",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "The first X cards you play each turn are played twice.",
+      "engine_note": null
+    },
+    "FREE_ATTACK_POWER": {
+      "name": "Free Attack Power",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Your next X Attacks cost 0.",
+      "engine_note": null
+    },
+    "REBOUND": {
+      "name": "Rebound",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "The next X cards you play this turn go on top of your draw pile instead of your discard pile.",
+      "engine_note": null
+    },
+    "MANTRA": {
+      "name": "Mantra",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At 10 Mantra you enter Divinity and Mantra resets. (X so far)",
+      "engine_note": null
+    },
+    "ACCURACY": {
+      "name": "Accuracy",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Your Shivs deal X additional damage.",
+      "engine_note": "not implemented (todo in the engine)."
+    },
+    "AFTER_IMAGE": {
+      "name": "After Image",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever you play a card, gain X Block.",
+      "engine_note": null
+    },
+    "BATTLE_HYMN": {
+      "name": "Battle Hymn",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the start of each turn, add X Smite to your hand.",
+      "engine_note": null
+    },
+    "BRUTALITY": {
+      "name": "Brutality",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the start of your turn, lose X HP and draw X cards.",
+      "engine_note": null
+    },
+    "BURST": {
+      "name": "Burst",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Your next X Skills are played twice.",
+      "engine_note": null
+    },
+    "COMBUST": {
+      "name": "Combust",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the end of your turn, lose 1 HP per Combust played and deal X damage to ALL enemies.",
+      "engine_note": null
+    },
+    "CREATIVE_AI": {
+      "name": "Creative AI",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the start of your turn, add X random Power cards to your hand.",
+      "engine_note": "not implemented (todo in the engine)."
+    },
+    "DARK_EMBRACE": {
+      "name": "Dark Embrace",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever a card is Exhausted, draw X cards.",
+      "engine_note": null
+    },
+    "DEMON_FORM": {
+      "name": "Demon Form",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the start of your turn, gain X Strength.",
+      "engine_note": null
+    },
+    "DEVA": {
+      "name": "Deva",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the start of your turn, gain Energy, then increase that gain by X.",
+      "engine_note": null
+    },
+    "DEVOTION": {
+      "name": "Devotion",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the start of your turn, gain X Mantra.",
+      "engine_note": null
+    },
+    "DRAW_CARD_NEXT_TURN": {
+      "name": "Draw Card Next Turn",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Draw X additional cards next turn.",
+      "engine_note": null
+    },
+    "ENERGIZED": {
+      "name": "Energized",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Gain X additional Energy next turn.",
+      "engine_note": null
+    },
+    "ENVENOM": {
+      "name": "Envenom",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever you deal unblocked attack damage, apply X Poison to that enemy.",
+      "engine_note": null
+    },
+    "ESTABLISHMENT": {
+      "name": "Establishment",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever a card is Retained, its cost is reduced by X for the rest of combat.",
+      "engine_note": "not implemented (todo in the engine)."
+    },
+    "EVOLVE": {
+      "name": "Evolve",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever you draw a Status card, draw X cards.",
+      "engine_note": null
+    },
+    "FEEL_NO_PAIN": {
+      "name": "Feel No Pain",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever a card is Exhausted, gain X Block.",
+      "engine_note": null
+    },
+    "FIRE_BREATHING": {
+      "name": "Fire Breathing",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever you draw a Status or Curse card, deal X damage to ALL enemies.",
+      "engine_note": null
+    },
+    "FLAME_BARRIER": {
+      "name": "Flame Barrier",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "When you are attacked, deal X damage back. Wears off at the start of your next turn.",
+      "engine_note": null
+    },
+    "FOCUS": {
+      "name": "Focus",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Your orbs are X more effective. (Negative Focus weakens them.)",
+      "engine_note": null
+    },
+    "FORESIGHT": {
+      "name": "Foresight",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the start of your turn, Scry X.",
+      "engine_note": "not implemented (todo in the engine)."
+    },
+    "HELLO_WORLD": {
+      "name": "Hello World",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the start of your turn, add a random Common card to your hand.",
+      "engine_note": "not implemented (the engine removes the power instead)."
+    },
+    "INFINITE_BLADES": {
+      "name": "Infinite Blades",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the start of your turn, add X Shivs to your hand.",
+      "engine_note": null
+    },
+    "JUGGERNAUT": {
+      "name": "Juggernaut",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever you gain Block, deal X damage to a random enemy.",
+      "engine_note": null
+    },
+    "LIKE_WATER": {
+      "name": "Like Water",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the end of your turn, if you are in Calm, gain X Block.",
+      "engine_note": null
+    },
+    "LOOP": {
+      "name": "Loop",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the start of your turn, trigger the passive of your first orb X additional times.",
+      "engine_note": "not implemented (todo in the engine)."
+    },
+    "MAGNETISM": {
+      "name": "Magnetism",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the start of your turn, add X random Colorless cards to your hand.",
+      "engine_note": "not implemented (todo in the engine)."
+    },
+    "MAYHEM": {
+      "name": "Mayhem",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the start of your turn, play the top X cards of your draw pile.",
+      "engine_note": null
+    },
+    "METALLICIZE": {
+      "name": "Metallicize",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the end of your turn, gain X Block.",
+      "engine_note": null
+    },
+    "NEXT_TURN_BLOCK": {
+      "name": "Next Turn Block",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Gain X Block at the start of your next turn.",
+      "engine_note": null
+    },
+    "NOXIOUS_FUMES": {
+      "name": "Noxious Fumes",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the start of your turn, apply X Poison to ALL enemies.",
+      "engine_note": null
+    },
+    "OMEGA": {
+      "name": "Omega",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the end of your turn, deal X damage to ALL enemies.",
+      "engine_note": null
+    },
+    "PANACHE": {
+      "name": "Panache",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Every 5 cards you play, deal X damage to ALL enemies.",
+      "engine_note": null
+    },
+    "PHANTASMAL": {
+      "name": "Phantasmal",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "For the next X turns, your Attacks deal double damage.",
+      "engine_note": null
+    },
+    "PLATED_ARMOR": {
+      "name": "Plated Armor",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the end of your turn, gain X Block. Loses 1 stack whenever you take unblocked attack damage.",
+      "engine_note": null
+    },
+    "RAGE": {
+      "name": "Rage",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever you play an Attack this turn, gain X Block.",
+      "engine_note": null
+    },
+    "REGEN": {
+      "name": "Regen",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the end of your turn, heal X HP, then Regeneration decreases by 1.",
+      "engine_note": null
+    },
+    "RITUAL": {
+      "name": "Ritual",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the end of your turn, gain X Strength.",
+      "engine_note": null
+    },
+    "RUPTURE": {
+      "name": "Rupture",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever you lose HP from a card, gain X Strength.",
+      "engine_note": null
+    },
+    "SADISTIC": {
+      "name": "Sadistic",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever you apply a debuff to an enemy, deal X damage to it.",
+      "engine_note": null
+    },
+    "STATIC_DISCHARGE": {
+      "name": "Static Discharge",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever you take unblocked attack damage, Channel X Lightning.",
+      "engine_note": null
+    },
+    "THORNS": {
+      "name": "Thorns",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "When you are attacked, deal X damage back to the attacker.",
+      "engine_note": null
+    },
+    "THOUSAND_CUTS": {
+      "name": "Thousand Cuts",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever you play a card, deal X damage to ALL enemies.",
+      "engine_note": null
+    },
+    "TOOLS_OF_THE_TRADE": {
+      "name": "Tools of the Trade",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the start of your turn, draw X cards and discard X cards.",
+      "engine_note": "the engine draws but never asks you to discard."
+    },
+    "VIGOR": {
+      "name": "Vigor",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Your next Attack deals X additional damage, then Vigor is removed.",
+      "engine_note": null
+    },
+    "WAVE_OF_THE_HAND": {
+      "name": "Wave of the Hand",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever you gain Block this turn, apply X Weak to ALL enemies.",
+      "engine_note": null
+    },
+    "EQUILIBRIUM": {
+      "name": "Equilibrium",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Your hand is Retained for the next X turns.",
+      "engine_note": "the engine retains the hand but does not force Ethereal cards to stay."
+    },
+    "ARTIFACT": {
+      "name": "Artifact",
+      "owner": "PLAYER",
+      "kind": "buff",
+      "stacks": true,
+      "text": "Negates the next X debuffs applied to you.",
+      "engine_note": null
+    },
+    "DEXTERITY": {
+      "name": "Dexterity",
+      "owner": "PLAYER",
+      "kind": "buff",
+      "stacks": true,
+      "text": "You gain X additional Block from cards. (Negative Dexterity reduces it.)",
+      "engine_note": null
+    },
+    "STRENGTH": {
+      "name": "Strength",
+      "owner": "PLAYER",
+      "kind": "buff",
+      "stacks": true,
+      "text": "Your Attacks deal X additional damage per hit. (Negative Strength reduces it.)",
+      "engine_note": null
+    },
+    "THE_BOMB": {
+      "name": "The Bomb",
+      "owner": "PLAYER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the end of 3 turns, deal X damage to ALL enemies.",
+      "engine_note": "not implemented — the engine stores the damage but never detonates it."
+    }
+  },
+  "MONSTER": {
+    "ARTIFACT": {
+      "name": "Artifact",
+      "owner": "MONSTER",
+      "kind": "buff",
+      "stacks": true,
+      "text": "Negates the next X debuffs applied to this enemy.",
+      "engine_note": null
+    },
+    "BLOCK_RETURN": {
+      "name": "Block Return",
+      "owner": "MONSTER",
+      "kind": "debuff",
+      "stacks": true,
+      "text": "Whenever you attack this enemy, you gain X Block.",
+      "engine_note": "inert — nothing in the engine applies it."
+    },
+    "CHOKED": {
+      "name": "Choked",
+      "owner": "MONSTER",
+      "kind": "debuff",
+      "stacks": true,
+      "text": "Whenever you play a card this turn, this enemy loses X HP.",
+      "engine_note": null
+    },
+    "CORPSE_EXPLOSION": {
+      "name": "Corpse Explosion",
+      "owner": "MONSTER",
+      "kind": "debuff",
+      "stacks": true,
+      "text": "When this enemy dies, deal damage equal to X times its Max HP to ALL enemies.",
+      "engine_note": null
+    },
+    "LOCK_ON": {
+      "name": "Lock On",
+      "owner": "MONSTER",
+      "kind": "debuff",
+      "stacks": true,
+      "text": "Lightning and Dark orbs deal 50% more damage to this enemy. Decreases by 1 each round.",
+      "engine_note": null
+    },
+    "MARK": {
+      "name": "Mark",
+      "owner": "MONSTER",
+      "kind": "debuff",
+      "stacks": true,
+      "text": "Whenever you play Pressure Points, this enemy loses X HP.",
+      "engine_note": null
+    },
+    "METALLICIZE": {
+      "name": "Metallicize",
+      "owner": "MONSTER",
+      "kind": "buff",
+      "stacks": true,
+      "text": "At the end of its turn, this enemy gains X Block.",
+      "engine_note": null
+    },
+    "PLATED_ARMOR": {
+      "name": "Plated Armor",
+      "owner": "MONSTER",
+      "kind": "buff",
+      "stacks": true,
+      "text": "At the end of its turn, this enemy gains X Block. Loses 1 stack whenever it takes unblocked attack damage.",
+      "engine_note": null
+    },
+    "POISON": {
+      "name": "Poison",
+      "owner": "MONSTER",
+      "kind": "debuff",
+      "stacks": true,
+      "text": "At the start of its turn, this enemy loses X HP, then Poison decreases by 1.",
+      "engine_note": null
+    },
+    "REGEN": {
+      "name": "Regen",
+      "owner": "MONSTER",
+      "kind": "buff",
+      "stacks": true,
+      "text": "At the start of its turn, this enemy heals X HP.",
+      "engine_note": null
+    },
+    "SHACKLED": {
+      "name": "Shackled",
+      "owner": "MONSTER",
+      "kind": "debuff",
+      "stacks": true,
+      "text": "This enemy has lost X Strength; it regains that Strength at the end of its turn.",
+      "engine_note": null
+    },
+    "STRENGTH": {
+      "name": "Strength",
+      "owner": "MONSTER",
+      "kind": "buff",
+      "stacks": true,
+      "text": "This enemy's attacks deal X additional damage per hit. (Negative Strength reduces it.)",
+      "engine_note": null
+    },
+    "VULNERABLE": {
+      "name": "Vulnerable",
+      "owner": "MONSTER",
+      "kind": "debuff",
+      "stacks": true,
+      "text": "This enemy takes 50% more damage from attacks. Decreases by 1 each round.",
+      "engine_note": null
+    },
+    "WEAK": {
+      "name": "Weak",
+      "owner": "MONSTER",
+      "kind": "debuff",
+      "stacks": true,
+      "text": "This enemy's attacks deal 25% less damage. Decreases by 1 each round.",
+      "engine_note": null
+    },
+    "ANGRY": {
+      "name": "Angry",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever this enemy takes attack damage, it gains X Strength.",
+      "engine_note": null
+    },
+    "BEAT_OF_DEATH": {
+      "name": "Beat of Death",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever you play a card, you take X damage.",
+      "engine_note": null
+    },
+    "CURIOSITY": {
+      "name": "Curiosity",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever you play a Power card, this enemy gains X Strength.",
+      "engine_note": null
+    },
+    "CURL_UP": {
+      "name": "Curl Up",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": true,
+      "text": "The first time this enemy takes attack damage, it gains X Block and loses this power.",
+      "engine_note": null
+    },
+    "ENRAGE": {
+      "name": "Enrage",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever you play a Skill, this enemy gains X Strength.",
+      "engine_note": null
+    },
+    "FADING": {
+      "name": "Fading",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": true,
+      "text": "This enemy dies in X turns.",
+      "engine_note": null
+    },
+    "FLIGHT": {
+      "name": "Flight",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Attack damage to this enemy is halved. Each hit removes 1 stack; at 0 it is stunned for a turn.",
+      "engine_note": null
+    },
+    "GENERIC_STRENGTH_UP": {
+      "name": "Generic Strength Up",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the end of each round, this enemy gains X Strength.",
+      "engine_note": null
+    },
+    "INTANGIBLE": {
+      "name": "Intangible",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": true,
+      "text": "All damage this enemy takes is reduced to 1.",
+      "engine_note": "the engine always decrements it at the end of the round, unlike the game."
+    },
+    "MALLEABLE": {
+      "name": "Malleable",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever this enemy takes attack damage, it gains X Block; X grows by 1 per hit and resets to 3 each turn.",
+      "engine_note": null
+    },
+    "MODE_SHIFT": {
+      "name": "Mode Shift",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": true,
+      "text": "After taking X more damage, this enemy shifts to its defensive mode.",
+      "engine_note": null
+    },
+    "RITUAL": {
+      "name": "Ritual",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": true,
+      "text": "At the end of each round, this enemy gains X Strength (skipping the round it was applied).",
+      "engine_note": null
+    },
+    "SLOW": {
+      "name": "Slow",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": true,
+      "text": "This enemy takes 10% more damage for each card you played this turn. Resets each round.",
+      "engine_note": null
+    },
+    "SPORE_CLOUD": {
+      "name": "Spore Cloud",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": true,
+      "text": "When this enemy dies, you gain X Vulnerable.",
+      "engine_note": "the engine always applies 2."
+    },
+    "THIEVERY": {
+      "name": "Thievery",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": true,
+      "text": "This enemy steals X gold whenever it attacks you.",
+      "engine_note": null
+    },
+    "THORNS": {
+      "name": "Thorns",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever you attack this enemy, you take X damage.",
+      "engine_note": null
+    },
+    "TIME_WARP": {
+      "name": "Time Warp",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever you play 12 cards, this enemy gains 2 Strength and your turn ends. (X so far)",
+      "engine_note": null
+    },
+    "INVINCIBLE": {
+      "name": "Invincible",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": true,
+      "text": "This enemy can lose at most X more HP this turn.",
+      "engine_note": null
+    },
+    "REACTIVE": {
+      "name": "Reactive",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever this enemy takes attack damage, it changes its intent.",
+      "engine_note": null
+    },
+    "SHARP_HIDE": {
+      "name": "Sharp Hide",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": true,
+      "text": "Whenever you play an Attack, you take X damage.",
+      "engine_note": null
+    },
+    "ASLEEP": {
+      "name": "Asleep",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": false,
+      "text": "This enemy is asleep: it does not act, and waking it removes its Metallicize.",
+      "engine_note": null
+    },
+    "BARRICADE": {
+      "name": "Barricade",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": false,
+      "text": "This enemy's Block is not removed at the start of its turn.",
+      "engine_note": null
+    },
+    "MINION": {
+      "name": "Minion",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": false,
+      "text": "This enemy is a minion; it flees when its leader dies.",
+      "engine_note": null
+    },
+    "MINION_LEADER": {
+      "name": "Minion Leader",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": false,
+      "text": "Killing this enemy ends the fight.",
+      "engine_note": null
+    },
+    "PAINFUL_STABS": {
+      "name": "Painful Stabs",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": false,
+      "text": "Whenever this enemy deals unblocked attack damage, a Wound is shuffled into your discard pile.",
+      "engine_note": null
+    },
+    "REGROW": {
+      "name": "Regrow",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": false,
+      "text": "When this enemy dies, it revives with full HP.",
+      "engine_note": null
+    },
+    "SHIFTING": {
+      "name": "Shifting",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": false,
+      "text": "Whenever this enemy takes damage, it loses that much Strength until the end of its turn.",
+      "engine_note": null
+    },
+    "STASIS": {
+      "name": "Stasis",
+      "owner": "MONSTER",
+      "kind": "power",
+      "stacks": false,
+      "text": "This enemy holds a card of yours; it returns to your discard pile when the enemy dies.",
+      "engine_note": null
+    }
+  }
+}
