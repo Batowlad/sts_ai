@@ -1,24 +1,19 @@
 """Generate `potion_data.json` for the state encoder.
 
-Sibling of `../card_data/build_card_data.py` and `../relic_data/build_relic_data.py`.
-Unlike those, the reference spreadsheet has **no potion sheet**, so this script's
-source of truth is the engine itself:
+Sibling of `../card_data/build_card_data.py`, but the reference spreadsheet has **no
+potion sheet**, so the source of truth is the engine itself:
 
-  * `sts_lightspeed/include/constants/Potions.h` supplies the authoritative name,
-    rarity, the per-class potion pool, and which potions require a target.
-  * The effect *text* is hand-authored below (`POTION_TEXT`) — the engine stores no
-    display text. Values were transcribed to match the base (no Sacred Bark) effect
-    the engine applies in `combat/BattleContext.cpp`.
+  * `sts_lightspeed/include/constants/Potions.h` supplies the name, rarity, per-class
+    pool, and which potions require a target.
+  * The effect *text* is hand-authored below (`POTION_TEXT`), transcribed to match the
+    base (no Sacred Bark) effect the engine applies in `combat/BattleContext.cpp`.
 
 Scope: `potionPool[0]` — the 33 potions an **Ironclad** run can roll (30 shared + the
-3 Ironclad-locked: Blood Potion, Elixir, Heart of Iron). Other classes are excluded,
-matching the card/relic pipelines.
+3 Ironclad-locked: Blood Potion, Elixir, Heart of Iron).
 
-Engine caveats worth knowing (base values here follow the real game; the engine
-differs on a couple of points):
-  * Blood Potion: real game heals 20% Max HP; the engine's base is 40% (looks like an
-    inverted Sacred Bark check). Text below uses the engine's 40% so the agent's model
-    matches what it actually experiences.
+Engine caveats:
+  * Blood Potion: real game heals 20% Max HP, the engine 40% (looks like an inverted
+    Sacred Bark check). The text uses the engine's 40%, which is what the agent sees.
   * Smoke Bomb: engine leaves it a `// todo` no-op; real game escapes a non-boss fight.
   * Fairy Potion: passive (auto-revive); it is never actively "drunk".
   * Sacred Bark relic doubles every potion's potency (not reflected per-line here).

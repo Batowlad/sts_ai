@@ -1,14 +1,12 @@
 """Generate `relic_data.json` from `Slay the Spire Reference.xlsx`.
 
-Mirror of `../card_data/build_card_data.py`, for relics. The sts_lightspeed engine
-exposes relic *identity* (`RelicId`) but no effect text, which the LLM policy needs
-to reason about the run. This turns the reference spreadsheet's `Relics` sheet into
-a static `RelicId -> {rarity, text, ...}` table keyed by the engine's RelicId enum
-names, so `relic_text.py` / the state encoder can look up by `relic.id.name`.
+Mirror of `../card_data/build_card_data.py`, for relics: the `Relics` sheet becomes a
+static `RelicId -> {rarity, text, ...}` table keyed by the engine's RelicId enum names,
+so `relic_text.py` and the state encoder can look up by `relic.id.name`.
 
-Scope: relics an Ironclad run can actually obtain — shared relics plus Ironclad
-class-specific ones. Relics locked to Silent/Defect/Watcher are excluded (matching
-the card pipeline's "no other classes" rule).
+Scope: relics an Ironclad run can actually obtain — shared plus Ironclad
+class-specific ones. Silent/Defect/Watcher relics are excluded, matching the card
+pipeline.
 
 Re-run after editing the sheet:  python game_data/relic_data/build_relic_data.py
 """

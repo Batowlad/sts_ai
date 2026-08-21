@@ -1,13 +1,11 @@
 """Generate `card_data.json` from `Slay the Spire Reference.xlsx`.
 
-The sts_lightspeed engine stores no human-readable card text, but the LLM policy
-needs it (see the wiki: state encoding must render "hand + what each card does").
-This script turns the reference spreadsheet's `Cards` sheet into a static
-`CardId -> {type, rarity, cost, text, ...}` table keyed by the engine's CardId
-enum names, so `card_text.py` / the state encoder can look up by `card.id.name`.
+Turns the spreadsheet's `Cards` sheet into a static `CardId -> {type, rarity, cost,
+text, ...}` table keyed by the engine's CardId enum names, so `card_text.py` and the
+state encoder can look up by `card.id.name`.
 
 Scope: only the sets the Ironclad-complete engine actually plays — Ironclad,
-Colorless, Curses, Statuses. Other classes are deliberately excluded.
+Colorless, Curses, Statuses.
 
 Re-run after editing the sheet:  python game_data/card_data/build_card_data.py
 

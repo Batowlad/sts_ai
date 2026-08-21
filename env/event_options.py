@@ -1,19 +1,16 @@
 """Human-readable descriptions for event-screen GameAction options.
 
-The sts_lightspeed engine stores no option text; an event option is just an
-index into the switch in GameContext::chooseEventOption (GameContext.cpp).
-This module is a Python port of the engine's own console UI text
-(ConsoleSimulator::printEventActions), driven by the bindings added in
-slaythespire.cpp: `gc.cur_event`, `gc.cur_event_name`, `gc.event_info`,
-`gc.neow_rewards`.
+The engine stores no option text; an event option is just an index into the switch in
+GameContext::chooseEventOption (GameContext.cpp). This is a Python port of the engine's
+own console UI text (ConsoleSimulator::printEventActions), driven by the `gc.cur_event`,
+`gc.cur_event_name`, `gc.event_info` and `gc.neow_rewards` bindings.
 
-Option indices are FIXED SLOTS per event (see GameAction::getValidEventSelectBits):
-when an option is unavailable (e.g. not enough gold) it is simply absent from
-legal actions, but the remaining options keep their numbers.
+Option indices are FIXED SLOTS per event (see GameAction::getValidEventSelectBits): an
+unavailable option (e.g. not enough gold) is simply absent from legal actions, but the
+remaining options keep their numbers.
 
-Main entry points:
-    event_option_texts(gc)      -> dict[int, str]   all currently valid options
-    describe_event_option(gc, idx) -> str            text for one option index
+    event_option_texts(gc)         -> dict[int, str]  all currently valid options
+    describe_event_option(gc, idx) -> str             text for one option index
 """
 
 
@@ -23,10 +20,10 @@ def _name(enum_val) -> str:
 
 
 def event_option_texts(gc) -> dict:
-    """Return {option_idx: description} for the current EVENT_SCREEN state.
+    """{option_idx: description} for the current EVENT_SCREEN state.
 
-    Mirrors ConsoleSimulator::printEventActions — including which options are
-    hidden/shown based on gold, deck contents, relics and event phase.
+    Mirrors ConsoleSimulator::printEventActions, including which options are shown
+    based on gold, deck contents, relics and event phase.
     """
     ev = gc.cur_event.name
     info = gc.event_info

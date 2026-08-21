@@ -1,14 +1,11 @@
 """Human-readable relic descriptions for the state encoder.
 
-Sibling of `../card_data/card_text.py`, for relics. The sts_lightspeed engine
-exposes relic *identity* (`RelicId`) but no effect text; this module is the lookup:
-`RelicId name -> {text, rarity, ...}`, loaded from `relic_data.json` (generated from
-the reference spreadsheet by `build_relic_data.py`).
+Sibling of `../card_data/card_text.py`, for relics. The engine exposes relic *identity*
+(`RelicId`) but no effect text; this module is the lookup: `RelicId name ->
+{text, rarity, ...}`, loaded from `relic_data.json` (built from the reference
+spreadsheet by `build_relic_data.py`).
 
-Scope is what an Ironclad run can obtain — shared + Ironclad relics (149). No relics
-locked to other classes.
-
-    from relic_text import describe_relic, relic_glossary, get_relic_text
+Scope is what an Ironclad run can obtain — shared + Ironclad relics (149).
 
     describe_relic(relic)            # 'Akabeko (Common): Your first Attack each combat...'
     relic_glossary(gc.relics)        # dedup'd block for the whole relic list
@@ -27,10 +24,7 @@ with _DATA_PATH.open(encoding="utf-8") as _f:
 
 
 def _resolve(relic) -> str:
-    """Normalize any accepted relic form to its id string.
-
-    Accepts an sts Relic (has `.id`), a RelicId enum (has `.name`), or a plain string.
-    """
+    """Normalize an sts Relic, a RelicId enum, or a plain string to its id string."""
     rid = getattr(relic, "id", relic)        # Relic -> RelicId; else passthrough
     name = getattr(rid, "name", rid)         # RelicId enum -> 'AKABEKO'; else assume str
     return str(name).upper()
@@ -50,7 +44,7 @@ def get_relic_text(relic) -> str:
 def describe_relic(relic) -> str:
     """One line: 'Akabeko (Common): Your first Attack each combat deals 8 additional damage.'
 
-    Falls back to the raw id for anything outside our scope, so it's always safe to call.
+    Falls back to the raw id for anything outside our scope.
     """
     rid = _resolve(relic)
     data = RELIC_DATA.get(rid)
@@ -61,10 +55,8 @@ def describe_relic(relic) -> str:
 
 
 def relic_glossary(relics, header: str | None = None) -> str:
-    """A de-duplicated description block for a collection of relics.
-
-    Each distinct relic is described once, in first-seen order. (Relics are normally
-    unique, but dedup keeps the encoder output stable regardless.)
+    """A de-duplicated description block for a collection of relics, in first-seen
+    order. (Relics are normally unique; dedup just keeps the output stable.)
     """
     seen: set[str] = set()
     lines: list[str] = []

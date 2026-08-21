@@ -1,27 +1,25 @@
 """Generate `status_data.json` for the state encoder.
 
-Sibling of `../card_data/build_card_data.py` and `../potion_data/build_potion_data.py`,
-for status effects (the game's buffs / debuffs / powers). Like potions — and unlike
-cards and relics — the reference spreadsheet has **no status sheet**, so the source of
-truth is the engine itself:
+Sibling of `../potion_data/build_potion_data.py`, for status effects (the game's buffs
+/ debuffs / powers). Like potions, the reference spreadsheet has **no status sheet**, so
+the source of truth is the engine itself:
 
   * `sts_lightspeed/include/constants/PlayerStatusEffects.h` and
-    `.../MonsterStatusEffects.h` supply the authoritative enum order and the display
-    names (`playerStatusStrings` / `enemyStatusStrings`, index-aligned to the enums).
-  * The effect *text* is hand-authored below — the engine stores none. Wording follows
-    the real game; where this engine's implementation differs or is missing, the entry
-    carries an `engine_note` so the policy isn't told about behaviour it will never see.
+    `.../MonsterStatusEffects.h` supply the enum order and the display names
+    (`playerStatusStrings` / `enemyStatusStrings`, index-aligned to the enums).
+  * The effect *text* is hand-authored below. Wording follows the real game; where this
+    engine differs or is missing, the entry carries an `engine_note` so the policy isn't
+    told about behaviour it will never see.
 
-Scope: **every** value of both enums except INVALID (85 player + 42 monster). The other
-pipelines cut to the Ironclad pool, but a status has no owning class — monsters apply
-what they like, and the table is only rendered for statuses that are actually active, so
-full coverage costs nothing at runtime and leaves no gaps.
+Scope: **every** value of both enums except INVALID (85 player + 42 monster). A status
+has no owning class, and the table is only rendered for statuses that are actually
+active, so full coverage costs nothing at runtime.
 
 Two fields beyond name/text:
   * `kind`   — buff / debuff / power, for grouping in the encoder.
-  * `stacks` — whether the stack count is meaningful. False for flag-only powers, which
-    also matters mechanically: the engine keeps those out of `statusMap`, so
-    `Player.get_status` on one raises instead of returning 1 (see `view_statuses`).
+  * `stacks` — whether the stack count is meaningful. False for flag-only powers,
+    which the engine keeps out of `statusMap`, so `Player.get_status` on one raises
+    instead of returning 1 (see `view_statuses`).
 
 Re-run:  python game_data/status_data/build_status_data.py
 """

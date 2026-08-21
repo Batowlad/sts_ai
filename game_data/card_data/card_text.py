@@ -1,26 +1,18 @@
 """Human-readable card descriptions for the state encoder.
 
-The sts_lightspeed engine exposes card *identity* (`CardId`) but no effect text,
-so the LLM policy has nothing to reason about unless we supply it. This module is
-the lookup: `CardId name -> {text, upgraded text, cost, type, ...}`, loaded from
-`card_data.json` (generated from the reference spreadsheet by `build_card_data.py`).
+The engine exposes card *identity* (`CardId`) but no effect text. This module is the
+lookup: `CardId name -> {text, upgraded text, cost, type, ...}`, loaded from
+`card_data.json` (built from the reference spreadsheet by `build_card_data.py`).
 
-Scope is the Ironclad-complete engine's actual card pool — Ironclad, Colorless,
-Curses, Statuses (145 cards). No other classes.
-
-Intended consumer: `env/state_encoder.py`. Per the project wiki, the encoder should
-render each *distinct* card in play once (a glossary), rather than repeating full
-text per duplicate every turn — that's the context-budget tension. `card_glossary()`
-does exactly that.
-
-    from card_text import describe_card, card_glossary, get_card_text
+Scope is the Ironclad-complete engine's card pool — Ironclad, Colorless, Curses,
+Statuses (145 cards). No other classes.
 
     describe_card(card)                 # 'Bash (2 energy, Attack): Deal 8 damage...'
     card_glossary(bc.cards.hand)        # dedup'd block for the whole hand
     get_card_text(card)                 # just the effect text
 
-`card` may be an sts `Card`/`CardInstance` (read via `.id` + `.upgraded`), a
-`CardId` enum, or the plain id string ('BASH').
+`card` may be an sts `Card`/`CardInstance` (read via `.id` + `.upgraded`), a `CardId`
+enum, or the plain id string ('BASH').
 """
 import json
 from pathlib import Path
@@ -34,9 +26,8 @@ with _DATA_PATH.open(encoding="utf-8") as _f:
 def _resolve(card, upgraded=None) -> tuple[str, bool]:
     """Normalize any accepted card form to (card_id_string, upgraded_bool).
 
-    Accepts an sts Card/CardInstance (has `.id` and usually `.upgraded`), a CardId
-    enum (has `.name`), or a plain string. An explicit `upgraded` arg wins over the
-    object's own flag.
+    Accepts an sts Card/CardInstance, a CardId enum, or a plain string. An explicit
+    `upgraded` arg wins over the object's own flag.
     """
     cid = getattr(card, "id", card)          # Card/CardInstance -> CardId; else passthrough
     name = getattr(cid, "name", cid)         # CardId enum -> 'BASH'; else assume already a str
@@ -65,10 +56,7 @@ def _display_name(data: dict, upgraded: bool) -> str:
 
 
 def get_card_text(card, upgraded=None) -> str:
-    """Just the effect text (upgraded variant when the card is upgraded and it differs).
-
-    Returns '' for a card outside our scope so callers never crash on a missing id.
-    """
+    """Just the effect text (upgraded variant when it differs); '' if out of scope."""
     cid, up = _resolve(card, upgraded)
     data = CARD_DATA.get(cid)
     if data is None:
@@ -81,7 +69,7 @@ def get_card_text(card, upgraded=None) -> str:
 def describe_card(card, upgraded=None) -> str:
     """One line: 'Bash (2 energy, Attack): Deal 8 damage. Apply 2 Vulnerable.'
 
-    Falls back to the raw id for anything outside our scope, so it's always safe to call.
+    Falls back to the raw id for anything outside our scope.
     """
     cid, up = _resolve(card, upgraded)
     data = CARD_DATA.get(cid)
@@ -96,9 +84,9 @@ def describe_card(card, upgraded=None) -> str:
 def card_glossary(cards, header: str | None = None) -> str:
     """A de-duplicated description block for a collection of cards.
 
-    Each distinct (card, upgraded) pair is described once, in first-seen order — so a
-    hand of [Strike, Strike, Bash] yields two lines, not three. This is the encoder's
-    hand/deck legend; keeping it dedup'd is the whole point (context budget).
+    Each distinct (card, upgraded) pair is described once, in first-seen order, so a
+    hand of [Strike, Strike, Bash] yields two lines, not three. Dedup is what keeps the
+    encoder's hand/deck legend inside the context budget.
     """
     seen: set[tuple[str, bool]] = set()
     lines: list[str] = []

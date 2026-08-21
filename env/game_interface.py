@@ -7,27 +7,24 @@ import os
 import sys
 from pathlib import Path
 
-# Auto-detected relative to this repo, so a fresh clone works on any machine /
-# any path with no edits. Override with the env vars only if your layout differs.
+# Auto-detected from the repo root; override with the env vars if your layout differs.
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 BUILD_DIR = os.environ.get(
     "STS_BUILD_DIR", str(_REPO_ROOT / "sts_lightspeed" / "cmake-build-mingw")
 )
-# Only needed on Windows when the interpreter is NOT MSYS2's mingw64 python
-# (with that one, the mingw DLLs sit next to python.exe and resolve for free).
+# Only needed on Windows when the interpreter is not MSYS2's mingw64 python
+# (that one ships the mingw DLLs next to python.exe).
 MINGW_BIN = os.environ.get("STS_MINGW_BIN", r"C:\msys64\mingw64\bin")
 
 
 ##################### MAKING OTHER FOLDERS VISIBLE ##########################
 if BUILD_DIR not in sys.path:
     sys.path.insert(0, BUILD_DIR)
-# Scripts run from inside env/ (e.g. `python test.py`) only get env/ on sys.path,
-# so top-level packages like game_data are invisible without this.
+# Scripts run from inside env/ only get env/ on sys.path, so game_data needs this.
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
-# ...and the mirror case: imported as `env.game_interface` from the repo root
-# (tests/, data/, eval/), env/ itself is not on sys.path, so the flat sibling
-# imports below (`event_options`) would not resolve.
+# Mirror case: imported from the repo root, env/ is not on sys.path, so the flat
+# sibling imports below (`event_options`) would not resolve.
 if str(_REPO_ROOT / "env") not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT / "env"))
 if hasattr(os, "add_dll_directory") and os.path.isdir(MINGW_BIN):
@@ -59,8 +56,7 @@ class GameInterface:
     def legal_actions(self):
         if self.gc.screen_state == sts.ScreenState.BATTLE:
             actions_list = sts.get_legal_actions(self.bc)
-            # Same order as the list step() indexes into, so the position a
-            # description sits at is the number to pass back.
+            # Same order step() indexes into: the position is the number to pass back.
             return f"Enter a number of the action: {[f"{actions_list.index(a)}. {describe_battle(a, self.bc)}" for a in actions_list]}"
         elif self.gc.screen_state == sts.ScreenState.MAP_SCREEN:
             actions_list = sts.GameAction.get_all_actions_in_state(self.gc)
@@ -121,8 +117,7 @@ class GameInterface:
 
     def step(self, action):
         if self.gc.screen_state == sts.ScreenState.BATTLE: # WHEN IN BATTLE
-            # gc sits on the BATTLE screen for the whole fight; every decision
-            # goes through the BattleContext instead (see docs, "Combat").
+            # gc stays on the BATTLE screen all fight; decisions go through bc.
             if not self.bc_initiated:
                 self.bc.init(self.gc)
                 self.bc_initiated = True
@@ -135,12 +130,11 @@ class GameInterface:
             if isinstance(action, sts.Action):
                 combat_action = action
             else:
-                # `action` is an index into legal_actions() / the same order the
-                # policy was shown.
+                # `action` is an index into legal_actions().
                 actions_list = sts.get_legal_actions(self.bc)
                 if not actions_list:
-                    # Only happens for the card-select tasks the engine doesn't
-                    # implement (Hologram/Meditate/Nightmare/Recycle/Setup/Seek).
+                    # Only for card-select tasks the engine doesn't implement
+                    # (Hologram/Meditate/Nightmare/Recycle/Setup/Seek).
                     raise RuntimeError(
                         f"no legal combat actions while the battle is undecided "
                         f"(input_state={self.bc.input_state}, "
@@ -153,8 +147,7 @@ class GameInterface:
                     )
                 combat_action = actions_list[action]
 
-            # Applies the action and runs the engine (monster turns, shuffles,
-            # ...) up to the next decision point. Raises ValueError if illegal.
+            # Runs the engine to the next decision point; ValueError if illegal.
             combat_action.execute(self.bc)
 
         else: # FOR ALL THE OTHER SCREENS
@@ -179,26 +172,26 @@ class GameInterface:
 
     
     def card_describe(self, card, upgraded=None):
-        # card_text.describe_card takes a Card, a CardId, or a plain id string.
+        # Takes a Card, a CardId, or a plain id string.
         return describe_card(card, upgraded)
 
 
     def relic_describe(self, relic):
-        # relic_text.describe_relic takes a Relic, a RelicId, or a plain id string.
-        # Relics have no upgrade dimension, so there is no second argument.
+        # Takes a Relic, a RelicId, or a plain id string. Relics have no upgrade
+        # dimension, so there is no second argument.
         return describe_relic(relic)
 
 
     def potion_describe(self, potion):
-        # potion_text.describe_potion takes a Potion enum or a plain id string.
-        # An empty belt slot describes itself as '(empty slot)' rather than raising.
+        # Takes a Potion enum or a plain id string; an empty slot describes itself
+        # as '(empty slot)' rather than raising.
         return describe_potion(potion)
 
 
     def status_describe(self, status, amount=None, owner=None):
-        # status_text.describe_status takes a PlayerStatus/MonsterStatus or an id
-        # string. `amount` is the stack count; `owner` only matters for a bare string
-        # ('WEAK' means the player's by default, owner="MONSTER" for an enemy's).
+        # Takes a PlayerStatus/MonsterStatus or an id string. `amount` is the stack
+        # count; `owner` only matters for a bare string ('WEAK' is the player's by
+        # default, owner="MONSTER" for an enemy's).
         return describe_status(status, amount, owner)
 
 
@@ -236,9 +229,8 @@ class GameInterface:
     def view_relics(self):
         """Every relic you're carrying, described.
 
-        `gc.relics` holds `Relic` objects, which the engine gives no `__repr__` — printing
-        one lands on `<slaythespire.Relic object at 0x...>`. relic_text reads `.id` instead,
-        so the name and the effect text come from `relic_data.json`, same as cards do.
+        `Relic` objects have no `__repr__`, so relic_text reads `.id` and pulls the name
+        and effect text from `relic_data.json`.
         """
         relics = self.gc.relics
         if not relics:
@@ -248,9 +240,8 @@ class GameInterface:
     def view_potions(self):
         """Every potion in your belt, described, with the slot count.
 
-        Reads `bc.potions` mid-combat: the BattleContext holds its own copy of the belt
-        and only writes it back on `exit_battle`, so `gc.potions` still lists a potion the
-        policy drank three turns ago.
+        Reads `bc.potions` mid-combat: bc holds its own copy of the belt and only writes
+        it back on `exit_battle`, so `gc.potions` goes stale during a fight.
         """
         in_battle = self.gc.screen_state == sts.ScreenState.BATTLE and self.bc_initiated
         potions = self.bc.potions if in_battle else self.gc.potions
@@ -279,8 +270,8 @@ REST_ROOM_OPTIONS = {
 TREASURE_ROOM_OPTIONS = {0: "open the chest", 1: "skip the chest"}
 
 # Potions the engine asks a target for (mirrors potionRequiresTarget in
-# constants/Potions.h). potion_data.json carries the same flag, but only over the
-# Ironclad pool — Poison Potion isn't in it, and the engine still targets it.
+# constants/Potions.h). potion_data.json's flag covers only the Ironclad pool, which
+# misses Poison Potion.
 TARGETED_POTIONS = {
     sts.Potion.FEAR_POTION,
     sts.Potion.FIRE_POTION,
@@ -289,8 +280,8 @@ TARGETED_POTIONS = {
 }
 
 
-# Short display names for action lines. The full effect text belongs in the
-# glossaries the state encoder builds, not in every legal-action line.
+# Short display names for action lines; the full effect text belongs in the
+# glossaries the state encoder builds.
 def _enum_name(enum_val) -> str:
     """Fallback for ids the game_data tables don't cover (non-Ironclad pools):
     RelicId.BLOOD_VIAL -> 'Blood Vial'."""
@@ -317,13 +308,10 @@ def _potion_name(potion) -> str:
 def _active_statuses(holder, enum_cls):
     """[(status, amount)] for everything currently on a Player or a Monster.
 
-    The engine has no "what am I carrying" accessor — you probe one id at a time — so
-    this walks the whole enum. `amount` is None for flag-only powers (Barricade,
-    Corruption, ...): the engine never puts those in its status map, so asking for a
-    value raises instead of returning 1. `status_data.json` is what says which is which.
-
-    The `or amount` catches a Monster quirk: its Strength lives in a field the status
-    bit doesn't track, so a debuffed enemy can be at -3 Strength with the bit unset.
+    The engine only answers one id at a time, so this walks the whole enum. `amount` is
+    None for flag-only powers (Barricade, Corruption, ...), which raise instead of
+    returning 1; `status_data.json` says which is which. The `or amount` catches Monster
+    Strength, which lives in a field the status bit doesn't track.
     """
     active = []
     for name, status in enum_cls.__members__.items():
@@ -358,9 +346,8 @@ def _describe_reward(a, gc):
 
     if rt == sts.RewardsActionType.GOLD:
         gold = r["gold"]
-        # Engine quirk: getAllRewardActions enumerates every gold pile with
-        # idx1=0, so two piles show up as two identical lines (and executing
-        # either takes pile 0). Harmless, but don't read the duplicate as a bug.
+        # Engine quirk: every gold pile is enumerated with idx1=0, so two piles show
+        # up as two identical lines and executing either takes pile 0.
         if a.idx1 < len(gold):
             return f"take {gold[a.idx1]} gold"
         return "take the gold"
@@ -418,8 +405,7 @@ def _describe_shop(a, gc):
 
 
 def _monster_name(bc, idx) -> str:
-    """'Jaw Worm (enemy 0)' — the index stays because same-name enemies are the
-    norm (3 Cultists, 2 Louses) and the policy has to say *which* one."""
+    """'Jaw Worm (enemy 0)' — the index disambiguates same-name enemies (3 Cultists)."""
     monsters = bc.monsters
     if 0 <= idx < len(monsters):
         # Monster.name is the raw id string ('JAW_WORM'), not a display name.
@@ -433,12 +419,9 @@ def _pile_card(cards, idx) -> str:
 
 
 def _describe_card_select(a, bc):
-    """CARD_SELECT input state — the index is into a pile the *task* chooses, so
-    dispatch on the task and name the card.
-
-    (The engine's own describe() prints the task name and gives up here: "TODO we
-    don't know if it's selecting from hand or discard". The piles below come from
-    isValidSingleCardSelectAction in src/sim/search/Action.cpp.)
+    """CARD_SELECT input state — the *task* decides which pile the index points into,
+    so dispatch on the task and name the card. The piles come from
+    isValidSingleCardSelectAction in src/sim/search/Action.cpp.
     """
     t = sts.CardSelectTask
     info = bc.card_select_info
@@ -495,9 +478,8 @@ def _describe_card_select(a, bc):
 def describe_battle(a, bc):
     """BATTLE screen — the combat twin of describe(), dispatching on action_type.
 
-    Same job as the engine's `a.describe(bc)` ("{ use card (0) Strike -> (0) Jaw
-    Worm }"), but phrased like the out-of-combat lines and with the card named in
-    every card-select task.
+    Replaces the engine's `a.describe(bc)` with out-of-combat phrasing and the card
+    named in every card-select task.
     """
     at = a.action_type
 
@@ -507,8 +489,8 @@ def describe_battle(a, bc):
     if at == sts.ActionType.CARD:
         hand = bc.cards.hand
         i = a.source_idx
-        # Untargeted cards are enumerated with target_idx 0, which is also a real
-        # monster index — the card itself is what says whether it aims.
+        # Untargeted cards are enumerated with target_idx 0 too, so the card itself
+        # is what says whether it aims.
         if 0 <= i < len(hand) and hand[i].requires_target:
             return f"play {_pile_card(hand, i)} on {_monster_name(bc, a.target_idx)}"
         return f"play {_pile_card(hand, i)}"
@@ -519,9 +501,8 @@ def describe_battle(a, bc):
         if not 0 <= i < len(potions):
             return f"use the potion in slot {i}"
         name = _potion_name(potions[i])
-        # A discard is encoded as target -1, which reads back as 8191 (13 bits).
-        # Targeted potions also land here when nothing is targetable, and Fairy in
-        # a Bottle is only ever discardable.
+        # A discard is target -1, which reads back as 8191 (13 bits). Untargetable
+        # and always-discard potions (Fairy in a Bottle) land here too.
         if a.target_idx > 5:
             return f"discard {name}"
         if potions[i] in TARGETED_POTIONS:

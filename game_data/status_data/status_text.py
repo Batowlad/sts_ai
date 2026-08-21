@@ -1,15 +1,12 @@
 """Human-readable status-effect descriptions for the state encoder.
 
-Sibling of `../card_data/card_text.py`, for buffs / debuffs / powers. The
-sts_lightspeed engine exposes status *identity* (`PlayerStatus` / `MonsterStatus`) and a
-stack count, but no effect text, so the LLM policy can see "Vulnerable 2" without
-knowing what Vulnerable does. This module is the lookup: `status id -> {text, kind, ...}`,
-loaded from `status_data.json` (generated from the engine headers by
-`build_status_data.py`).
+Sibling of `../card_data/card_text.py`, for buffs / debuffs / powers. The engine
+exposes status *identity* (`PlayerStatus` / `MonsterStatus`) and a stack count, but no
+effect text, so the policy sees "Vulnerable 2" without knowing what Vulnerable does.
+This module is the lookup: `status id -> {text, kind, ...}`, loaded from
+`status_data.json` (built from the engine headers by `build_status_data.py`).
 
 Scope is both enums in full — 86 player statuses, 42 monster statuses.
-
-    from status_text import describe_status, status_glossary, get_status_text
 
     describe_status(sts.PlayerStatus.VULNERABLE, 2)   # 'Vulnerable (2): You take 50%...'
     status_glossary(gi.player_statuses())             # dedup'd block for the whole set
@@ -42,8 +39,8 @@ _X = re.compile(r"\bX\b")
 def _resolve(status, owner=None) -> tuple[str, str]:
     """Normalize any accepted status form to (status_id_string, owner).
 
-    Accepts a PlayerStatus/MonsterStatus enum value (has `.name`, and its type says which
-    side it belongs to) or a plain string. An explicit `owner` arg wins.
+    Accepts a PlayerStatus/MonsterStatus enum value, whose type says which side it
+    belongs to, or a plain string. An explicit `owner` arg wins.
     """
     name = getattr(status, "name", status)      # enum -> 'VULNERABLE'; else assume a str
     if owner is None:
@@ -63,7 +60,7 @@ def get(status, owner=None) -> dict | None:
 
 
 def get_status_text(status, owner=None) -> str:
-    """Just the effect text. Returns '' for an unknown status so callers never crash."""
+    """Just the effect text; '' for an unknown status."""
     data = get(status, owner)
     return data["text"] if data else ""
 
@@ -71,12 +68,9 @@ def get_status_text(status, owner=None) -> str:
 def describe_status(status, amount=None, owner=None) -> str:
     """One line: 'Vulnerable (2): You take 50% more damage from attacks. ...'
 
-    `amount` is the stack count from `get_status`; omit it (or pass None) to describe the
-    status generically. Flag-only powers never show a count. Statuses the engine doesn't
-    fully implement carry their caveat at the end, so the policy isn't told about
-    behaviour it will never actually see.
-
-    Falls back to the raw id for anything unknown, so it's always safe to call.
+    `amount` is the stack count from `get_status`; None describes the status generically,
+    and flag-only powers never show a count. Statuses the engine doesn't fully implement
+    carry their caveat at the end. Falls back to the raw id for anything unknown.
     """
     sid, side = _resolve(status, owner)
     data = _ALL.get(side, {}).get(sid)
@@ -98,9 +92,9 @@ def describe_status(status, amount=None, owner=None) -> str:
 def status_glossary(statuses, header: str | None = None) -> str:
     """A de-duplicated description block for a collection of statuses.
 
-    Accepts bare statuses or `(status, amount)` pairs — which is what the probing
-    helpers in `env/game_interface.py` return. Each distinct status is described once,
-    in first-seen order; the first amount seen for it wins.
+    Accepts bare statuses or the `(status, amount)` pairs `env/game_interface.py`
+    returns. Each distinct status is described once, in first-seen order; the first
+    amount seen for it wins.
     """
     seen: set[tuple[str, str]] = set()
     lines: list[str] = []
