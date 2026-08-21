@@ -6,20 +6,36 @@ from pathlib import Path
 
 from game_interface import sts
 from game_data.card_data.card_text import CARD_DATA
+from game_data.potion_data.potion_text import POTION_DATA
+from game_data.relic_data.relic_text import RELIC_DATA
 
 # Dispatched by hand below because they need arguments parsed out of the text,
 # so they're deliberately kept out of the no-arg table get_funcs() builds.
-SPECIAL_FUNCS = ("step", "card_describe")
+SPECIAL_FUNCS = ("step", "card_describe", "relic_describe", "potion_describe")
 
-# The model has to actually be asking about a card before a bare word is read as
-# one: 31 card ids are ordinary English (DOUBT, SAFETY, RAGE, BLIND, TRIP...), so
-# an ungated search turns "I'm in doubt about this" into a card lookup.
+# The model has to actually be asking about something before a bare word is read
+# as a name: 31 card ids and 38 relic ids are ordinary English (DOUBT, SAFETY,
+# RAGE, ANCHOR, LANTERN, SHOVEL...), so an ungated search turns "I'm in doubt
+# about this" into a card lookup.
 # Matched against already-normalized words, so no apostrophes here: "what's"
 # reaches this set as 'whats'.
 DESCRIBE_TRIGGERS = frozenset({
     "describe", "description", "explain", "what", "whats",
-    "tell", "info", "card",
+    "tell", "info", "card", "relic", "potion",
 })
+
+# {kind: (id enum, display-name data)} for everything _find can name. `kind` is
+# also the method prefix: 'relic' -> GameInterface.relic_describe. Iteration
+# order is the order parse_action tries them in -- no id or display name is
+# shared across the three pools today, so it only settles a future tie.
+_POOLS = {
+    "card": (sts.CardId, CARD_DATA),
+    "relic": (sts.RelicId, RELIC_DATA),
+    "potion": (sts.Potion, POTION_DATA),
+}
+
+# Placeholder enum members that never name anything the model can ask about.
+_NON_IDS = frozenset({"INVALID", "EMPTY_POTION_SLOT"})
 
 
 def _normalize(word: str) -> str:
@@ -77,66 +93,85 @@ def get_func_words():
     return {key: funcs.pop() for key, funcs in claims.items() if len(funcs) == 1}
 
 
+def _display_key(display: str) -> str:
+    """'Bird-Faced Urn' -> 'BIRDFACED_URN'.
+
+    Built exactly the way _find builds its lookup key, or it'd never match.
+    """
+    parts = [p for p in (_normalize(w) for w in display.lower().split()) if p]
+    return "_".join(parts).upper()
+
+
 @cache
-def get_card_ids():
-    """{'BASH': CardId.BASH, ...} so words in the text can name a card.
+def _lookup(kind):
+    """({'BASH': CardId.BASH, ...}, longest id in words) for one pool.
 
     Keyed by enum member name *and* by display name, because the two disagree:
     the Ironclad basics are STRIKE_RED/DEFEND_RED, so a plain 'strike' -- the
-    most common card in the game -- would otherwise name nothing at all.
+    most common card in the game -- would otherwise name nothing at all. Relics
+    need it for the three ids that spell out punctuation the display name only
+    hyphenates: 'Du-Vu Doll' normalizes to DUVU_DOLL, not DU_VU_DOLL.
 
-    Display names come from CARD_DATA, and that's what keeps them unambiguous:
+    Display names come from game_data, and that's what keeps them unambiguous:
     STRIKE_BLUE/GREEN/PURPLE are all called 'Strike' too, but they're other
     classes and CARD_DATA is scoped to the Ironclad pool. A member name always
-    wins over an alias, so an alias can never shadow a real card.
+    wins over an alias, so an alias can never shadow a real id.
+
+    The enum is the wider of the two -- it carries every class's relics and
+    potions, not just ours -- and describe_relic/describe_potion name an
+    out-of-scope id rather than raising, so those stay findable with no text.
     """
-    members = {n: cid for n, cid in sts.CardId.__members__.items() if n != "INVALID"}
-    cards = dict(members)
-    for name, data in CARD_DATA.items():
-        cid = members.get(name)
-        if cid is None:                      # data for a card this build lacks
+    enum, data = _POOLS[kind]
+    ids = {n: v for n, v in enum.__members__.items() if n not in _NON_IDS}
+    lookup = dict(ids)
+    for name, entry in data.items():
+        value = ids.get(name)
+        if value is None:                    # data for something this build lacks
             continue
-        # Built exactly the way _find_card builds its lookup key, or it'd never match.
-        parts = [p for p in (_normalize(w) for w in data["name"].lower().split()) if p]
-        cards.setdefault("_".join(parts).upper(), cid)
-    return cards
+        lookup.setdefault(_display_key(entry["name"]), value)
+    return lookup, max(name.count("_") for name in lookup) + 1
 
 
-@cache
-def _max_card_words():
-    return max(name.count("_") for name in get_card_ids()) + 1
+def _find(words, kind):
+    """(id, upgraded) for the longest run of words naming one, else None.
 
-
-def _find_card(words):
-    """(CardId, upgraded) for the longest run of words naming a card, else None.
-
-    Card ids are multi-word ('all for one' -> ALL_FOR_ONE), so the words have to be
+    Ids are multi-word ('all for one' -> ALL_FOR_ONE), so the words have to be
     rejoined into a key -- a substring test can't do that, it can only check a key
-    you already built. Longest run first, because 13 ids end in STRIKE and
-    'wild strike' must not settle for plain STRIKE. Runs longer than the longest
-    card id can't match, so capping the size keeps this linear in sentence length.
+    you already built. Longest run first, because 13 card ids end in STRIKE and
+    'wild strike' must not settle for plain STRIKE, the same way 'red skull' must
+    not settle for SKULL. Runs longer than the longest id can't match, so capping
+    the size keeps this linear in sentence length.
+
+    `upgraded` only means anything for cards; relics and potions have no upgrade
+    dimension and their caller drops it.
     """
-    cards = get_card_ids()
-    for size in range(min(len(words), _max_card_words()), 0, -1):
+    ids, max_size = _lookup(kind)
+    for size in range(min(len(words), max_size), 0, -1):
         for i in range(len(words) - size + 1):
             gram = "_".join(words[i:i + size])
             # A trailing '+' asks for the upgraded text.
             key = gram.rstrip("+").upper()
-            if key in cards:
-                return cards[key], gram.endswith("+")
+            if key in ids:
+                return ids[key], gram.endswith("+")
     return None
 
 
 def parse_action(text: str, gi, encode_state):
     words = [w for w in (_normalize(w) for w in text.lower().split()) if w]
 
-    # No trigger word means no card lookup, however card-like a word looks. If the
+    # No trigger word means no name lookup, however card-like a word looks. If the
     # trigger is there but names nothing, fall through -- 'describe the map' is
-    # still a perfectly good view_map.
+    # still a perfectly good view_map, and 'describe my relics' a view_relics
+    # (the plural is nobody's id, so it reaches the func words below).
     if not DESCRIBE_TRIGGERS.isdisjoint(words):
-        found = _find_card(words)
-        if found:
-            return gi.card_describe(*found)
+        for kind in _POOLS:
+            found = _find(words, kind)
+            if found:
+                value, upgraded = found
+                if kind == "card":
+                    return gi.card_describe(value, upgraded)
+                # Relics and potions have no upgrade dimension.
+                return getattr(gi, f"{kind}_describe")(value)
 
     func_words = get_func_words()
     for word in words:

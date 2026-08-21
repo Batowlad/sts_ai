@@ -13,7 +13,7 @@ def encode_state(gi) -> str:
         map_x = gi.gc.cur_map_node_x
         map_y = gi.gc.cur_map_node_y
 
-        deck = gi.gc.deck
+        deck = gi.view_deck()
 
         # BATTLE LIVE VIEW
         player_view = gi.bc.player
