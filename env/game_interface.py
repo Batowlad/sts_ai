@@ -41,7 +41,9 @@ from event_options import describe_event_option
 from game_data.card_data import card_text
 from game_data.card_data.card_text import describe_card
 from game_data.potion_data import potion_text
+from game_data.potion_data.potion_text import describe_potion, potion_glossary
 from game_data.relic_data import relic_text
+from game_data.relic_data.relic_text import describe_relic, relic_glossary
 from game_data.status_data import status_text
 from game_data.status_data.status_text import describe_status, status_glossary
 
@@ -181,6 +183,18 @@ class GameInterface:
         return describe_card(card, upgraded)
 
 
+    def relic_describe(self, relic):
+        # relic_text.describe_relic takes a Relic, a RelicId, or a plain id string.
+        # Relics have no upgrade dimension, so there is no second argument.
+        return describe_relic(relic)
+
+
+    def potion_describe(self, potion):
+        # potion_text.describe_potion takes a Potion enum or a plain id string.
+        # An empty belt slot describes itself as '(empty slot)' rather than raising.
+        return describe_potion(potion)
+
+
     def status_describe(self, status, amount=None, owner=None):
         # status_text.describe_status takes a PlayerStatus/MonsterStatus or an id
         # string. `amount` is the stack count; `owner` only matters for a bare string
@@ -219,24 +233,32 @@ class GameInterface:
             clean_deck.append(card)
         return clean_deck
 
-    def view_relics(self): #TODO
+    def view_relics(self):
+        """Every relic you're carrying, described.
+
+        `gc.relics` holds `Relic` objects, which the engine gives no `__repr__` — printing
+        one lands on `<slaythespire.Relic object at 0x...>`. relic_text reads `.id` instead,
+        so the name and the effect text come from `relic_data.json`, same as cards do.
+        """
         relics = self.gc.relics
-        clean_relics = []
-        for relic in relics:
-            relic = str(relic)
-            relic = relic.replace("<slaythespire.Card ", "") 
-            relic = relic.replace(">", "")
-            clean_relics.append(relic)
-        return clean_relics
+        if not relics:
+            return "You have no relics."
+        return relic_glossary(relics, header="Relics:")
 
     def view_potions(self):
-        potions = self.gc.potions
-        clean_potions = []
-        for potion in potions:
-            potion = str(potion)
-            potion = potion.replace("Potion.", "")
-            clean_potions.append(potion)
-        return clean_potions
+        """Every potion in your belt, described, with the slot count.
+
+        Reads `bc.potions` mid-combat: the BattleContext holds its own copy of the belt
+        and only writes it back on `exit_battle`, so `gc.potions` still lists a potion the
+        policy drank three turns ago.
+        """
+        in_battle = self.gc.screen_state == sts.ScreenState.BATTLE and self.bc_initiated
+        potions = self.bc.potions if in_battle else self.gc.potions
+
+        held = [p for p in potions if not potion_text.is_empty(p)]
+        if not held:
+            return f"Potions: none (0/{len(potions)} slots full)."
+        return potion_glossary(held, header=f"Potions ({len(held)}/{len(potions)} slots full):")
 
     
 ###############################################################

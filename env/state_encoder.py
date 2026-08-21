@@ -14,17 +14,15 @@ def encode_state(gi) -> str:
         map_y = gi.gc.cur_map_node_y
 
         deck = gi.gc.deck
-        relics = gi.gc.relics
-        potions = gi.gc.potions
 
         # BATTLE LIVE VIEW
         player_view = gi.bc.player
         monsters_view = gi.bc.monsters
         cards_view = gi.bc.cards
 
-        # return f"Current screen: {cur_screen}, HP: {cur_hp}/{max_hp}, Gold amount: {gold}, Potion count: {potion_count}, Current map node: ({map_x}, {map_y}, Deck: {deck})"
         if gi.gc.screen_state == sts.ScreenState.BATTLE:
-            return f"{player_view}, Monsters: {monsters_view}, Cards: {cards_view}, Deck: {deck}" # VERY VERY LIKELY TO BE EDITED
+            return (f"{player_view}, Monsters: {monsters_view}, Cards: {cards_view}, Deck: {deck}\n"
+                    f"Status effects:\n{gi.view_statuses()}") # VERY VERY LIKELY TO BE EDITED
         elif gi.gc.screen_state == sts.ScreenState.MAP_SCREEN:
             if map_y == -1:
                  return f"Position: not yet on the map (choose a starting node), HP: {cur_hp}/{max_hp}, Gold amount: {gold}"
@@ -39,6 +37,8 @@ def encode_state(gi) -> str:
         elif gi.gc.screen_state == sts.ScreenState.SHOP_ROOM:
             return f"Gold amount: {gold}, potion slots: {potion_count}/{potion_capacity}"
         elif gi.gc.screen_state == sts.ScreenState.BOSS_RELIC_REWARDS:
-            return f"Deck: {deck}, Gold amount: {gold}, Relics: {relics}"
+            return (f"Deck: {deck}, Gold amount: {gold}\n"
+                    f"{gi.view_relics()}")
         elif gi.gc.screen_state == sts.ScreenState.REWARDS:
-            return f"Deck: {deck}, Gold amount: {gold}, Relics: {relics}, Potion slots: {potion_count}/{potion_capacity}, Potions: {potions}"
+            return (f"Deck: {deck}, Gold amount: {gold}\n"
+                    f"{gi.view_relics()}\n{gi.view_potions()}")
