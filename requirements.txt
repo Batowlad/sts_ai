@@ -1,1 +1,9 @@
 # Add deps as you go (anthropic, torch, transformers, trl, pyyaml, numpy, ...).
+torch==2.9.1 --index-url https://download.pytorch.org/whl/cu128
+transformers
+trl
+perft
+datasets
+accelerate
+bitsandbytes
+wandb
