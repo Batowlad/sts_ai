@@ -4,15 +4,57 @@ LLM agent for Slay the Spire, on top of the vendored `sts_lightspeed` C++ engine
 
 ## Layout
 ```
-env/        # game_interface (wraps sts_lightspeed), state_encoder, action_parser
+env/        # game_interface (wraps sts_lightspeed), game_types, observe, render,
+            #   state_encoder, action_parser
 agent/      # policy (LLM-as-policy), prompts
 data/       # collect_rollouts.py + generated datasets
 training/   # sft, rl (GRPO/PPO), reward
 eval/       # evaluate, metrics
-configs/    # yaml/json configs
+configs/    # config.py (typed RunConfig) + default.yaml
+game_data/  # schemas.py + the generated card/relic/potion/status tables
 notebooks/  # exploration, plotting
 sts_lightspeed/  # vendored C++ engine + pybind11 module (build separately)
 ```
+
+## Typed state and actions
+
+The engine is read into frozen dataclasses before anything renders text, so the
+structure survives for reward shaping, rollout logging and eval:
+
+```
+pybind objects --observe.py--> Observation / ActionOption --render.py--> str
+```
+
+```python
+from dataclasses import asdict
+from env.game_interface import GameInterface
+
+gi = GameInterface()
+obs = gi.observe()                    # Observation - detached snapshot
+opts = gi.legal_action_options()      # tuple[ActionOption, ...] - typed legal moves
+row = asdict(obs)                     # plain dict, straight into json.dumps
+gi.step(opts[0])                      # step by option, index, or engine Action
+```
+
+* `env/game_types.py` — the dataclasses. No engine import, so it stays cycle-free.
+* `env/observe.py` — builders. The only module that imports both sides.
+* `env/render.py` — `render(obs) -> str`. Pure, so it is testable without the engine.
+* `env/state_encoder.py` — `encode_state(gi)` is now `render(build_observation(gi))`.
+
+`ActionOption.index` is what `step()` consumes, but it is only valid for the step
+that produced it. Log `ActionOption.key` (`'play_card:BASH->0'`) instead — it is
+position-independent, and `bits` + `screen` let `step()` replay the exact decision.
+
+Snapshots capture everything the engine exposes, including the draw pile's order;
+`render` hides it unless you pass `reveal_draw_pile=True`, so the policy is not
+trained on information it will not have at inference.
+
+Pydantic sits only at the trust boundaries — `game_data/schemas.py` validates the
+generated JSON tables once at import, and `configs/config.py` validates the YAML.
+The per-step types stay plain dataclasses: they are built thousands of times per
+rollout from data the C++ engine already validated.
+
+Tests: `python tests/test_typed_layer.py`.
 
 ## Building the engine
 

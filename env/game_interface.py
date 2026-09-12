@@ -5,6 +5,7 @@ of the project can just `from env.game_interface import sts`.
 """
 import os
 import sys
+from functools import cache
 from pathlib import Path
 
 # Auto-detected from the repo root; override with the env vars if your layout differs.
@@ -35,6 +36,8 @@ if hasattr(os, "add_dll_directory") and os.path.isdir(MINGW_BIN):
 import slaythespire as sts  # type: ignore
 
 from event_options import describe_event_option
+from game_types import ActionOption
+from render import render_action_options
 from game_data.card_data import card_text
 from game_data.card_data.card_text import describe_card
 from game_data.potion_data import potion_text
@@ -53,37 +56,32 @@ class GameInterface:
         self.map = sts.SpireMap(42, 0, 1, False)
         self.bc_initiated = False
 
+    def legal_action_options(self):
+        """The legal choices as typed `ActionOption`s — the version to use from code.
+
+        `observe` is imported here rather than at module scope because it imports *this*
+        module for `sts` and the describers; a top-level import would be a cycle. After
+        the first call it is a dict lookup in `sys.modules`.
+        """
+        from observe import build_action_options
+
+        return build_action_options(self)
+
+    def observe(self):
+        """A typed, detached snapshot of the current decision point."""
+        from observe import build_observation
+
+        return build_observation(self)
+
     def legal_actions(self):
-        if self.gc.screen_state == sts.ScreenState.BATTLE:
-            actions_list = sts.get_legal_actions(self.bc)
-            # Same order step() indexes into: the position is the number to pass back.
-            return f"Enter a number of the action: {[f"{actions_list.index(a)}. {describe_battle(a, self.bc)}" for a in actions_list]}"
-        elif self.gc.screen_state == sts.ScreenState.MAP_SCREEN:
-            actions_list = sts.GameAction.get_all_actions_in_state(self.gc)
-            decoded_actions = []
+        """The legal choices as the one prompt-ready line the policy reads.
 
-            cur_y = self.gc.cur_map_node_y
+        A thin render over `legal_action_options()`; the numbering it prints is what
+        `step()` and `env/action_parser.py` consume.
+        """
+        return render_action_options(self.legal_action_options(), _tail(self.gc.screen_state))
 
-            for x in actions_list:
-                action = describe(x, self.gc)
 
-                cur_x = int(action.replace("move to map node x=", ""))
-                room_type = self.map.get_room_type(cur_x, cur_y+1)
-                room_type = str(room_type).replace("Room.", "").capitalize()
-
-                decoded_actions.append(f"{actions_list.index(x)}. {action} ({room_type} Room)")
-            return f"Enter a number of the action: {decoded_actions}"
-        else:
-            actions_list = sts.GameAction.get_all_actions_in_state(self.gc)
-            # print(actions_list) # debugging
-            decoded_actions = []
-            for x in actions_list:
-                action = describe(x, self.gc)
-                decoded_actions.append(f"{actions_list.index(x)}. {action}")
-            if self.gc.screen_state == sts.ScreenState.REWARDS or self.gc.screen_state == sts.ScreenState.BOSS_RELIC_REWARDS:
-                return f"Enter a number of the action (You can only select one card/relic): {decoded_actions}"
-            return f"Enter a number of the action: {decoded_actions}"
-        
     def reset(self):
         self.gc = new_game()
 
@@ -115,8 +113,62 @@ class GameInterface:
         map = "\n".join(map_list)
         return map
 
+    def _resolve_action(self, action, in_combat: bool):
+        """Whatever `step()` was handed -> the engine action to execute.
+
+        An engine `Action` / `GameAction` passes straight through. An `ActionOption` is
+        rebuilt from its bits, not its index: the index only means something for the
+        step that produced it, while the bits are the engine's own packing of the
+        decision. Anything else is treated as an index into `legal_actions()`.
+        """
+        engine_cls = sts.Action if in_combat else sts.GameAction
+        if isinstance(action, engine_cls):
+            return action
+
+        if isinstance(action, ActionOption):
+            screen = _tail(self.gc.screen_state)
+            if action.screen != screen:
+                raise ValueError(
+                    f"{action.key!r} was enumerated on {action.screen}, but the game is "
+                    f"on {screen} — its bits would decode as a different decision"
+                )
+            if action.bits is None:
+                raise ValueError(f"{action.key!r} carries no bits to replay")
+            engine_action = engine_cls.from_bits(action.bits)
+            if not engine_action.is_valid(self.bc if in_combat else self.gc):
+                raise ValueError(f"{action.key!r} is not legal in the current state")
+            return engine_action
+
+        # `action` is an index into legal_actions().
+        if in_combat:
+            actions_list = sts.get_legal_actions(self.bc)
+            if not actions_list:
+                # Only for card-select tasks the engine doesn't implement
+                # (Hologram/Meditate/Nightmare/Recycle/Setup/Seek).
+                raise RuntimeError(
+                    f"no legal combat actions while the battle is undecided "
+                    f"(input_state={self.bc.input_state}, "
+                    f"task={self.bc.card_select_info.task})"
+                )
+            which = "legal combat actions"
+        else:
+            actions_list = sts.GameAction.get_all_actions_in_state(self.gc)
+            if not actions_list:
+                raise RuntimeError(f"no legal actions on {self.gc.screen_state}")
+            which = f"legal actions on {self.gc.screen_state}"
+
+        if not isinstance(action, int) or not 0 <= action < len(actions_list):
+            raise IndexError(
+                f"action {action!r} is not a valid index into the "
+                f"{len(actions_list)} {which}"
+            )
+        return actions_list[action]
+
     def step(self, action):
-        if self.gc.screen_state == sts.ScreenState.BATTLE: # WHEN IN BATTLE
+        """Take one action: an index into `legal_actions()`, an `ActionOption`, or an
+        engine `Action` / `GameAction`."""
+        in_combat = self.gc.screen_state == sts.ScreenState.BATTLE
+        if in_combat: # WHEN IN BATTLE
             # gc stays on the BATTLE screen all fight; decisions go through bc.
             if not self.bc_initiated:
                 self.bc.init(self.gc)
@@ -127,39 +179,8 @@ class GameInterface:
                     f"battle already over ({self.bc.outcome}) — no action to take"
                 )
 
-            if isinstance(action, sts.Action):
-                combat_action = action
-            else:
-                # `action` is an index into legal_actions().
-                actions_list = sts.get_legal_actions(self.bc)
-                if not actions_list:
-                    # Only for card-select tasks the engine doesn't implement
-                    # (Hologram/Meditate/Nightmare/Recycle/Setup/Seek).
-                    raise RuntimeError(
-                        f"no legal combat actions while the battle is undecided "
-                        f"(input_state={self.bc.input_state}, "
-                        f"task={self.bc.card_select_info.task})"
-                    )
-                if not isinstance(action, int) or not 0 <= action < len(actions_list):
-                    raise IndexError(
-                        f"action {action!r} is not a valid index into the "
-                        f"{len(actions_list)} legal combat actions"
-                    )
-                combat_action = actions_list[action]
-
-            # Runs the engine to the next decision point; ValueError if illegal.
-            combat_action.execute(self.bc)
-
-        else: # FOR ALL THE OTHER SCREENS
-            actions_list = sts.GameAction.get_all_actions_in_state(self.gc)
-            if not actions_list:
-                raise RuntimeError(f"no legal actions on {self.gc.screen_state}")
-            if not isinstance(action, int) or not 0 <= action < len(actions_list):
-                raise IndexError(
-                    f"action {action!r} is not a valid index into the "
-                    f"{len(actions_list)} legal actions on {self.gc.screen_state}"
-                )
-            actions_list[action].execute(self.gc)
+        # Runs the engine to the next decision point; ValueError if illegal.
+        self._resolve_action(action, in_combat).execute(self.bc if in_combat else self.gc)
 
         # CHECK FOR BATTLE SCREEN TO INIT BATTLE
         if self.gc.screen_state == sts.ScreenState.BATTLE: # WHEN SWITCHING TO BATTLE
@@ -280,29 +301,57 @@ TARGETED_POTIONS = {
 }
 
 
+def _tail(enum_val) -> str | None:
+    """ScreenState.MAP_SCREEN -> 'MAP_SCREEN'; None stays None."""
+    return None if enum_val is None else str(enum_val).split(".")[-1]
+
+
 # Short display names for action lines; the full effect text belongs in the
 # glossaries the state encoder builds.
 def _enum_name(enum_val) -> str:
     """Fallback for ids the game_data tables don't cover (non-Ironclad pools):
     RelicId.BLOOD_VIAL -> 'Blood Vial'."""
-    return str(enum_val).split(".")[-1].replace("_", " ").title()
+    return _tail(enum_val).replace("_", " ").title()
 
 
-def _card_name(card) -> str:
-    """A Card -> 'Bash' / 'Bash+' (reward and shop cards can roll upgraded)."""
+def _card_name(card, upgraded=None) -> str:
+    """A Card -> 'Bash' / 'Bash+' (reward and shop cards can roll upgraded).
+
+    Also takes a plain id string with `upgraded` spelled out, which is how
+    env/observe.py names a card without re-reading its pybind properties.
+    """
     data = card_text.get(card)
-    name = data["name"] if data else _enum_name(getattr(card, "id", card))
-    return name + ("+" if getattr(card, "upgraded", False) else "")
+    name = data.name if data else _enum_name(getattr(card, "id", card))
+    if upgraded is None:
+        upgraded = getattr(card, "upgraded", False)
+    return name + ("+" if upgraded else "")
 
 
 def _relic_name(relic) -> str:
     data = relic_text.get(relic)
-    return data["name"] if data else _enum_name(relic)
+    return data.name if data else _enum_name(relic)
 
 
 def _potion_name(potion) -> str:
     data = potion_text.get(potion)
-    return data["name"] if data else _enum_name(potion)
+    return data.name if data else _enum_name(potion)
+
+
+@cache
+def _scannable_statuses(enum_cls):
+    """((status, stacks), ...) for one status enum, INVALID dropped.
+
+    Precomputed because `_active_statuses` now runs on every snapshot, not just when
+    `view_statuses()` is called by hand. Resolving each id's `stacks` flag through
+    status_text on every pass was most of the loop's cost, and those flags never change.
+    """
+    out = []
+    for name, status in enum_cls.__members__.items():
+        if name == "INVALID":
+            continue
+        data = status_text.get(status)
+        out.append((status, data is None or data.stacks))
+    return tuple(out)
 
 
 def _active_statuses(holder, enum_cls):
@@ -314,12 +363,9 @@ def _active_statuses(holder, enum_cls):
     Strength, which lives in a field the status bit doesn't track.
     """
     active = []
-    for name, status in enum_cls.__members__.items():
-        if name == "INVALID":
-            continue
+    for status, stacks in _scannable_statuses(enum_cls):
         amount = None
-        data = status_text.get(status)
-        if data is None or data["stacks"]:
+        if stacks:
             try:
                 amount = holder.get_status(status)
             except IndexError:      # flag-only after all — describe it without a count
@@ -418,6 +464,25 @@ def _pile_card(cards, idx) -> str:
     return _card_name(cards[idx]) if 0 <= idx < len(cards) else f"card {idx}"
 
 
+def _card_select_pile(task, bc, info):
+    """Which pile a card-select index points into, for a given task.
+
+    The single source of truth for the mapping in isValidSingleCardSelectAction
+    (src/sim/search/Action.cpp). Both the describer below and `env/observe.py` read it,
+    so a newly implemented task only has to be classified in one place.
+    """
+    t = sts.CardSelectTask
+    if task in (t.CODEX, t.DISCOVERY):
+        return info.cards
+    if task == t.EXHUME:
+        return bc.cards.exhaust_pile
+    if task in (t.HOLOGRAM, t.LIQUID_MEMORIES_POTION, t.MEDITATE, t.HEADBUTT):
+        return bc.cards.discard_pile
+    if task in (t.SEEK, t.SECRET_TECHNIQUE, t.SECRET_WEAPON):
+        return bc.cards.draw_pile
+    return bc.cards.hand        # everything left selects out of the hand
+
+
 def _describe_card_select(a, bc):
     """CARD_SELECT input state — the *task* decides which pile the index points into,
     so dispatch on the task and name the card. The piles come from
@@ -437,25 +502,26 @@ def _describe_card_select(a, bc):
         return f"{verb} {picks}" + (" and draw that many" if task == t.GAMBLE else "")
 
     idx = a.select_idx
+    pile = _card_select_pile(task, bc, info)
 
     if task in (t.CODEX, t.DISCOVERY):
-        return f"add {_pile_card(info.cards, idx)} to your hand"
+        return f"add {_pile_card(pile, idx)} to your hand"
 
     if task == t.EXHUME:
-        return f"return {_pile_card(bc.cards.exhaust_pile, idx)} from the exhaust pile"
+        return f"return {_pile_card(pile, idx)} from the exhaust pile"
 
     if task in (t.HOLOGRAM, t.LIQUID_MEMORIES_POTION, t.MEDITATE):
-        return f"return {_pile_card(bc.cards.discard_pile, idx)} from the discard pile"
+        return f"return {_pile_card(pile, idx)} from the discard pile"
 
     if task == t.HEADBUTT:
-        card = _pile_card(bc.cards.discard_pile, idx)
+        card = _pile_card(pile, idx)
         return f"put {card} from the discard pile on top of the draw pile"
 
     if task in (t.SEEK, t.SECRET_TECHNIQUE, t.SECRET_WEAPON):
-        return f"take {_pile_card(bc.cards.draw_pile, idx)} from the draw pile"
+        return f"take {_pile_card(pile, idx)} from the draw pile"
 
     # Everything left selects out of the hand.
-    card = _pile_card(bc.cards.hand, idx)
+    card = _pile_card(pile, idx)
 
     if task == t.ARMAMENTS:
         return f"upgrade {card}"

@@ -17,17 +17,28 @@ Scope is both enums in full — 86 player statuses, 42 monster statuses.
 text written from opposite sides, so the enum type picks the side; for a bare string,
 pass `owner='MONSTER'` when you mean the enemy's copy (default is the player's).
 """
-import json
 import re
+import sys
 from pathlib import Path
+
+# Run this file directly and sys.path[0] is its own directory, so the `game_data.`
+# package import below would not resolve. Same shim as env/game_interface.py.
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from game_data.schemas import StatusEntry, load_table
 
 _DATA_PATH = Path(__file__).resolve().parent / "status_data.json"
 
-with _DATA_PATH.open(encoding="utf-8") as _f:
-    _ALL: dict[str, dict[str, dict]] = json.load(_f)
+# Validated once at import; entries are frozen `StatusEntry` models, not plain dicts.
+PLAYER_STATUS_DATA: dict[str, StatusEntry] = load_table(_DATA_PATH, StatusEntry, "PLAYER")
+MONSTER_STATUS_DATA: dict[str, StatusEntry] = load_table(_DATA_PATH, StatusEntry, "MONSTER")
 
-PLAYER_STATUS_DATA: dict[str, dict] = _ALL["PLAYER"]
-MONSTER_STATUS_DATA: dict[str, dict] = _ALL["MONSTER"]
+_ALL: dict[str, dict[str, StatusEntry]] = {
+    "PLAYER": PLAYER_STATUS_DATA,
+    "MONSTER": MONSTER_STATUS_DATA,
+}
 
 # Enum class name -> section, so a PlayerStatus/MonsterStatus value resolves on its own.
 _OWNER_OF_ENUM = {"PlayerStatus": "PLAYER", "MonsterStatus": "MONSTER"}
@@ -53,8 +64,8 @@ def _resolve(status, owner=None) -> tuple[str, str]:
     return str(name).upper(), str(owner).upper()
 
 
-def get(status, owner=None) -> dict | None:
-    """Raw data dict for a status, or None if the id isn't in that side's enum."""
+def get(status, owner=None) -> StatusEntry | None:
+    """Validated entry for a status, or None if the id isn't in that side's enum."""
     sid, side = _resolve(status, owner)
     return _ALL.get(side, {}).get(sid)
 
@@ -62,7 +73,7 @@ def get(status, owner=None) -> dict | None:
 def get_status_text(status, owner=None) -> str:
     """Just the effect text; '' for an unknown status."""
     data = get(status, owner)
-    return data["text"] if data else ""
+    return data.text if data else ""
 
 
 def describe_status(status, amount=None, owner=None) -> str:
@@ -76,16 +87,16 @@ def describe_status(status, amount=None, owner=None) -> str:
     data = _ALL.get(side, {}).get(sid)
     if data is None:
         return sid  # unknown status: at least name it
-    head = data["name"]
-    text = data["text"]
-    if amount is not None and data["stacks"]:
+    head = data.name
+    text = data.text
+    if amount is not None and data.stacks:
         head += f" ({amount})"
         # The authored text says "X" where the stack count goes; with a live count in
         # hand, spell it out ("gain X Block" -> "gain 4 Block").
         text = _X.sub(str(amount), text)
     line = f"{head}: {text}"
-    if data["engine_note"]:
-        line += f" [engine: {data['engine_note']}]"
+    if data.engine_note:
+        line += f" [engine: {data.engine_note}]"
     return line
 
 

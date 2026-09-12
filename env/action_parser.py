@@ -10,10 +10,14 @@ from game_data.potion_data.potion_text import POTION_DATA
 from game_data.relic_data.relic_text import RELIC_DATA
 from game_data.status_data.status_text import MONSTER_STATUS_DATA, PLAYER_STATUS_DATA
 
-# Dispatched by hand below: they need arguments parsed out of the text, so they're
-# kept out of the no-arg table get_funcs() builds.
+# Kept out of the no-arg table get_funcs() builds. step() and the describe_* family need
+# arguments parsed out of the text, so they're dispatched by hand below.
+# legal_action_options() and observe() take none but return dataclasses — the typed API
+# for code, not text for the model — and would also cost 'legal' its claim on
+# legal_actions().
 SPECIAL_FUNCS = (
     "step", "card_describe", "relic_describe", "potion_describe", "status_describe",
+    "legal_action_options", "observe",
 )
 
 # Words that mean "the status, not the card that grants it". 48 ids collide, because
@@ -138,7 +142,7 @@ def _lookup(kind):
     for name, entry in data.items():
         if name not in ids:                  # data for something this build lacks
             continue
-        lookup.setdefault(_display_key(entry["name"]), name)
+        lookup.setdefault(_display_key(entry.name), name)
     return lookup, max(name.count("_") for name in lookup) + 1
 
 

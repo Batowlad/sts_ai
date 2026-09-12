@@ -15,13 +15,21 @@ Scope is the Ironclad potion pool (33).
 string ('FIRE_POTION'). Empty slots (`EMPTY_POTION_SLOT` / `INVALID`) are recognized
 and skipped by the glossary.
 """
-import json
+import sys
 from pathlib import Path
+
+# Run this file directly and sys.path[0] is its own directory, so the `game_data.`
+# package import below would not resolve. Same shim as env/game_interface.py.
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from game_data.schemas import PotionEntry, load_table
 
 _DATA_PATH = Path(__file__).resolve().parent / "potion_data.json"
 
-with _DATA_PATH.open(encoding="utf-8") as _f:
-    POTION_DATA: dict[str, dict] = json.load(_f)
+# Validated once at import; entries are frozen `PotionEntry` models, not plain dicts.
+POTION_DATA: dict[str, PotionEntry] = load_table(_DATA_PATH, PotionEntry)
 
 EMPTY_SLOTS = {"EMPTY_POTION_SLOT", "INVALID"}
 
@@ -40,15 +48,15 @@ def is_empty(potion) -> bool:
     return _resolve(potion) in EMPTY_SLOTS
 
 
-def get(potion) -> dict | None:
-    """Raw data dict for a potion, or None if empty/outside our scope."""
+def get(potion) -> PotionEntry | None:
+    """Validated entry for a potion, or None if empty/outside our scope."""
     return POTION_DATA.get(_resolve(potion))
 
 
 def get_potion_text(potion) -> str:
     """Just the effect text. Returns '' for an empty slot or out-of-scope potion."""
     data = POTION_DATA.get(_resolve(potion))
-    return data["text"] if data else ""
+    return data.text if data else ""
 
 
 def describe_potion(potion) -> str:
@@ -62,8 +70,8 @@ def describe_potion(potion) -> str:
     data = POTION_DATA.get(pid)
     if data is None:
         return pid  # out-of-scope potion (e.g. another class's): at least name it
-    rarity = data["rarity"].capitalize()
-    return f"{data['name']} ({rarity}): {data['text']}"
+    rarity = data.rarity.capitalize()
+    return f"{data.name} ({rarity}): {data.text}"
 
 
 def potion_glossary(potions, header: str | None = None) -> str:

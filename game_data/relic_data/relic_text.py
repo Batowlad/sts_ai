@@ -14,13 +14,21 @@ Scope is what an Ironclad run can obtain — shared + Ironclad relics (149).
 `relic` may be an sts `Relic` (read via `.id`), a `RelicId` enum, or the id string
 ('AKABEKO'). Relics have no upgrade dimension, so there's no upgraded variant.
 """
-import json
+import sys
 from pathlib import Path
+
+# Run this file directly and sys.path[0] is its own directory, so the `game_data.`
+# package import below would not resolve. Same shim as env/game_interface.py.
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from game_data.schemas import RelicEntry, load_table
 
 _DATA_PATH = Path(__file__).resolve().parent / "relic_data.json"
 
-with _DATA_PATH.open(encoding="utf-8") as _f:
-    RELIC_DATA: dict[str, dict] = json.load(_f)
+# Validated once at import; entries are frozen `RelicEntry` models, not plain dicts.
+RELIC_DATA: dict[str, RelicEntry] = load_table(_DATA_PATH, RelicEntry)
 
 
 def _resolve(relic) -> str:
@@ -30,15 +38,15 @@ def _resolve(relic) -> str:
     return str(name).upper()
 
 
-def get(relic) -> dict | None:
-    """Raw data dict for a relic, or None if it's outside our scope."""
+def get(relic) -> RelicEntry | None:
+    """Validated entry for a relic, or None if it's outside our scope."""
     return RELIC_DATA.get(_resolve(relic))
 
 
 def get_relic_text(relic) -> str:
     """Just the effect text. Returns '' for a relic outside our scope."""
     data = RELIC_DATA.get(_resolve(relic))
-    return data["text"] if data else ""
+    return data.text if data else ""
 
 
 def describe_relic(relic) -> str:
@@ -50,8 +58,8 @@ def describe_relic(relic) -> str:
     data = RELIC_DATA.get(rid)
     if data is None:
         return rid  # unknown / out-of-scope relic: at least name it
-    rarity = data["rarity"].capitalize()
-    return f"{data['name']} ({rarity}): {data['text']}"
+    rarity = data.rarity.capitalize()
+    return f"{data.name} ({rarity}): {data.text}"
 
 
 def relic_glossary(relics, header: str | None = None) -> str:

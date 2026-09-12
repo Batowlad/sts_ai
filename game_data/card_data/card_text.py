@@ -14,13 +14,21 @@ Statuses (145 cards). No other classes.
 `card` may be an sts `Card`/`CardInstance` (read via `.id` + `.upgraded`), a `CardId`
 enum, or the plain id string ('BASH').
 """
-import json
+import sys
 from pathlib import Path
+
+# Run this file directly and sys.path[0] is its own directory, so the `game_data.`
+# package import below would not resolve. Same shim as env/game_interface.py.
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from game_data.schemas import CardEntry, load_table
 
 _DATA_PATH = Path(__file__).resolve().parent / "card_data.json"
 
-with _DATA_PATH.open(encoding="utf-8") as _f:
-    CARD_DATA: dict[str, dict] = json.load(_f)
+# Validated once at import; entries are frozen `CardEntry` models, not plain dicts.
+CARD_DATA: dict[str, CardEntry] = load_table(_DATA_PATH, CardEntry)
 
 
 def _resolve(card, upgraded=None) -> tuple[str, bool]:
@@ -36,14 +44,14 @@ def _resolve(card, upgraded=None) -> tuple[str, bool]:
     return str(name).upper(), bool(upgraded)
 
 
-def get(card, upgraded=None) -> dict | None:
-    """Raw data dict for a card, or None if it's outside our scope."""
+def get(card, upgraded=None) -> CardEntry | None:
+    """Validated entry for a card, or None if it's outside our scope."""
     cid, _ = _resolve(card, upgraded)
     return CARD_DATA.get(cid)
 
 
-def _fmt_cost(data: dict, upgraded: bool) -> str:
-    cost = data["cost_upgraded"] if (upgraded and data["cost_upgraded"]) else data["cost"]
+def _fmt_cost(data: CardEntry, upgraded: bool) -> str:
+    cost = data.cost_upgraded if (upgraded and data.cost_upgraded) else data.cost
     if cost == "Unplayable":
         return "Unplayable"
     if cost == "X":
@@ -51,8 +59,8 @@ def _fmt_cost(data: dict, upgraded: bool) -> str:
     return f"{cost} energy"
 
 
-def _display_name(data: dict, upgraded: bool) -> str:
-    return data["name"] + ("+" if upgraded else "")
+def _display_name(data: CardEntry, upgraded: bool) -> str:
+    return data.name + ("+" if upgraded else "")
 
 
 def get_card_text(card, upgraded=None) -> str:
@@ -61,9 +69,9 @@ def get_card_text(card, upgraded=None) -> str:
     data = CARD_DATA.get(cid)
     if data is None:
         return ""
-    if up and data["text_upgraded"]:
-        return data["text_upgraded"]
-    return data["text"]
+    if up and data.text_upgraded:
+        return data.text_upgraded
+    return data.text
 
 
 def describe_card(card, upgraded=None) -> str:
@@ -77,7 +85,7 @@ def describe_card(card, upgraded=None) -> str:
         return cid  # unknown / out-of-scope card: at least name it
     name = _display_name(data, up)
     cost = _fmt_cost(data, up)
-    ctype = data["type"].capitalize()
+    ctype = data.type.capitalize()
     return f"{name} ({cost}, {ctype}): {get_card_text(card, up)}"
 
 

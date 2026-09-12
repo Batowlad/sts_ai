@@ -1,4 +1,4 @@
-# Add deps as you go (anthropic, torch, transformers, trl, pyyaml, numpy, ...).
+# Add deps as you go (anthropic, torch, transformers, trl, numpy, ...).
 torch==2.9.1 --index-url https://download.pytorch.org/whl/cu128
 transformers
 trl
@@ -7,3 +7,14 @@ datasets
 accelerate
 bitsandbytes
 wandb
+
+# Used by game_data/schemas.py (validates the generated *_data.json tables) and
+# configs/config.py (validates default.yaml). NOTE: these have to be installed into the
+# same MSYS2 mingw64 Python the `slaythespire` module was built against, and that
+# interpreter is externally managed, so pip refuses. Install them with pacman instead:
+#
+#   pacman -S mingw-w64-x86_64-python-pydantic mingw-w64-x86_64-python-yaml
+#
+# On macOS/Linux (or any venv build) the plain pip install below is fine.
+pydantic>=2
+pyyaml
