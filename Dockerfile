@@ -48,8 +48,8 @@ RUN cmake -G Ninja -S sts_lightspeed -B sts_lightspeed/build \
         -DPython_EXECUTABLE="$(which python)" \
     && cmake --build sts_lightspeed/build --target slaythespire -j
 
-# Point game_interface.py at the Linux build dir via the env override it supports
-# (its default is the Windows cmake-build-mingw dir).
+# game_interface.py would find /app/sts_lightspeed/build on its own, but pin it
+# explicitly so the image never depends on that probe order.
 ENV STS_BUILD_DIR=/app/sts_lightspeed/build
 
 # --- Python dependencies ----------------------------------------------------

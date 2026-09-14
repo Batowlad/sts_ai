@@ -1,17 +1,22 @@
-# Add deps as you go (anthropic, torch, transformers, trl, numpy, ...).
-torch==2.9.1 --index-url https://download.pytorch.org/whl/cu128
+# Add deps as you go (anthropic, transformers, trl, numpy, ...).
+#
+# Cross-platform set: everything here resolves on macOS, Linux and Windows.
+torch==2.9.1
 transformers
 trl
-perft
+peft
 datasets
 accelerate
-bitsandbytes
 wandb
 
+# CUDA-only (no macOS wheels are published), so skip it on darwin.
+bitsandbytes; sys_platform != "darwin"
+
 # Used by game_data/schemas.py (validates the generated *_data.json tables) and
-# configs/config.py (validates default.yaml). NOTE: these have to be installed into the
-# same MSYS2 mingw64 Python the `slaythespire` module was built against, and that
-# interpreter is externally managed, so pip refuses. Install them with pacman instead:
+# configs/config.py (validates default.yaml). NOTE: on Windows these have to be
+# installed into the same MSYS2 mingw64 Python the `slaythespire` module was built
+# against, and that interpreter is externally managed, so pip refuses. Install them
+# with pacman instead:
 #
 #   pacman -S mingw-w64-x86_64-python-pydantic mingw-w64-x86_64-python-yaml
 #

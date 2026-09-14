@@ -4,35 +4,34 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
-
         {
-            "name": "Python: _importtest (MINGW64)",
+            "name": "Python: _importtest",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/_importtest.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            // Not portable: assumes the default MSYS2 install location (C:\msys64).
-            // Edit "python" and "PATH" below if MSYS2 is installed elsewhere (see README).
-            "python": "C:\\msys64\\mingw64\\bin\\python.exe",
-            "env": {
-                "MSYSTEM": "MINGW64",
-                "PATH": "C:\\msys64\\mingw64\\bin;${env:PATH}"
+            "windows": {
+                "python": "C:\\msys64\\mingw64\\bin\\python.exe",
+                "env": {
+                    "MSYSTEM": "MINGW64",
+                    "PATH": "C:\\msys64\\mingw64\\bin;${env:PATH}"
+                }
             }
         },
         {
-            "name": "Python: Current File (MINGW64)",
+            "name": "Python: Current File",
             "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            // Not portable: assumes the default MSYS2 install location (C:\msys64), see README.
-            "python": "C:\\msys64\\mingw64\\bin\\python.exe",
-            "env": {
-                "MSYSTEM": "MINGW64",
-                "PATH": "C:\\msys64\\mingw64\\bin;${env:PATH}"
+            "windows": {
+                "python": "C:\\msys64\\mingw64\\bin\\python.exe",
+                "env": {
+                    "MSYSTEM": "MINGW64",
+                    "PATH": "C:\\msys64\\mingw64\\bin;${env:PATH}"
+                }
             }
         }
     ]

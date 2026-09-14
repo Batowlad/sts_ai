@@ -1,25 +1,55 @@
 """Wraps the sts_lightspeed `slaythespire` pybind module.
 
-Centralizes the import shim (build dir on sys.path + mingw DLL dir) so the rest
-of the project can just `from env.game_interface import sts`.
+Centralizes the import shim (build dir on sys.path + mingw DLL dir on Windows)
+so the rest of the project can just `from env.game_interface import sts`.
 """
 import os
 import sys
 from functools import cache
+from importlib.machinery import EXTENSION_SUFFIXES
 from pathlib import Path
 
 # Auto-detected from the repo root; override with the env vars if your layout differs.
 _REPO_ROOT = Path(__file__).resolve().parents[1]
-BUILD_DIR = os.environ.get(
-    "STS_BUILD_DIR", str(_REPO_ROOT / "sts_lightspeed" / "cmake-build-mingw")
-)
-# Only needed on Windows when the interpreter is not MSYS2's mingw64 python
-# (that one ships the mingw DLLs next to python.exe).
-MINGW_BIN = os.environ.get("STS_MINGW_BIN", r"C:\msys64\mingw64\bin")
+_ENGINE_ROOT = _REPO_ROOT / "sts_lightspeed"
+# The build dir name differs per platform (MSYS2/mingw on Windows, a plain cmake
+# `build` on macOS/Linux), so probe the known layouts instead of hardcoding one.
+# Windows first on Windows, since a leftover .so there is not importable anyway.
+_BUILD_DIR_NAMES = ("cmake-build-mingw", "build", "cmake-build-release", "cmake-build-debug")
+if os.name != "nt":
+    _BUILD_DIR_NAMES = tuple(sorted(_BUILD_DIR_NAMES, key=lambda n: n != "build"))
+
+
+def _holds_module(directory: Path) -> bool:
+    """True if `directory` holds a `slaythespire` extension THIS interpreter can load.
+
+    `EXTENSION_SUFFIXES` is the running interpreter's own list (`.pyd` on Windows,
+    `.so` on macOS/Linux), so a build dir left over from another platform is skipped
+    instead of being put on sys.path where the import would just fail.
+    """
+    suffixes = tuple(EXTENSION_SUFFIXES)
+    return any(p.name.endswith(suffixes) for p in directory.glob("slaythespire*"))
+
+
+def _find_build_dir() -> str | None:
+    override = os.environ.get("STS_BUILD_DIR")
+    if override:
+        return override
+    for name in _BUILD_DIR_NAMES:
+        candidate = _ENGINE_ROOT / name
+        if candidate.is_dir() and _holds_module(candidate):
+            return str(candidate)
+    return None
+
+
+BUILD_DIR = _find_build_dir()
+# Windows only: a mingw-built .pyd needs the mingw runtime DLLs on the search path
+# unless you run MSYS2's own python.exe (that one ships them next to python.exe).
+MINGW_BIN = os.environ.get("STS_MINGW_BIN", r"C:\msys64\mingw64\bin") if os.name == "nt" else None
 
 
 ##################### MAKING OTHER FOLDERS VISIBLE ##########################
-if BUILD_DIR not in sys.path:
+if BUILD_DIR is not None and BUILD_DIR not in sys.path:
     sys.path.insert(0, BUILD_DIR)
 # Scripts run from inside env/ only get env/ on sys.path, so game_data needs this.
 if str(_REPO_ROOT) not in sys.path:
@@ -28,12 +58,22 @@ if str(_REPO_ROOT) not in sys.path:
 # sibling imports below (`event_options`) would not resolve.
 if str(_REPO_ROOT / "env") not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT / "env"))
-if hasattr(os, "add_dll_directory") and os.path.isdir(MINGW_BIN):
+if MINGW_BIN is not None and os.path.isdir(MINGW_BIN):
     os.add_dll_directory(MINGW_BIN)
 #############################################################################
 
 
-import slaythespire as sts  # type: ignore
+try:
+    import slaythespire as sts  # type: ignore
+except ImportError as exc:  # pragma: no cover - setup failure, not a runtime path
+    searched = ", ".join(str(_ENGINE_ROOT / name) for name in _BUILD_DIR_NAMES)
+    raise ImportError(
+        f"could not import the compiled `slaythespire` module ({exc}).\n"
+        f"Searched: {searched}\n"
+        "Build the engine for this interpreter (see 'Building the engine' in the "
+        "README), or set STS_BUILD_DIR to the directory holding the built module.\n"
+        f"Interpreter: {sys.executable}"
+    ) from exc
 
 from event_options import describe_event_option
 from game_types import ActionOption

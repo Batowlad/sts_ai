@@ -164,30 +164,33 @@ source .venv/bin/activate
 cd sts_lightspeed
 cmake -G Ninja -S . -B build -DCMAKE_BUILD_TYPE=Release \
   -DPYBIND11_FINDPYTHON=ON \
-  -DPython_EXECUTABLE="$(which python)" \
-  -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+  -DPython_EXECUTABLE="$(which python)"
 cmake --build build --target slaythespire -j
 ```
-This produces `sts_lightspeed/build/slaythespire.*.so`. The `main` (console sim)
-and `test` (benchmarks/agents) targets build the same way.
+This produces `sts_lightspeed/build/slaythespire.*.so`. The `main` (console sim),
+`test` (benchmarks/agents) and `small-test` targets build the same way; a bare
+`cmake --build build -j` builds all four.
 
-> **Why `-DCMAKE_POLICY_VERSION_MINIMUM=3.5`?** Homebrew ships CMake 4.x, which
-> rejects the pre-3.5 `cmake_minimum_required` in the vendored `json` submodule.
-> The flag applies 3.5-era policy defaults so configuration succeeds; it doesn't
-> change how the engine itself compiles. Omit it on CMake 3.x.
+> **CMake 4.x note:** Homebrew ships CMake 4.x, which rejects the pre-3.5
+> `cmake_minimum_required` in the vendored `json` submodule. The top-level
+> `CMakeLists.txt` now defaults `CMAKE_POLICY_VERSION_MINIMUM` to `3.5` for the
+> subprojects, so no extra flag is needed. Pass `-DCMAKE_POLICY_VERSION_MINIMUM=...`
+> yourself to override that.
 
 #### Running
-`game_interface.py` defaults to the Windows `cmake-build-mingw` dir, so point it at
-the macOS build via `STS_BUILD_DIR` (add it to `.venv/bin/activate` or your shell
-profile so it persists):
+`game_interface.py` probes `sts_lightspeed/{build,cmake-build-mingw,cmake-build-release,cmake-build-debug}`
+for a compiled `slaythespire` module, so the macOS build is picked up with no
+configuration:
 ```bash
-export STS_BUILD_DIR=/path/to/sts_ai/sts_lightspeed/build
 cd /path/to/sts_ai
 python -c "from env.game_interface import sts, new_game; \
 gc = new_game(seed=42); print(gc.cur_hp, gc.deck)"
 ```
-`STS_MINGW_BIN` is Windows-only (guarded behind `os.add_dll_directory`) and is
-ignored on macOS.
+Set `STS_BUILD_DIR` only if your build lives somewhere else — it short-circuits the
+probe. `STS_MINGW_BIN` is Windows-only and is ignored on macOS/Linux.
+
+Then run the tests: `python tests/test_typed_layer.py` and
+`python tests/smoke_test_combat.py`.
 
 ### Troubleshooting
 * **`ImportError` / DLL load failed** — you're using the wrong Python. Only the
@@ -198,9 +201,14 @@ ignored on macOS.
 * **`constexpr` / C++17 errors** — make sure you're compiling with the mingw64
   gcc, not an older system compiler.
 * **(macOS) `Compatibility with CMake < 3.5 has been removed`** — CMake 4.x vs.
-  the old `json` submodule. Add `-DCMAKE_POLICY_VERSION_MINIMUM=3.5` to the
-  `cmake` configure command (already included in the macOS build above).
+  the old `json` submodule. The top-level `CMakeLists.txt` handles this; if you
+  see it, your `sts_lightspeed` submodule predates that fix — update it, or add
+  `-DCMAKE_POLICY_VERSION_MINIMUM=3.5` to the `cmake` configure command.
 * **(macOS) `ImportError` on `import slaythespire`** — the `.so` was built against
   a different Python than the one importing it. Rebuild inside the venv you run
-  from (so `-DPython_EXECUTABLE="$(which python)"` picks it up), and confirm
-  `STS_BUILD_DIR` points at `sts_lightspeed/build`.
+  from (so `-DPython_EXECUTABLE="$(which python)"` picks it up). The raised error
+  lists the directories that were probed and the interpreter in use.
+* **`AttributeError: 'slaythespire.GameContext' object has no attribute ...`** —
+  the compiled module is older than the Python layer that calls it. Pull the
+  submodule (`git submodule update --remote sts_lightspeed`, or `git pull` inside
+  it) and rebuild; the bindings and `env/observe.py` move together.
