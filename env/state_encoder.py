@@ -6,63 +6,39 @@ text the policy reads. Anything that wants the *structure* (reward shaping, roll
 logging, eval metrics) should call `GameInterface.observe()` and skip the text.
 """
 
+import json
+from pathlib import Path
+
 from observe import build_observation
 from render import render
 
-from transformers import AutoTokenizer
-from yaml import SafeDumper, dump, safe_load
 import functools
 
 def encode_state(gi, *, reveal_draw_pile: bool = False) -> str:
-    """The state text the policy reads.
-
-    Still callable as `encode_state(gi)`, which is the form `env/action_parser.py` and
-    the test harnesses pass around. `reveal_draw_pile` opts into showing the draw pile's
-    real order - hidden information, so it is off unless you are debugging.
-    """
     state = render(build_observation(gi), reveal_draw_pile=reveal_draw_pile)
-
-    tokens = encoding_tokenizer(state)
-    encoding_dump(state, tokens)
-
     return state
 
 @functools.cache
-def encoding_tokenizer(input):
-    tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-1.5B-Instruct")
-    tokens = tokenizer.apply_chat_template(
-        [{"role": "user", "content": input}],
+def _tokenizer():
+    from transformers import AutoTokenizer
+    return AutoTokenizer.from_pretrained("Qwen/Qwen2.5-1.5B-Instruct")
+
+
+def tokenize_state(state: str) -> list[int]:
+    return _tokenizer().apply_chat_template(
+        [{"role": "user", "content": state}],
         add_generation_prompt=True,
         tokenize=True,
         return_dict=True,
-    )
-
-    return tokens["input_ids"]
+    )["input_ids"]
 
 
-class _StateDumper(SafeDumper):
-    """Plain YAML only - raises on objects like tensors instead of pickling them."""
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+_DUMP_PATH = _REPO_ROOT / "data" / "state_dump.jsonl"
 
 
-def _represent_str(dumper, text):
-    # Multi-line text as a `|` block, so the dump reads like the rendered state.
-    style = "|" if "\n" in text else None
-    return dumper.represent_scalar("tag:yaml.org,2002:str", text, style=style)
 
-
-_StateDumper.add_representer(str, _represent_str)
-
-
-def encoding_dump(_input, _tokens):
-    try:
-        with open("data/state_dump.yaml", "r") as file:
-            data = safe_load(file)
-            data["input"].append(_input)
-            data["tokens"].append(_tokens)
-    except:
-        data = {"input": [_input], "tokens": [_tokens]}
-
-
-    with open("data/state_dump.yaml", "w") as file:
-        dump(data, file, Dumper=_StateDumper, sort_keys=False, default_flow_style=None, width=100)
-    
+def dump_state(state: str, **meta) -> list[int]:
+    _DUMP_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(_DUMP_PATH, "a", encoding="utf-8") as f:
+        f.write(json.dumps({"state": state, "tokens": len(tokenize_state(state)), **meta}, ensure_ascii=False) + "\n")
