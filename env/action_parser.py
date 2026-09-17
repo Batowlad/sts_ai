@@ -173,7 +173,9 @@ def _stack_count(words):
     None when there isn't one, which describes the status generically. Only statuses
     read it; elsewhere a number is left to the step() fallback.
     """
-    return next((int(w) for w in words if w.isdigit()), None)
+    import regex as re
+
+    return next(re.search("\d+", words), None)
 
 
 def _owner(words):
