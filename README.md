@@ -40,10 +40,15 @@ gi.step(opts[0])                      # step by option, index, or engine Action
 * `env/observe.py` — builders. The only module that imports both sides.
 * `env/render.py` — `render(obs) -> str`. Pure, so it is testable without the engine.
 * `env/state_encoder.py` — `encode_state(gi)` is now `render(build_observation(gi))`.
+* `env/action_parser.py` — `parse_structured_action(text, gi)` reads the policy's JSON
+  commitment; `parse_action(text, gi, encode_state)` is the natural-language path, kept
+  for the describe/view queries and the REPL.
 
-`ActionOption.index` is what `step()` consumes, but it is only valid for the step
-that produced it. Log `ActionOption.key` (`'play_card:BASH->0'`) instead — it is
-position-independent, and `bits` + `screen` let `step()` replay the exact decision.
+`step()` takes an `ActionOption.key` (`'play_card:BASH->0'`), an `ActionOption`, an
+index, or an engine action. Keys are what the prompt lists and what the policy answers
+with: an index is only valid for the step that produced it, while a key names the
+decision itself, so the prompt, the rollout log and the reward all refer to one string.
+`bits` + `screen` let `step()` replay an option exactly.
 
 Snapshots capture everything the engine exposes, including the draw pile's order;
 `render` hides it unless you pass `reveal_draw_pile=True`, so the policy is not

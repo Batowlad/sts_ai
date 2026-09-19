@@ -1,8 +1,9 @@
 """Tests for the typed state/action layer.
 
 Covers the dataclasses in `env/game_types.py`, the builders in `env/observe.py`, the pure
-renderer in `env/render.py`, `step()` taking an `ActionOption`, and the pydantic models
-behind `game_data/` and `configs/`.
+renderer in `env/render.py`, `step()` taking an `ActionOption` or a key, the structured
+action dialect in `env/action_parser.py`, and the pydantic models behind `game_data/`
+and `configs/`.
 
 Run with the MSYS2 mingw64 python (see memory/build-run-slaythespire.md):
     python tests/test_typed_layer.py [seed] [max_steps]
@@ -17,7 +18,13 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from configs.config import load_config
-from env.action_parser import get_func_words, get_funcs
+from env.action_parser import (
+    ActionFormatError,
+    get_func_words,
+    get_funcs,
+    parse_action,
+    parse_structured_action,
+)
 from env.game_interface import GameInterface, _card_name, sts
 from env.game_types import (
     ActionKind,
@@ -106,11 +113,24 @@ def test_draw_pile_order_is_hidden_by_default():
 
 
 def test_render_action_options():
+    """Keys, not indices, and one line per distinct decision."""
     opts = (ActionOption(index=0, kind=ActionKind.SKIP, label="skip"),
             ActionOption(index=1, kind=ActionKind.TAKE_REWARD, label="take card: Bash"))
-    assert render_action_options(opts, "REWARDS").startswith(
-        "Enter a number of the action (You can only select one card/relic): ")
+    text = render_action_options(opts, "REWARDS")
+    assert text.startswith("Legal actions (You can only select one card/relic):")
+    assert '- "skip" - skip' in text and '- "take_reward" - take card: Bash' in text
+    assert '{"action": "<key>"}' in text
+    assert "0." not in text and "1." not in text      # an index in the prompt invites one back
     assert render_action_options((), "MAP_SCREEN") == "No legal actions on this screen."
+
+
+def test_render_collapses_duplicate_keys():
+    """Two identical Strikes at one target are one decision, so one line."""
+    strike = dict(kind=ActionKind.PLAY_CARD, label="play Strike on Cultist",
+                  card_id="STRIKE_RED", target_idx=0)
+    text = render_action_options((ActionOption(index=0, **strike),
+                                 ActionOption(index=1, **strike)))
+    assert text.count("play Strike on Cultist") == 1
 
 
 def test_parser_ignores_typed_api():
@@ -166,6 +186,62 @@ def test_stale_option_is_rejected():
     _raises(ValueError, gi.step, stale, match="enumerated on EVENT_SCREEN")
 
 
+def test_step_by_key():
+    """A key resolves against the options legal now, and moves the game on."""
+    gi = GameInterface()
+    before = {o.key for o in gi.legal_action_options()}
+    gi.step(sorted(before)[0])
+    assert {o.key for o in gi.legal_action_options()} != before
+    _raises(ValueError, gi.step, "play_card:BASH->0", match="not a legal action on")
+
+
+def test_structured_action_is_read_out_of_reasoning():
+    """Free reasoning, then the commitment; a JSON example mid-thought must not win."""
+    gi = GameInterface()
+    key = sorted(o.key for o in gi.legal_action_options())[0]
+    before = {o.key for o in gi.legal_action_options()}
+    parse_structured_action(
+        f'I could answer with {{"action": "something else"}}, but I will not.\n'
+        f'```json\n{{"action": "{key}", "note": "reasoned"}}\n```',
+        gi,
+    )
+    assert {o.key for o in gi.legal_action_options()} != before
+
+
+def test_structured_action_errors_are_one_type():
+    """Every policy-side mistake arrives as ActionFormatError, so RL can score it."""
+    gi = GameInterface()
+    bad = [
+        ("I will play Bash.", "no JSON object"),                 # no commitment at all
+        ('{"action": ""}', "malformed action object"),            # empty key
+        ('{"act": "end_turn"}', "malformed action object"),       # wrong field name
+        ('{"action": "end_turn", "target": 0}', "malformed action object"),  # extra field
+        ('{"action": "play_card:BASH->0"}', "not a legal action on"),        # illegal here
+    ]
+    for text, message in bad:
+        _raises(ActionFormatError, parse_structured_action, text, gi, match=message)
+
+
+def test_sentence_digits_are_not_actions():
+    """The old any-digit rule read 'play Bash on monster 0' as step(0). Only a bare
+    number is an index now - the misparse that put actions the policy never chose into
+    the reward signal."""
+    taken = []
+
+    class Recorder:
+        def step(self, action):
+            taken.append(action)
+
+    for text in ("I will play Bash on monster 0 to set up the Vulnerable.",
+                 "Strike the front enemy, it only has 2 hp left.",
+                 "Defend. I have 3 block but the attack hits for 12."):
+        _raises(ValueError, parse_action, text, Recorder(), None, match="no action could be parsed")
+    assert not taken
+
+    parse_action("  2  ", Recorder(), None)
+    assert taken == [2]
+
+
 def test_live_run(seed=7, max_steps=400):
     """Walk a real run, stepping by ActionOption: every decision point must yield a
     JSON-able snapshot, rendered text and well-formed options."""
@@ -187,7 +263,9 @@ def test_live_run(seed=7, max_steps=400):
             if o.kind in (ActionKind.USE_POTION, ActionKind.DISCARD_POTION):
                 assert "Room)" not in o.label       # the room label is for map moves only
             kinds.add(o.kind)
-        assert gi.legal_actions().startswith(("Enter a number", "No legal actions"))
+        assert gi.legal_actions().startswith(("Legal actions", "No legal actions"))
+        for o in opts:                              # every listed key must be steppable
+            assert f'"{o.key}"' in gi.legal_actions()
 
         if not opts:
             break

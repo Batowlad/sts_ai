@@ -1,8 +1,24 @@
-"""Model text -> legal game action."""
+"""Model text -> legal game action, in two dialects.
+
+`parse_structured_action` is what a policy under training uses: free reasoning, then a
+JSON object naming one `ActionOption.key`. It is exact - the key either is in the legal
+set or it is not - which is what keeps a misread action out of the reward signal.
+
+`parse_action` is the natural-language path, kept for the describe/view queries (card
+text, the map, the deck) and for typing at a REPL. It resolves names the model actually
+writes ('wild strike' -> WILD_STRIKE), which the structured path has no need of yet.
+
+Pydantic appears here and nowhere else in `env/` on purpose: model output is a trust
+boundary in exactly the sense `game_data/schemas.py` describes, and unlike the per-step
+`Observation` it is neither hot nor engine-validated.
+"""
 
 import ast
+import json
 from functools import cache
 from pathlib import Path
+
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from game_interface import sts
 from game_data.card_data.card_text import CARD_DATA
@@ -173,9 +189,7 @@ def _stack_count(words):
     None when there isn't one, which describes the status generically. Only statuses
     read it; elsewhere a number is left to the step() fallback.
     """
-    import regex as re
-
-    return next(re.search("\d+", words), None)
+    return next((int(w) for w in words if w.isdigit()), None)
 
 
 def _owner(words):
@@ -217,9 +231,89 @@ def parse_action(text: str, gi, encode_state):
             # encode_state is a module-level function, not a GameInterface method.
             return encode_state(gi) if func == "encode_state" else getattr(gi, func)()
 
-    # A bare number is an index into legal_actions().
-    for word in words:
-        if word.isdigit():
-            return gi.step(int(word))
+    # A bare number is an index into legal_actions() - the whole input, not a digit
+    # found somewhere in a sentence. The old any-digit rule silently turned "play Bash
+    # on monster 0" into step(0) and "it only has 2 hp left" into step(2), which is the
+    # misparse `parse_structured_action` exists to remove. Kept for the REPL.
+    stripped = text.strip()
+    if stripped.isdigit():
+        return gi.step(int(stripped))
 
     raise ValueError(f"no action could be parsed out of {text!r}")
+
+class ActionFormatError(ValueError):
+    """The policy's output could not be turned into a legal action.
+
+    One type for every way that can happen - no JSON, JSON that fails the schema, a key
+    that names nothing legal here - because to a training loop they are the same event:
+    the policy produced something unusable and should be scored for it, not crash the
+    rollout. The message says which, for the log.
+    """
+
+
+class PolicyAction(BaseModel):
+    """The decision a policy commits to: one key out of `legal_actions()`.
+
+    `extra="forbid"` for the reason `game_data/schemas.py` gives - a field we don't know
+    about means the prompt and this schema have drifted apart, and an ignored 'target' or
+    'card' the model thought mattered is exactly the bug that costs an afternoon. `note`
+    is the sanctioned place for anything else the model wants to say, so prose never ends
+    up inside `action`.
+
+    One string rather than a field per argument (card, target, selected...) on purpose:
+    a key either is in the legal set or is not, while separate fields can spell out a
+    well-formed action that is illegal - a card not in hand, a target that is already
+    dead - which would hand us a validation and reward-shaping problem the engine has
+    already solved.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    action: str = Field(min_length=1)
+    note: str | None = None
+
+
+def _json_objects(text: str):
+    """Every top-level JSON object in `text`, in order.
+
+    `raw_decode` from each '{' rather than a regex, which cannot balance braces - and a
+    model writing JSON in its reasoning before committing is normal, so the braces do
+    nest. On a hit we resume past the object, which keeps nested ones out of the results
+    (the last *top-level* object is the decision, not the last '{' in the string).
+    A fenced ```json block needs no special case: decoding simply starts after the fence.
+    """
+    decoder = json.JSONDecoder()
+    i = text.find("{")
+    while i != -1:
+        try:
+            value, end = decoder.raw_decode(text, i)
+        except json.JSONDecodeError:
+            i = text.find("{", i + 1)
+            continue
+        if isinstance(value, dict):
+            yield value
+        i = text.find("{", end)
+
+
+def parse_structured_action(text: str, gi):
+    """Policy output -> the action taken, via the JSON object the text ends with.
+
+    Reasoning is free text and is ignored; the last top-level JSON object is the
+    commitment. Raises `ActionFormatError` for anything the policy got wrong, so the
+    caller can reward it rather than handle three exception types.
+    """
+    objects = list(_json_objects(text))
+    if not objects:
+        raise ActionFormatError(f"no JSON object in the policy output: {text!r}")
+
+    try:
+        decision = PolicyAction.model_validate(objects[-1])
+    except ValidationError as exc:
+        raise ActionFormatError(f"malformed action object {objects[-1]!r}\n{exc}") from None
+
+    try:
+        return gi.step(decision.action)
+    except ValueError as exc:
+        # step() raises ValueError for an unknown key, an option from another screen and
+        # one the engine rejects. All three are the policy's mistake, not ours.
+        raise ActionFormatError(str(exc)) from None

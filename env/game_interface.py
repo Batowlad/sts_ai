@@ -114,10 +114,10 @@ class GameInterface:
         return build_observation(self)
 
     def legal_actions(self):
-        """The legal choices as the one prompt-ready line the policy reads.
+        """The legal choices as the one prompt-ready block the policy reads.
 
-        A thin render over `legal_action_options()`; the numbering it prints is what
-        `step()` and `env/action_parser.py` consume.
+        A thin render over `legal_action_options()`; the keys it prints are what `step()`
+        and `env/action_parser.py` consume.
         """
         return render_action_options(self.legal_action_options(), _tail(self.gc.screen_state))
 
@@ -159,7 +159,9 @@ class GameInterface:
         An engine `Action` / `GameAction` passes straight through. An `ActionOption` is
         rebuilt from its bits, not its index: the index only means something for the
         step that produced it, while the bits are the engine's own packing of the
-        decision. Anything else is treated as an index into `legal_actions()`.
+        decision. A string is an `ActionOption.key` - the dialect the policy emits - and
+        is resolved against the options legal right now. Anything else is treated as an
+        index into `legal_actions()`.
         """
         engine_cls = sts.Action if in_combat else sts.GameAction
         if isinstance(action, engine_cls):
@@ -178,6 +180,20 @@ class GameInterface:
             if not engine_action.is_valid(self.bc if in_combat else self.gc):
                 raise ValueError(f"{action.key!r} is not legal in the current state")
             return engine_action
+
+        if isinstance(action, str):
+            # A key, so it is looked up in the options legal *now* rather than replayed
+            # from bits; that is what makes it safe to log and hand back later. Two
+            # options can share a key (two identical Strikes at one target) - by
+            # construction they mean the same decision, so the first is the right one.
+            options = self.legal_action_options()
+            for option in options:
+                if option.key == action:
+                    return self._resolve_action(option, in_combat)
+            raise ValueError(
+                f"{action!r} is not a legal action on {_tail(self.gc.screen_state)}. "
+                f"Legal keys: {sorted({o.key for o in options})}"
+            )
 
         # `action` is an index into legal_actions().
         if in_combat:
@@ -205,8 +221,8 @@ class GameInterface:
         return actions_list[action]
 
     def step(self, action):
-        """Take one action: an index into `legal_actions()`, an `ActionOption`, or an
-        engine `Action` / `GameAction`."""
+        """Take one action: an `ActionOption.key` string, an index into `legal_actions()`,
+        an `ActionOption`, or an engine `Action` / `GameAction`."""
         in_combat = self.gc.screen_state == sts.ScreenState.BATTLE
         if in_combat: # WHEN IN BATTLE
             # gc stays on the BATTLE screen all fight; decisions go through bc.

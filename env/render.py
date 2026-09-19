@@ -156,13 +156,23 @@ def render(obs: Observation, *, reveal_draw_pile: bool = False) -> str:
 
 
 def render_action_options(options: tuple[ActionOption, ...], screen: str = "") -> str:
-    """The legal-action list as one prompt-ready line.
+    """The legal-action list as one prompt-ready block, keyed by `ActionOption.key`.
 
-    Keeps the wording `env/action_parser.py` was written against: the model answers with
-    the bare number, which `parse_action` reads as an index into this list.
+    Keys rather than indices, because an index is only valid for the step that
+    enumerated it while a key names the decision itself - so the prompt, the rollout
+    log, the reward and the action the engine ran all refer to one string.
+    `action_parser.parse_structured_action` accepts exactly what this lists, and nothing
+    here mentions a number: an index in the prompt is an invitation to answer with one.
+
+    Duplicate keys collapse. Two identical Strikes aimed at the same monster are the
+    same decision, so listing both would only invite the model to tell them apart.
     """
     if not options:
         return "No legal actions on this screen."
-    listing = [f"{o.index}. {o.label}" for o in options]
+    listing = {o.key: o.label for o in options}      # first label of each key wins
     note = " (You can only select one card/relic)" if screen in ("REWARDS", "BOSS_RELIC_REWARDS") else ""
-    return f"Enter a number of the action{note}: {listing}"
+    lines = [f'- "{key}" - {label}' for key, label in listing.items()]
+    return (
+        f"Legal actions{note}:\n" + "\n".join(lines)
+        + '\nReply with your reasoning, then the action as JSON: {"action": "<key>"}'
+    )
