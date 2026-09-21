@@ -1,3 +1,3 @@
 """Prompt templates / system prompts. TODO."""
 
-SYSTEM_PROMPT = ""
+SYSTEM_PROMPT = "You are a professional Slay the Spire player."
