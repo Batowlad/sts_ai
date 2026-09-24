@@ -290,6 +290,9 @@ def _game_option(index: int, a, gi) -> ActionOption:
             potion_id=_id_of(_at(gc.potions, a.idx1)),
             **common,
         )
+    if ss == sts.ScreenState.CARD_SELECT:
+        card = _at(gc.select_screen_cards, a.idx1)
+        return ActionOption(kind=ActionKind.DECK_SELECT, card_id=_id_of(card), **common)
     if ss in _SCREEN_KINDS:
         return ActionOption(kind=_SCREEN_KINDS[ss], **common)
     if ss == sts.ScreenState.BOSS_RELIC_REWARDS:

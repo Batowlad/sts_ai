@@ -663,6 +663,27 @@ def describe_battle(a, bc):
     return repr(a)
 
 
+# CardSelectScreenType -> what picking a card on the out-of-combat select screen does.
+_SELECT_SCREEN_VERBS = {
+    "TRANSFORM": "transform",
+    "TRANSFORM_UPGRADE": "transform and upgrade",
+    "UPGRADE": "upgrade",
+    "REMOVE": "remove",
+    "DUPLICATE": "duplicate",
+    "OBTAIN": "obtain",
+    "BOTTLE": "bottle",
+    "BONFIRE_SPIRITS": "offer",
+}
+
+
+def _describe_select_screen(a, gc):
+    """CARD_SELECT screen (Neow, events, Smith, bottles...) — idx1 indexes
+    gc.select_screen_cards."""
+    card = _pile_card(gc.select_screen_cards, a.idx1)
+    verb = _SELECT_SCREEN_VERBS.get(_tail(gc.select_screen_type), "select")
+    return f"{verb} {card}"
+
+
 def new_game(character=None, seed: int = 42, ascension: int = 0):
     """Create a fresh GameContext (defaults to Ironclad)."""
     if character is None:
@@ -685,7 +706,7 @@ def describe(a, gc):
             return "skip the boss relics"
         return f"take boss relic: {_relic_name(gc.boss_relics[a.idx1])}"
     if ss == sts.ScreenState.CARD_SELECT:
-        return f"select card {a.idx1}"
+        return _describe_select_screen(a, gc)
     if ss == sts.ScreenState.MAP_SCREEN:
         return f"move to map node x={a.idx1}"
     if ss == sts.ScreenState.REWARDS:
