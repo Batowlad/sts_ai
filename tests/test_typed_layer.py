@@ -195,6 +195,27 @@ def test_step_by_key():
     _raises(ValueError, gi.step, "play_card:BASH->0", match="not a legal action on")
 
 
+def test_each_battle_starts_clean():
+    """No monster from an earlier fight carries into the next one.
+
+    Reusing one BattleContext appended every fight's monsters to the last; from the
+    2nd battle on they are visible, and once past MonsterGroup's 5 slots step() broke.
+    """
+    gi = GameInterface()
+    rng = random.Random(0)
+    battles = 0
+    for _ in range(200):
+        if gi.gc.outcome != sts.GameOutcome.UNDECIDED:
+            break
+        was_in_battle = gi.bc_initiated
+        gi.step(rng.choice(gi.legal_action_options()))
+        if gi.bc_initiated and not was_in_battle:
+            battles += 1
+            leftovers = [m.name for m in gi.bc.monsters if m.is_dead_or_escaped]
+            assert not leftovers, f"battle {battles} started with dead monsters {leftovers}"
+    assert battles >= 2, f"only reached {battles} battles; the seed no longer covers the bug"
+
+
 def test_structured_action_is_read_out_of_reasoning():
     """Free reasoning, then the commitment; a JSON example mid-thought must not win."""
     gi = GameInterface()

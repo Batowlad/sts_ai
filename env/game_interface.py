@@ -143,6 +143,8 @@ class GameInterface:
 
     def reset(self):
         self.gc = new_game()
+        self.bc = sts.BattleContext()
+        self.bc_initiated = False
 
     def view_map(self):
         """The engine's ASCII map with your current node marked 'X'.
@@ -233,6 +235,19 @@ class GameInterface:
             )
         return actions_list[action]
 
+    def _start_battle(self):
+        """A fresh BattleContext for every fight.
+
+        `bc.init()` is not a reset: MonsterGroup::init appends to the previous fight's
+        monsters without clearing `monsterCount`, so reusing one bc piles every dead
+        monster into the next battle. Once there are more than the 5 slots in
+        `MonsterGroup::arr`, the engine writes out of bounds, targets stop matching, and
+        a turn can hang in EXECUTING_ACTIONS.
+        """
+        self.bc = sts.BattleContext()
+        self.bc.init(self.gc)
+        self.bc_initiated = True
+
     def step(self, action):
         """Take one action: an `ActionOption.key` string, an index into `legal_actions()`,
         an `ActionOption`, or an engine `Action` / `GameAction`."""
@@ -240,8 +255,7 @@ class GameInterface:
         if in_combat: # WHEN IN BATTLE
             # gc stays on the BATTLE screen all fight; decisions go through bc.
             if not self.bc_initiated:
-                self.bc.init(self.gc)
-                self.bc_initiated = True
+                self._start_battle()
 
             if self.bc.outcome != sts.BattleOutcome.UNDECIDED:
                 raise RuntimeError(
@@ -253,9 +267,8 @@ class GameInterface:
 
         # CHECK FOR BATTLE SCREEN TO INIT BATTLE
         if self.gc.screen_state == sts.ScreenState.BATTLE: # WHEN SWITCHING TO BATTLE
-            if self.bc_initiated == False:
-                self.bc.init(self.gc)
-                self.bc_initiated = True
+            if not self.bc_initiated:
+                self._start_battle()
             if self.bc.outcome != sts.BattleOutcome.UNDECIDED:
                 self.bc.exit_battle(self.gc)
                 self.bc_initiated = False
