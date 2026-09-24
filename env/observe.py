@@ -31,6 +31,7 @@ from game_types import (
     CardView,
     CombatView,
     EventView,
+    MapChoice,
     MapView,
     MonsterView,
     Observation,
@@ -38,6 +39,7 @@ from game_types import (
     PotionView,
     RelicView,
     RewardsView,
+    RoomRange,
     ShopEntry,
     ShopView,
     StatusView,
@@ -204,13 +206,73 @@ def _container_option(a, gc, common: dict) -> ActionOption:
     return ActionOption(kind=kind, **ids, **common)
 
 
+# The room types a route summary counts, in the order it prints them. TREASURE is left
+# out: every path crosses the one fixed treasure row, so it never tells routes apart.
+_ROUTE_ROOMS = ("MONSTER", "ELITE", "EVENT", "REST", "SHOP")
+_TOP_ROW = 14       # the row of rests before the boss
+
+
+def _route_ranges(spire_map) -> dict[tuple[int, int], dict[str, tuple[int, int]]]:
+    """{(x, y): {room: (fewest, most)}} over every path from that node to the top row.
+
+    One pass from the top down: a node's range is its own room plus the min/max of its
+    children's. Nodes with no edges up are off every path and are skipped, except on
+    the top row, whose edges lead to the boss and aren't stored.
+    """
+    ranges: dict[tuple[int, int], dict[str, tuple[int, int]]] = {}
+    for y in range(_TOP_ROW, -1, -1):
+        for x in range(7):
+            room = _tail(spire_map.get_room_type(x, y))
+            if room in ("NONE", "INVALID"):
+                continue
+            own = {r: int(r == room) for r in _ROUTE_ROOMS}
+            if y == _TOP_ROW:
+                ranges[(x, y)] = {r: (n, n) for r, n in own.items()}
+                continue
+            children = [
+                ranges[(x2, y + 1)] for x2 in range(7)
+                if spire_map.has_edge(x, y, x2) and (x2, y + 1) in ranges
+            ]
+            if not children:
+                continue
+            ranges[(x, y)] = {
+                r: (own[r] + min(c[r][0] for c in children),
+                    own[r] + max(c[r][1] for c in children))
+                for r in _ROUTE_ROOMS
+            }
+    return ranges
+
+
+def _map_view(gi) -> MapView:
+    """Where you are, and for each node you can move to, what the routes through it
+    hold. The ASCII map rides along for debugging; `render` only prints it on request."""
+    gc = gi.gc
+    x, y = gc.cur_map_node_x, gc.cur_map_node_y
+    spire_map = gi.map
+    if spire_map is None or y >= _TOP_ROW:
+        return MapView(x=x, y=y, ascii_map=gi.view_map())
+
+    ranges = _route_ranges(spire_map)
+    choices = []
+    for x2 in range(7):
+        # has_edge(-1, ...) asks whether the bottom-row node x2 starts a path.
+        if not spire_map.has_edge(x, y, x2) or (x2, y + 1) not in ranges:
+            continue
+        ahead = tuple(
+            RoomRange(room=r, min=lo, max=hi) for r, (lo, hi) in ranges[(x2, y + 1)].items()
+        )
+        room = _tail(spire_map.get_room_type(x2, y + 1))
+        choices.append(MapChoice(x=x2, y=y + 1, room=room, ahead=ahead))
+    return MapView(x=x, y=y, ascii_map=gi.view_map(), choices=tuple(choices))
+
+
 def _game_option(index: int, a, gi) -> ActionOption:
     """One `sts.GameAction` -> ActionOption. The label is `describe`'s."""
     gc = gi.gc
     ss = gc.screen_state
 
     label = describe(a, gc)
-    if ss == sts.ScreenState.MAP_SCREEN and not a.is_potion_action:
+    if ss == sts.ScreenState.MAP_SCREEN and not a.is_potion_action and gi.map is not None:
         # idx1 is the x of the node one row up; say what room it leads to.
         room = gi.map.get_room_type(a.idx1, gc.cur_map_node_y + 1)
         if _tail(room) not in ("NONE", "INVALID"):
@@ -383,8 +445,7 @@ def build_observation(gi) -> Observation:
     if in_combat:
         return Observation(combat=_combat_view(gi.bc), **common)
     if ss == sts.ScreenState.MAP_SCREEN:
-        map_view = MapView(x=gc.cur_map_node_x, y=gc.cur_map_node_y, ascii_map=gi.view_map())
-        return Observation(map_view=map_view, **common)
+        return Observation(map_view=_map_view(gi), **common)
     if ss == sts.ScreenState.REWARDS:
         return Observation(rewards=_rewards_view(gc), **common)
     if ss == sts.ScreenState.SHOP_ROOM:

@@ -12,6 +12,12 @@ env:
   # The engine can see the draw pile's order; a player cannot. Leave false so the
   # policy is not trained on information it will not have at inference.
   reveal_draw_pile: false
+  # Prompt content switches. Each adds tokens; flip them off one at a time to measure
+  # what they are worth (eval/metrics.md).
+  describe_hand: true
+  describe_deck: true
+  route_summary: true
+  ascii_map: false
 
 rollout:
   episodes: 1

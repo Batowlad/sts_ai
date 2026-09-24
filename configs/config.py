@@ -33,6 +33,12 @@ class EnvConfig(_Section):
     seed: int = 42
     ascension: int = Field(default=0, ge=0, le=20)
     reveal_draw_pile: bool = False      # hidden information; on only for debugging
+    # What the prompt describes. Each one costs tokens; eval/metrics.md says how to
+    # measure whether it pays for them.
+    describe_hand: bool = True          # card text for the hand, in combat
+    describe_deck: bool = True          # card text for the deck, out of combat
+    route_summary: bool = True          # per-choice room counts on the map screen
+    ascii_map: bool = False             # the engine's ASCII map, mostly for debugging
 
 
 class RolloutConfig(_Section):

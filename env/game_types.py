@@ -185,10 +185,31 @@ class CombatView:
 
 
 @dataclass(frozen=True, slots=True)
+class RoomRange:
+    """How many rooms of one type a route can pass through: the fewest and the most
+    over every path from a node to the top of the act, the node itself included."""
+
+    room: str               # 'ELITE', 'REST', ...
+    min: int
+    max: int
+
+
+@dataclass(frozen=True, slots=True)
+class MapChoice:
+    """One node you can move to next, and what the routes through it hold."""
+
+    x: int
+    y: int
+    room: str               # this node's room type
+    ahead: tuple[RoomRange, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
 class MapView:
     x: int
     y: int                  # -1 until the first node is chosen
     ascii_map: str = ""
+    choices: tuple[MapChoice, ...] = ()     # empty on the top row: next is the boss
 
 
 @dataclass(frozen=True, slots=True)

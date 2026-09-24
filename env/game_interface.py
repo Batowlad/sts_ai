@@ -87,14 +87,33 @@ from game_data.relic_data.relic_text import describe_relic, relic_glossary
 from game_data.status_data import status_text
 from game_data.status_data.status_text import describe_status, status_glossary
 
-import string #to check if its a special char in view_map()
-
 class GameInterface:
     def __init__(self):
         self.gc = sts.GameContext(sts.CharacterClass.IRONCLAD, 42, 0)
         self.bc = sts.BattleContext()
-        self.map = sts.SpireMap(42, 0, 1, False)
         self.bc_initiated = False
+        self._map_key = None
+        self._map = None
+
+    @property
+    def map(self):
+        """The current act's map, rebuilt when the seed, ascension or act changes.
+
+        GameContext keeps its Map private, so this regenerates it the way the engine
+        does: `Map::fromSeed(seed, ascension, act, burning)`, where the burning elite
+        is always placed in act 1 and later only if the emerald key is still missing
+        (GameContext::transitionToAct). Act 4 is a fixed map the bindings can't build,
+        so it is None there.
+        """
+        gc = self.gc
+        if gc.act > 3:
+            return None
+        burning = gc.act == 1 or not gc.green_key
+        key = (gc.seed, gc.ascension, gc.act, burning)
+        if key != self._map_key:
+            self._map = sts.SpireMap(gc.seed, gc.ascension, gc.act, burning)
+            self._map_key = key
+        return self._map
 
     def legal_action_options(self):
         """The legal choices as typed `ActionOption`s — the version to use from code.
@@ -126,32 +145,26 @@ class GameInterface:
         self.gc = new_game()
 
     def view_map(self):
-        map = self.map.__repr__()
-        cur_y = self.gc.cur_map_node_y
+        """The engine's ASCII map with your current node marked 'X'.
 
-        if cur_y == -1:
-            return map
-        if cur_y == 0:
-            cur_index = -1
-        else:
-            default = -1
-            cur_index = [default-(2*(x+1)) for x in range(cur_y)][-1]
+        Map::toString prints each room row as the row number padded to 6 characters,
+        then a 3-character cell per x with the symbol in the middle, so column x's
+        symbol is always at 7 + 3*x. x is a column, not the nth room on the row -
+        rows have empty columns.
+        """
+        if self.map is None:
+            return ""
+        lines = repr(self.map).splitlines()
+        cur_x, cur_y = self.gc.cur_map_node_x, self.gc.cur_map_node_y
+        if cur_y < 0:
+            return "\n".join(lines)
 
-        map_list = str(map).splitlines()
-
-        cur_line = map_list[cur_index]
-        line_list = list(cur_line)
-        occurence = 0
-        for i in range(len(line_list)):
-            if line_list[i].isalpha() or line_list[i] in string.punctuation:
-                occurence += 1
-                if occurence == self.gc.cur_map_node_x:
-                    line_list[i] = line_list[i].replace(line_list[i], "X")
-                    break
-
-        map_list[cur_index] = "".join(line_list)
-        map = "\n".join(map_list)
-        return map
+        col = 7 + 3 * cur_x
+        for i, line in enumerate(lines):
+            if line.split(" ", 1)[0] == str(cur_y) and col < len(line):
+                lines[i] = line[:col] + "X" + line[col + 1:]
+                break
+        return "\n".join(lines)
 
     def _resolve_action(self, action, in_combat: bool):
         """Whatever `step()` was handed -> the engine action to execute.

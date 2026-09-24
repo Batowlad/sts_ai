@@ -14,8 +14,10 @@ from render import render
 
 import functools
 
-def encode_state(gi, *, reveal_draw_pile: bool = False) -> str:
-    state = render(build_observation(gi), reveal_draw_pile=reveal_draw_pile)
+def encode_state(gi, *, reveal_draw_pile: bool = False, **render_opts) -> str:
+    """`render_opts` are render()'s describe/map switches (describe_hand, describe_deck,
+    route_summary, ascii_map), passed straight through."""
+    state = render(build_observation(gi), reveal_draw_pile=reveal_draw_pile, **render_opts)
     return state
 
 @functools.cache

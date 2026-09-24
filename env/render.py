@@ -35,7 +35,7 @@ def _glossary(header: str, descriptions) -> list[str]:
     return [header, *lines] if lines else []
 
 
-def _combat_section(combat, reveal_draw_pile: bool) -> list[str]:
+def _combat_section(combat, reveal_draw_pile: bool, describe_hand: bool) -> list[str]:
     p = combat.player
     stance = f", stance {p.stance}" if p.stance not in (None, "NEUTRAL") else ""
     out = [
@@ -77,7 +77,8 @@ def _combat_section(combat, reveal_draw_pile: bool) -> list[str]:
         if combat.card_select_cards:
             out.append(f"Offered: {', '.join(c.name for c in combat.card_select_cards)}")
 
-    out += _glossary("Cards in hand:", (describe_card(c.id, c.upgraded) for c in combat.hand))
+    if describe_hand:
+        out += _glossary("Cards in hand:", (describe_card(c.id, c.upgraded) for c in combat.hand))
     out.append("Status effects:")
     for name, statuses in [("You", p.statuses), *((m.name, m.statuses) for m in alive)]:
         described = (describe_status(s.id, s.amount, s.owner) for s in statuses)
@@ -100,6 +101,49 @@ def _rewards_section(rewards) -> list[str]:
     return out + _glossary("Card details:", (describe_card(c.id, c.upgraded) for c in cards))
 
 
+_ROOM_WORDS = {
+    "MONSTER": ("Monster", "fights"),
+    "ELITE": ("Elite", "elites"),
+    "EVENT": ("Event", "events"),
+    "REST": ("Rest", "rests"),
+    "SHOP": ("Shop", "shops"),
+    "TREASURE": ("Treasure", "chests"),
+    "BOSS": ("Boss", "bosses"),
+}
+
+
+def _room_word(room: str) -> str:
+    return _ROOM_WORDS.get(room, (room.replace("_", " ").title(), ""))[0]
+
+
+def _map_section(mv, route_summary: bool, ascii_map: bool) -> list[str]:
+    """Where you are and where you can go.
+
+    The route summary is the default because it is keyed by the same strings the
+    policy answers with, while the ASCII map needs the reader to line up '/' and '|'
+    across lines - something a tokenizer does not preserve.
+    """
+    out = []
+    if ascii_map and mv.ascii_map:
+        out.append(mv.ascii_map)
+    out.append(
+        f"Map position: row {mv.y} of 14, x={mv.x}" if mv.y >= 0
+        else "Map position: not yet on the map (choose a starting node)"
+    )
+    if not route_summary:
+        return out
+    if not mv.choices:
+        return out + ["Next: the boss."]
+    out.append("Where you can go (rooms on the routes from there to the boss, fewest-most):")
+    for c in mv.choices:
+        counts = ", ".join(
+            f"{r.min if r.min == r.max else f'{r.min}-{r.max}'} {_ROOM_WORDS[r.room][1]}"
+            for r in c.ahead
+        )
+        out.append(f'- "map_move:{c.x}" {_room_word(c.room)}: {counts}')
+    return out
+
+
 def _shop_section(shop) -> list[str]:
     out = ["Shop stock:"]
     out += [f"- {describe_card(e.id, e.upgraded)} - {e.price} gold" for e in shop.cards]
@@ -108,11 +152,22 @@ def _shop_section(shop) -> list[str]:
     return out + [f"- card removal: {shop.remove_cost} gold"]
 
 
-def render(obs: Observation, *, reveal_draw_pile: bool = False) -> str:
+def render(
+    obs: Observation,
+    *,
+    reveal_draw_pile: bool = False,
+    describe_hand: bool = True,
+    describe_deck: bool = True,
+    route_summary: bool = True,
+    ascii_map: bool = False,
+) -> str:
     """The state text the policy sees.
 
     Every screen gets the vitals line, then whichever blocks that screen makes
     meaningful - so a screen with nothing special still renders rather than vanishing.
+
+    The describe/map switches trade prompt tokens for information; see eval/metrics.md
+    for how to measure what each one is worth.
     """
     held = [p for p in obs.potions if not p.is_empty]
     vitals = [
@@ -126,20 +181,16 @@ def render(obs: Observation, *, reveal_draw_pile: bool = False) -> str:
     out = [f"Screen: {obs.screen}", " | ".join(vitals)]
 
     if obs.combat is not None:
-        out += _combat_section(obs.combat, reveal_draw_pile)
+        out += _combat_section(obs.combat, reveal_draw_pile, describe_hand)
     else:
         # Out of combat the deck is the decision; in combat the hand is, and the full
         # deck listing just crowds the context.
         out.append(f"Deck ({len(obs.deck)}): {_counted(c.name for c in obs.deck)}")
+        if describe_deck:
+            out += _glossary("Deck cards:", (describe_card(c.id, c.upgraded) for c in obs.deck))
 
     if obs.map_view is not None:
-        mv = obs.map_view
-        if mv.ascii_map:
-            out.append(mv.ascii_map)
-        out.append(
-            f"Map position: ({mv.x}, {mv.y})" if mv.y >= 0
-            else "Map position: not yet on the map (choose a starting node)"
-        )
+        out += _map_section(obs.map_view, route_summary, ascii_map)
     if obs.event is not None:
         out.append(f"Event: {obs.event.name}")
     if obs.rewards is not None:
