@@ -273,3 +273,6 @@ class Observation:
     rewards: RewardsView | None = None
     shop: ShopView | None = None
     event: EventView | None = None
+    boss_relics: tuple[RelicView, ...] = ()     # BOSS_RELIC_REWARDS only
+    select_cards: tuple[CardView, ...] = ()     # CARD_SELECT only (Neow, events, Smith...)
+    select_verb: str | None = None              # what picking one does: 'upgrade', 'remove'...

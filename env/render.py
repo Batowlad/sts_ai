@@ -75,7 +75,14 @@ def _combat_section(combat, reveal_draw_pile: bool, describe_hand: bool) -> list
             f"pick {combat.card_select_pick_count}{zero}"
         )
         if combat.card_select_cards:
-            out.append(f"Offered: {', '.join(c.name for c in combat.card_select_cards)}")
+            offered = combat.card_select_cards
+            out.append(f"Offered: {', '.join(c.name for c in offered)}")
+            # Discovery-style offers are new cards; hand picks (Armaments) are described below.
+            in_hand = {(c.id, c.upgraded) for c in combat.hand} if describe_hand else set()
+            out += _glossary("Offered cards:", (
+                describe_card(c.id, c.upgraded) for c in offered
+                if (c.id, c.upgraded) not in in_hand
+            ))
 
     if describe_hand:
         out += _glossary("Cards in hand:", (describe_card(c.id, c.upgraded) for c in combat.hand))
@@ -197,6 +204,19 @@ def render(
         out += _rewards_section(obs.rewards)
     if obs.shop is not None:
         out += _shop_section(obs.shop)
+    if obs.boss_relics:
+        out += ["Boss relics on offer:", *(f"- {describe_relic(r.id)}" for r in obs.boss_relics)]
+    if obs.select_cards:
+        out.append(
+            f"Cards you can {obs.select_verb}: {', '.join(dict.fromkeys(c.name for c in obs.select_cards))}"
+        )
+        # Deck picks (upgrade, remove...) are already described above; Neow/event offers
+        # of cards you don't own yet are not.
+        shown = {(c.id, c.upgraded) for c in obs.deck} if describe_deck else set()
+        out += _glossary("Card details:", (
+            describe_card(c.id, c.upgraded) for c in obs.select_cards
+            if (c.id, c.upgraded) not in shown
+        ))
 
     out += _glossary("Relics:", (describe_relic(r.id) for r in obs.relics))
     out += _glossary(

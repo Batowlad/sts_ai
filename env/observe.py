@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from game_interface import (
     TARGETED_POTIONS,
+    _SELECT_SCREEN_VERBS,
     _active_statuses,
     _card_name,
     _card_select_pile,
@@ -456,5 +457,11 @@ def build_observation(gi) -> Observation:
     if ss == sts.ScreenState.EVENT_SCREEN:
         event = EventView(name=gc.cur_event_name, event_data=gc.event_data)
         return Observation(event=event, **common)
-    # TREASURE_ROOM, REST_ROOM, BOSS_RELIC_REWARDS, CARD_SELECT: the common fields.
+    if ss == sts.ScreenState.BOSS_RELIC_REWARDS:
+        return Observation(boss_relics=tuple(_relic_view(r) for r in gc.boss_relics), **common)
+    if ss == sts.ScreenState.CARD_SELECT:
+        verb = _SELECT_SCREEN_VERBS.get(_tail(gc.select_screen_type), "select")
+        cards = tuple(_card_view(c) for c in gc.select_screen_cards)
+        return Observation(select_cards=cards, select_verb=verb, **common)
+    # TREASURE_ROOM, REST_ROOM: the common fields.
     return Observation(**common)
