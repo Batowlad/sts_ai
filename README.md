@@ -69,7 +69,9 @@ it was built against, so always build it with the interpreter you intend to run.
 
 - **Windows** — [MSYS2 + mingw64](#windows-msys2--mingw64); produces a `.pyd`.
 - **macOS** — [Apple `clang` + `cmake`/`ninja`](#macos-apple-silicon--intel);
-  produces a `.so`. Linux is the same flow (see also the `Dockerfile`).
+  produces a `.so`. Linux is the same flow.
+- **Docker (Windows/Linux + GPU)** — [Running in Docker](#running-in-docker-windows--gpu);
+  needed once training pulls in torch.
 
 ### Windows (MSYS2 + mingw64)
 
@@ -217,3 +219,94 @@ Then run the tests: `python tests/test_typed_layer.py` and
   the compiled module is older than the Python layer that calls it. Pull the
   submodule (`git submodule update --remote sts_lightspeed`, or `git pull` inside
   it) and rebuild; the bindings and `env/observe.py` move together.
+
+## Running in Docker (Windows + GPU)
+
+The `Dockerfile` builds a **Linux** image: a CUDA + PyTorch base, the engine
+compiled as a Linux `.so`, and `requirements.txt`. Docker Desktop on Windows runs
+Linux containers inside a WSL2 VM, so this is the way to get the engine and the
+torch/transformers stack into one Python on Windows. The native MSYS2 build can't
+do that, because torch ships no mingw wheels. The same image runs unchanged on a
+Linux cloud GPU box.
+
+> Not for Apple Silicon: the CUDA base image is x86-only and Macs have no NVIDIA GPU.
+
+### One-time setup
+1. Install the latest NVIDIA driver **on Windows itself**. Don't install a
+   driver inside WSL; the Windows one is shared into it.
+2. Install WSL2 from an **Administrator** PowerShell, then reboot:
+   ```powershell
+   wsl --install
+   ```
+3. Install Docker Desktop and tick *Settings → General → Use the WSL 2 based
+   engine* (the default on current versions).
+4. Check that containers can see the GPU:
+   ```powershell
+   docker run --rm --gpus all nvidia/cuda:13.2.0-base-ubuntu24.04 nvidia-smi
+   ```
+   The "CUDA Version" `nvidia-smi` reports must be at least the one in the
+   Dockerfile's `FROM` tag (currently 13.2). If it's lower, update the driver or
+   pick an older `pytorch/pytorch` tag.
+
+### Build
+Clone **with submodules**, or the engine step fails on a missing `pybind11`:
+```powershell
+git clone --recursive https://github.com/Batowlad/<repo>.git sts_ai
+cd sts_ai
+docker build -t sts-agent .
+```
+The first build is slow: it pulls a multi-GB base image and compiles the engine.
+The engine and pip layers are cached, so if only Python code changed, just the
+final `COPY . .` and the import check rerun. A successful build prints
+`engine OK /app/sts_lightspeed/build/slaythespire...so`.
+
+### Run
+```powershell
+docker run --gpus all -it --rm `
+  -v "${PWD}/data:/app/data" `
+  -v hf-cache:/root/.cache/huggingface `
+  -e ANTHROPIC_API_KEY=$env:ANTHROPIC_API_KEY `
+  sts-agent
+```
+* `--gpus all`: expose the GPU. `-it`: interactive shell (`CMD` is `bash`).
+  `--rm`: delete the container on exit; the image stays.
+* `-v ...data...`: the host `data\` folder is mounted at `/app/data`, so rollouts
+  survive the container. (`data/*` is in `.dockerignore`, so it's never baked in.)
+* `-v hf-cache:...`: a Docker named volume for the Hugging Face cache. Without it,
+  `--rm` deletes the downloaded base model on exit, and every run downloads it
+  again (GBs). The first run fills the volume and later runs load from it. A named
+  volume is faster than a Windows folder because it lives inside WSL2. For gated
+  models (Llama, Gemma), also pass `-e HF_TOKEN=$env:HF_TOKEN`. To see it or free
+  the space: `docker volume ls` / `docker volume rm hf-cache`. For cloud machines,
+  the Dockerfile has a commented-out block that builds the weights into the image.
+* `-e ANTHROPIC_API_KEY`: pass secrets at run time, never with `ENV` in the Dockerfile.
+* The backtick is PowerShell line continuation. In `cmd.exe`, use one line and
+  `%cd%` instead of `${PWD}`.
+
+Inside the container (working dir `/app`):
+```bash
+python -c "import torch; print(torch.cuda.is_available())"   # True
+python tests/smoke_test_combat.py
+python data/collect_rollouts.py
+```
+
+### Iterating without rebuilding
+Mount only the Python folders over the image's copy:
+```powershell
+docker run --gpus all -it --rm -v "${PWD}/env:/app/env" -v "${PWD}/agent:/app/agent" sts-agent
+```
+Don't mount the whole repo at `/app`. That hides the image's
+`sts_lightspeed/build/` (the Linux `.so`) behind your host checkout, and
+`import slaythespire` then fails.
+
+### Docker troubleshooting
+* **`could not select device driver "" with capabilities: [[gpu]]`**: the
+  WSL2 backend is off, or the NVIDIA driver is too old.
+* **`torch.cuda.is_available()` is `False`**: the driver's CUDA version is lower
+  than the image's. Update the driver or use an older base tag.
+* **cmake can't find `pybind11` / `json`**: the repo was cloned without
+  `--recursive`. Run `git submodule update --init --recursive`.
+* **`manifest unknown` on `FROM`**: that `pytorch/pytorch` tag doesn't exist.
+  Pick a real one from Docker Hub.
+* **Build is slow or the disk fills up**: give Docker Desktop more disk under
+  *Settings → Resources*.

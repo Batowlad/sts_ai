@@ -6,7 +6,8 @@
 # Same git source, different compiled artifact -- that's expected.
 #
 # Build:  docker build -t sts-agent .
-# Run (GPU): docker run --gpus all -it --rm -v "$PWD/data:/app/data" sts-agent
+# Run (GPU): docker run --gpus all -it --rm -v "$PWD/data:/app/data" \
+#                -v hf-cache:/root/.cache/huggingface sts-agent
 # Run (CPU): docker run -it --rm sts-agent
 # =============================================================================
 
@@ -16,7 +17,7 @@
 #        on the instance to see the max CUDA it supports), and bump the torch tag.
 #        For CPU-only work (Claude-API policy, rollout collection, eval) you can
 #        swap this for a much smaller base:  FROM python:3.12-slim
-FROM pytorch/pytorch:2.5.1-cuda12.1-cudnn9-runtime
+FROM pytorch/pytorch:2.14.0-cuda13.2-cudnn9-runtime
 
 # Non-interactive apt + no .pyc clutter + unbuffered logs for live training output
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -60,6 +61,21 @@ ENV STS_BUILD_DIR=/app/sts_lightspeed/build
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
+# --- (Optional) Base model weights baked into the image ---------------------
+# By default from_pretrained() downloads to ~/.cache/huggingface at run time, and
+# --rm throws that away on exit. Locally, mount a volume instead (see README:
+# -v hf-cache:/root/.cache/huggingface). Uncomment this for cloud boxes that start
+# fresh each time: +model size on the image, but no download per run.
+# Stays above COPY . . so code edits don't trigger a re-download; changing
+# BASE_MODEL (or --build-arg BASE_MODEL=...) does.
+# Gated models (Llama, Gemma) need a token. Use a build secret, never ENV HF_TOKEN:
+#   RUN --mount=type=secret,id=hf_token HF_TOKEN=$(cat /run/secrets/hf_token) python -c ...
+#   docker build --secret id=hf_token,env=HF_TOKEN -t sts-agent .
+# ENV HF_HOME=/opt/hf
+# ARG BASE_MODEL=Qwen/Qwen3-8B
+# RUN python -c "from huggingface_hub import snapshot_download; \
+# snapshot_download('${BASE_MODEL}', allow_patterns=['*.json', '*.safetensors', 'tokenizer*'])"
+
 # --- Project code -----------------------------------------------------------
 COPY . .
 
@@ -73,13 +89,13 @@ CMD ["bash"]
 
 # =============================================================================
 # TODO checklist when you actually need this:
-#   [ ] Match CUDA tag to the cloud GPU driver (nvidia-smi).
-#   [ ] Populate requirements.txt (don't double-install torch from the base).
+#   [X] Match CUDA tag to the cloud GPU driver (nvidia-smi).
+#   [X] Populate requirements.txt (don't double-install torch from the base).
 #   [ ] Mount data/ and checkpoints as volumes so results survive the container:
 #         -v "$PWD/data:/app/data" -v "$PWD/checkpoints:/app/checkpoints"
-#   [ ] Pass secrets at runtime, never bake them in:  -e ANTHROPIC_API_KEY=...
 #   [ ] Set a real CMD (training/eval entrypoint).
 #   [ ] (Optional) Multi-stage build: compile the .so in a builder stage, copy
 #       just the .so into a slim runtime image to shrink the final image.
-#   [ ] (Optional) Pre-download / cache the HF base model to avoid re-pulling it.
+#   [X] (Optional) Pre-download / cache the HF base model to avoid re-pulling it
+#       (hf-cache volume locally; uncomment the "Base model weights" block for cloud).
 # =============================================================================

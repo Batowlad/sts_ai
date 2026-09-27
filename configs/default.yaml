@@ -28,7 +28,7 @@ rollout:
 
 policy:
   kind: random             # 'random' until agent/policy.py has an LLM behind it
-  model: claude-opus-5
+  model: Qwen2.5-1.5B-Instruct
   temperature: 1.0
   max_tokens: 1024
 
