@@ -26,9 +26,10 @@ def _tokenizer():
     return AutoTokenizer.from_pretrained("Qwen/Qwen2.5-1.5B-Instruct")
 
 
-def tokenize_state(state: str) -> list[int]:
+def tokenize_state(state: str, system_prompt: str) -> list[int]:
     return _tokenizer().apply_chat_template(
-        [{"role": "user", "content": state}],
+        [{"role": "system", "content": system_prompt},
+         {"role": "user", "content": state}],
         add_generation_prompt=True,
         tokenize=True,
         return_dict=True,
