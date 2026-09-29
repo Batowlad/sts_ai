@@ -2,8 +2,10 @@
 from env.game_interface import GameInterface
 from env.state_encoder import encode_state, tokenize_state, _tokenizer
 from transformers import AutoModelForCausalLM, BitsAndBytesConfig
+import torch
 
 class Policy:
+    @torch.inference_mode
     def act(self, state_text: str, legal_actions):
         quantization_config = BitsAndBytesConfig(load_in_4bit=True)
         model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen2.5-1.5B-Instruct", device_map="auto", quantization_config=quantization_config)
