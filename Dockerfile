@@ -17,7 +17,7 @@
 #        on the instance to see the max CUDA it supports), and bump the torch tag.
 #        For CPU-only work (Claude-API policy, rollout collection, eval) you can
 #        swap this for a much smaller base:  FROM python:3.12-slim
-FROM pytorch/pytorch:2.14.0-cuda13.2-cudnn9-runtime
+FROM pytorch/pytorch:2.13.0-cuda13.2-cudnn9-runtime
 
 # Non-interactive apt + no .pyc clutter + unbuffered logs for live training output
 ENV DEBIAN_FRONTEND=noninteractive \

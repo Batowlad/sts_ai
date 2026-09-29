@@ -7,6 +7,7 @@ peft
 datasets
 accelerate
 wandb
+torch==2.13
 
 # CUDA-only (no macOS wheels are published), so skip it on darwin.
 bitsandbytes; sys_platform != "darwin"
@@ -22,3 +23,9 @@ bitsandbytes; sys_platform != "darwin"
 # On macOS/Linux (or any venv build) the plain pip install below is fine.
 pydantic>=2
 pyyaml
+
+
+# All of the VLLM crap (only works on windows)
+# use uv pip install -r requirements.txt
+vllm-bnb-plugin
+vllm==0.30
