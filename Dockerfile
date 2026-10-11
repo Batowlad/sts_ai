@@ -6,8 +6,10 @@
 # Same git source, different compiled artifact -- that's expected.
 #
 # Build:  docker build -t sts-agent .
-# Run (GPU): docker run --gpus all -it --rm -v "$PWD/data:/app/data" \
+# Run (GPU): docker run --gpus all --ipc=host -it --rm -v "$PWD/data:/app/data" \
 #                -v hf-cache:/root/.cache/huggingface sts-agent
+#   --ipc=host: vLLM passes data between its processes through shared memory,
+#   and Docker's default 64 MB /dev/shm is too small (or use --shm-size=8g).
 # Run (CPU): docker run -it --rm sts-agent
 # =============================================================================
 
@@ -17,6 +19,8 @@
 #        on the instance to see the max CUDA it supports), and bump the torch tag.
 #        For CPU-only work (Claude-API policy, rollout collection, eval) you can
 #        swap this for a much smaller base:  FROM python:3.12-slim
+# The -runtime tag has no nvcc. If vLLM/FlashInfer fails at runtime with a JIT
+# compile error or "nvcc not found", switch to the matching -devel tag.
 FROM pytorch/pytorch:2.13.0-cuda13.2-cudnn9-runtime
 
 # Non-interactive apt + no .pyc clutter + unbuffered logs for live training output
@@ -36,9 +40,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
+# --- Python dependencies ----------------------------------------------------
+# torch is already in the base image; vllm pins the exact torch it needs, which
+# matches the base, so pip leaves it alone. This is the slowest layer (vllm,
+# flashinfer, transformers = several GB), so it goes first: engine or code edits
+# then reuse the cached install instead of redoing it.
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+COPY requirements.txt ./
+RUN uv pip install --system --no-cache -r requirements.txt
+
 # --- Build the slaythespire module ------------------------------------------
-# Copy only the engine first so this layer is cached and doesn't rebuild every
-# time you touch Python code.
+# Copy only the engine (not the whole repo) so this layer is cached and doesn't
+# rebuild every time you touch Python code.
 COPY sts_lightspeed/ ./sts_lightspeed/
 
 # Build against THIS image's python (likely 3.11/3.12 -- different from your
@@ -52,14 +65,6 @@ RUN cmake -G Ninja -S sts_lightspeed -B sts_lightspeed/build \
 # game_interface.py would find /app/sts_lightspeed/build on its own, but pin it
 # explicitly so the image never depends on that probe order.
 ENV STS_BUILD_DIR=/app/sts_lightspeed/build
-
-# --- Python dependencies ----------------------------------------------------
-# LATER: fill in requirements.txt (torch is already in the base image, so you
-#        usually do NOT re-pin it here -- list transformers, trl, datasets,
-#        accelerate, peft, anthropic, pyyaml, etc.). Keep this above the source
-#        COPY so dep installs stay cached across code edits.
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
 
 # --- (Optional) Base model weights baked into the image ---------------------
 # By default from_pretrained() downloads to ~/.cache/huggingface at run time, and
@@ -96,6 +101,6 @@ CMD ["bash"]
 #   [ ] Set a real CMD (training/eval entrypoint).
 #   [ ] (Optional) Multi-stage build: compile the .so in a builder stage, copy
 #       just the .so into a slim runtime image to shrink the final image.
-#   [X] (Optional) Pre-download / cache the HF base model to avoid re-pulling it
+#   [ ] (Optional) Pre-download / cache the HF base model to avoid re-pulling it
 #       (hf-cache volume locally; uncomment the "Base model weights" block for cloud).
 # =============================================================================

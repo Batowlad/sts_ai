@@ -7,14 +7,25 @@ import functools
 from pathlib import Path
 import json
 
+from vllm import LLM, SamplingParams
+import torch
+
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 _DUMP_PATH = _REPO_ROOT / "data" / "state_dump.jsonl"
 
 class Policy:
     @functools.cache
+    def _llm():
+        from vllm import LLM
+        return LLM(model="Qwen/Qwen2.5-1.5B-Instruct",
+                   dtype=torch.bfloat16,
+                   trust_remote_code=True,
+                #    quantization="bitsandbytes" - for now commented out, not sure if it will be necessary tbh
+                )
+    
+    @functools.cache
     def _tokenizer():
-        from transformers import AutoTokenizer
-        return AutoTokenizer.from_pretrained("Qwen/Qwen2.5-1.5B-Instruct")
+        return _llm().get_tokenizer()
 
 
     def tokenize_state(self, state: str, system_prompt: str) -> list[int]:

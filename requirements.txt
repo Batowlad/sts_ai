@@ -7,7 +7,8 @@ peft
 datasets
 accelerate
 wandb
-torch==2.13
+# torch is deliberately not pinned here: the Docker base image ships it, and vllm
+# pins the exact version it needs. A pin here could make pip pull a second build.
 
 # CUDA-only (no macOS wheels are published), so skip it on darwin.
 bitsandbytes; sys_platform != "darwin"
@@ -24,8 +25,5 @@ bitsandbytes; sys_platform != "darwin"
 pydantic>=2
 pyyaml
 
-
-# All of the VLLM crap (only works on windows)
-# use uv pip install -r requirements.txt
-vllm-bnb-plugin
-vllm==0.30
+vllm-bnb-plugin; sys_platform == "linux"
+vllm==0.30; sys_platform == "linux"

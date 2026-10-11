@@ -28,7 +28,7 @@ rollout:
 
 policy:
   kind: random             # 'random' until agent/policy.py has an LLM behind it
-  model: Qwen2.5-1.5B-Instruct
+  model: Qwen/Qwen2.5-1.5B-Instruct
   temperature: 1.0
   max_tokens: 1024
 

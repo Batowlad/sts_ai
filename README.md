@@ -262,7 +262,7 @@ final `COPY . .` and the import check rerun. A successful build prints
 
 ### Run
 ```powershell
-docker run --gpus all -it --rm `
+docker run --gpus all --ipc=host -it --rm `
   -v "${PWD}/data:/app/data" `
   -v hf-cache:/root/.cache/huggingface `
   -e ANTHROPIC_API_KEY=$env:ANTHROPIC_API_KEY `
@@ -270,6 +270,8 @@ docker run --gpus all -it --rm `
 ```
 * `--gpus all`: expose the GPU. `-it`: interactive shell (`CMD` is `bash`).
   `--rm`: delete the container on exit; the image stays.
+* `--ipc=host`: vLLM passes data between its processes through shared memory, and
+  Docker's default 64 MB `/dev/shm` is too small. `--shm-size=8g` also works.
 * `-v ...data...`: the host `data\` folder is mounted at `/app/data`, so rollouts
   survive the container. (`data/*` is in `.dockerignore`, so it's never baked in.)
 * `-v hf-cache:...`: a Docker named volume for the Hugging Face cache. Without it,
@@ -293,7 +295,7 @@ python data/collect_rollouts.py
 ### Iterating without rebuilding
 Mount only the Python folders over the image's copy:
 ```powershell
-docker run --gpus all -it --rm -v "${PWD}/env:/app/env" -v "${PWD}/agent:/app/agent" sts-agent
+docker run --gpus all --ipc=host -it --rm -v "${PWD}/env:/app/env" -v "${PWD}/agent:/app/agent" sts-agent
 ```
 Don't mount the whole repo at `/app`. That hides the image's
 `sts_lightspeed/build/` (the Linux `.so`) behind your host checkout, and
