@@ -8,40 +8,50 @@ from pathlib import Path
 import json
 
 from vllm import LLM, SamplingParams
+from vllm.inputs import TokensPrompt
 import torch
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 _DUMP_PATH = _REPO_ROOT / "data" / "state_dump.jsonl"
 
 class Policy:
+    def __self__(self, cfg):
+        self.cfg = cfg
     @functools.cache
-    def _llm():
+    def _llm(self):
         from vllm import LLM
-        return LLM(model="Qwen/Qwen2.5-1.5B-Instruct",
+        return LLM(model=self.cfg.policy.model,
                    dtype=torch.bfloat16,
                    trust_remote_code=True,
                 #    quantization="bitsandbytes" - for now commented out, not sure if it will be necessary tbh
                 )
     
     @functools.cache
-    def _tokenizer():
-        return _llm().get_tokenizer()
+    def _tokenizer(self):
+        return self._llm().get_tokenizer()
 
 
     def tokenize_state(self, state: str, system_prompt: str) -> list[int]:
-        return _tokenizer().apply_chat_template(
+        return self._tokenizer().apply_chat_template(
             [{"role": "system", "content": system_prompt},
             {"role": "user", "content": state}],
             add_generation_prompt=True,
             tokenize=True,
             return_dict=True,
-        )["input_ids"]
+        )
 
 
     def dump_state(self, state: str, **meta) -> list[int]:
         _DUMP_PATH.parent.mkdir(parents=True, exist_ok=True)
         with open(_DUMP_PATH, "a", encoding="utf-8") as f:
-            f.write(json.dumps({"state": state, "tokens": len(tokenize_state(state)), **meta}, ensure_ascii=False) + "\n")
+            f.write(json.dumps({"state": state, "tokens": len(self.tokenize_state(state)), **meta}, ensure_ascii=False) + "\n")
+
+    def act(self, state_text: str, legal_actions):
+        model = self._llm()
+        model_inputs = self.tokenize_state(state_text + "\n" + legal_actions)
+        sampling_params = SamplingParams(temperature=self.cfg.policy.temperature, top_p=self.cfg.policy.top_p, max_tokens=self.cfg.policy.max_tokens)
+
+        model.generate(TokensPrompt(prompt_token_ids=model_inputs), sampling_params)
 
     @torch.inference_mode
     def act(self, state_text: str, legal_actions):
@@ -51,6 +61,15 @@ class Policy:
         generated_ids = model.generate(**model_inputs)
         _tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
 
-policy = Policy()
-gi = GameInterface()
-policy.act(encode_state(gi), gi.legal_actions())
+if __name__ == "__main__":
+    import argparse
+    from configs.config import load_config
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", default=None,
+                        help="path to a YAML config (default: configs/default.yaml)")
+    args = parser.parse_args()
+
+    cfg = load_config(args.config)
+    policy = Policy()
+    gi = GameInterface()
+    policy.act(encode_state(gi), gi.legal_actions())
