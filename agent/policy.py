@@ -11,32 +11,26 @@ from vllm import LLM, SamplingParams
 from vllm.inputs import TokensPrompt
 import torch
 
-from prompts import SYSTEM_PROMPT
+from agent.prompts import SYSTEM_PROMPT
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 _DUMP_PATH = _REPO_ROOT / "data" / "state_dump.jsonl"
 
 class Policy:
-    def __innit__(self, cfg):
+    def __init__(self, cfg):
         self.cfg = cfg
         self.system_prompt = SYSTEM_PROMPT
-
-    @functools.cache
-    def _llm(self):
-        from vllm import LLM
-        return LLM(model=self.cfg.policy.model,
+        self.model = LLM(model=self.cfg.policy.model,
                    dtype=torch.bfloat16,
                    trust_remote_code=True,
-                #    quantization="bitsandbytes" - for now commented out, not sure if it will be necessary tbh
-                )
-    
-    @functools.cache
-    def _tokenizer(self):
-        return self._llm().get_tokenizer()
+#                  quantization="bitsandbytes" - for now commented out, not sure if it will be necessary tbh
+                    )
+        self.tokenizer = self.model.get_tokenizer()
+        self.sampling_params = SamplingParams(temperature=self.cfg.policy.temperature, top_p=self.cfg.policy.top_p, max_tokens=self.cfg.policy.max_tokens, log_probs=0)
 
 
     def tokenize_state(self, state: str) -> list[int]:
-        return self._tokenizer().apply_chat_template(
+        return self.tokenizer.apply_chat_template(
             [{"role": "system", "content": self.system_prompt},
             {"role": "user", "content": state}],
             add_generation_prompt=True,
@@ -51,11 +45,9 @@ class Policy:
             f.write(json.dumps({"state": state, "tokens": len(self.tokenize_state(state)), **meta}, ensure_ascii=False) + "\n")
 
     def act(self, state_text: str, legal_actions):
-        model = self._llm()
         model_inputs = self.tokenize_state(state_text + "\n" + legal_actions)
-        sampling_params = SamplingParams(temperature=self.cfg.policy.temperature, top_p=self.cfg.policy.top_p, max_tokens=self.cfg.policy.max_tokens)
 
-        return model.generate(TokensPrompt(prompt_token_ids=model_inputs), sampling_params)[0].outputs[0]
+        return self.model.generate(TokensPrompt(prompt_token_ids=model_inputs), self.sampling_params)[0].outputs[0]
 
 if __name__ == "__main__":
     import argparse
@@ -66,6 +58,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     cfg = load_config(args.config)
-    policy = Policy()
+    policy = Policy(cfg)
     gi = GameInterface()
     policy.act(encode_state(gi), gi.legal_actions())
