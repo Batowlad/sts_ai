@@ -1,15 +1,12 @@
 """LLM-as-policy wrapper. TODO."""
 from env.game_interface import GameInterface
 from env.state_encoder import encode_state
-from transformers import AutoModelForCausalLM, BitsAndBytesConfig
 import torch
-import functools
 from pathlib import Path
 import json
 
 from vllm import LLM, SamplingParams
 from vllm.inputs import TokensPrompt
-import torch
 
 from agent.prompts import SYSTEM_PROMPT
 
