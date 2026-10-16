@@ -11,12 +11,16 @@ from vllm import LLM, SamplingParams
 from vllm.inputs import TokensPrompt
 import torch
 
+from prompts import SYSTEM_PROMPT
+
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 _DUMP_PATH = _REPO_ROOT / "data" / "state_dump.jsonl"
 
 class Policy:
-    def __self__(self, cfg):
+    def __innit__(self, cfg):
         self.cfg = cfg
+        self.system_prompt = SYSTEM_PROMPT
+
     @functools.cache
     def _llm(self):
         from vllm import LLM
@@ -31,14 +35,14 @@ class Policy:
         return self._llm().get_tokenizer()
 
 
-    def tokenize_state(self, state: str, system_prompt: str) -> list[int]:
+    def tokenize_state(self, state: str) -> list[int]:
         return self._tokenizer().apply_chat_template(
-            [{"role": "system", "content": system_prompt},
+            [{"role": "system", "content": self.system_prompt},
             {"role": "user", "content": state}],
             add_generation_prompt=True,
             tokenize=True,
             return_dict=True,
-        )
+        )["input_ids"]
 
 
     def dump_state(self, state: str, **meta) -> list[int]:
@@ -51,15 +55,7 @@ class Policy:
         model_inputs = self.tokenize_state(state_text + "\n" + legal_actions)
         sampling_params = SamplingParams(temperature=self.cfg.policy.temperature, top_p=self.cfg.policy.top_p, max_tokens=self.cfg.policy.max_tokens)
 
-        model.generate(TokensPrompt(prompt_token_ids=model_inputs), sampling_params)
-
-    @torch.inference_mode
-    def act(self, state_text: str, legal_actions):
-        quantization_config = BitsAndBytesConfig(load_in_4bit=True)
-        model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen2.5-1.5B-Instruct", device_map="auto", quantization_config=quantization_config)
-        model_inputs = tokenize_state(state_text + "\n" + legal_actions).to(model.device)
-        generated_ids = model.generate(**model_inputs)
-        _tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
+        return model.generate(TokensPrompt(prompt_token_ids=model_inputs), sampling_params)[0].outputs[0]
 
 if __name__ == "__main__":
     import argparse

@@ -54,6 +54,7 @@ class PolicyConfig(_Section):
     model: str = "Qwen/Qwen2.5-1.5B-Instruct"
     temperature: float = Field(default=1.0, ge=0.0, le=2.0)
     max_tokens: int = Field(default=1024, gt=0)
+    top_p: float = Field(default=1.0, gt=0.0, le=1.0)
 
 
 class TrainingConfig(_Section):
