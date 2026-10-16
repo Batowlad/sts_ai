@@ -1,4 +1,4 @@
-# Add deps as you go (anthropic, transformers, trl, numpy, ...).
+# Add deps as you go (transformers, trl, numpy, ...).
 #
 # Cross-platform set: everything here resolves on macOS, Linux and Windows.
 transformers

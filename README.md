@@ -265,7 +265,6 @@ final `COPY . .` and the import check rerun. A successful build prints
 docker run --gpus all --ipc=host -it --rm `
   -v "${PWD}/data:/app/data" `
   -v hf-cache:/root/.cache/huggingface `
-  -e ANTHROPIC_API_KEY=$env:ANTHROPIC_API_KEY `
   sts-agent
 ```
 * `--gpus all`: expose the GPU. `-it`: interactive shell (`CMD` is `bash`).
@@ -281,7 +280,6 @@ docker run --gpus all --ipc=host -it --rm `
   models (Llama, Gemma), also pass `-e HF_TOKEN=$env:HF_TOKEN`. To see it or free
   the space: `docker volume ls` / `docker volume rm hf-cache`. For cloud machines,
   the Dockerfile has a commented-out block that builds the weights into the image.
-* `-e ANTHROPIC_API_KEY`: pass secrets at run time, never with `ENV` in the Dockerfile.
 * The backtick is PowerShell line continuation. In `cmd.exe`, use one line and
   `%cd%` instead of `${PWD}`.
 
@@ -292,14 +290,24 @@ python tests/smoke_test_combat.py
 python data/collect_rollouts.py
 ```
 
-### Iterating without rebuilding
-Mount only the Python folders over the image's copy:
+### Iterating without rebuilding (dev mode)
+`COPY . .` bakes a snapshot of the repo into the image, so host edits don't reach
+a running container until you rebuild. For development, mount the repo instead:
 ```powershell
-docker run --gpus all --ipc=host -it --rm -v "${PWD}/env:/app/env" -v "${PWD}/agent:/app/agent" sts-agent
+docker run --gpus all --ipc=host -it --rm `
+  -v "${PWD}:/app" `
+  -v /app/sts_lightspeed/build `
+  -v hf-cache:/root/.cache/huggingface `
+  sts-agent
 ```
-Don't mount the whole repo at `/app`. That hides the image's
-`sts_lightspeed/build/` (the Linux `.so`) behind your host checkout, and
-`import slaythespire` then fails.
+* `-v "${PWD}:/app"`: your host checkout replaces the image's copy, so Python
+  edits show up immediately. It includes `data\`, so no separate data mount is needed.
+* `-v /app/sts_lightspeed/build`: keeps the image's compiled engine. Without it,
+  the repo mount hides `sts_lightspeed/build/` (the Linux `.so`); the host has no
+  such folder (and a Windows `.pyd` wouldn't load), so `import slaythespire`
+  fails. Docker fills this new empty volume from the image, so the `.so` stays.
+* Restart the script to pick up edits; the container can keep running.
+* C++ engine changes still need `docker build`: the engine is compiled in the image.
 
 ### Docker troubleshooting
 * **`could not select device driver "" with capabilities: [[gpu]]`**: the

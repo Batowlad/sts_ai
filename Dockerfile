@@ -17,7 +17,7 @@
 # Default is a CUDA + PyTorch runtime so the GPU is ready for training/RL.
 # LATER: pin the CUDA version to match your cloud GPU's driver (run `nvidia-smi`
 #        on the instance to see the max CUDA it supports), and bump the torch tag.
-#        For CPU-only work (Claude-API policy, rollout collection, eval) you can
+#        For CPU-only work (random-policy rollout collection, eval) you can
 #        swap this for a much smaller base:  FROM python:3.12-slim
 # The -runtime tag has no nvcc. If vLLM/FlashInfer fails at runtime with a JIT
 # compile error or "nvcc not found", switch to the matching -devel tag.
@@ -46,8 +46,11 @@ WORKDIR /app
 # flashinfer, transformers = several GB), so it goes first: engine or code edits
 # then reuse the cached install instead of redoing it.
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+RUN uv venv /opt/venv
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 COPY requirements.txt ./
-RUN uv pip install --system --no-cache -r requirements.txt
+RUN uv pip install --no-cache -r requirements.txt
 
 # --- Build the slaythespire module ------------------------------------------
 # Copy only the engine (not the whole repo) so this layer is cached and doesn't
@@ -64,7 +67,11 @@ RUN cmake -G Ninja -S sts_lightspeed -B sts_lightspeed/build \
 
 # game_interface.py would find /app/sts_lightspeed/build on its own, but pin it
 # explicitly so the image never depends on that probe order.
-ENV STS_BUILD_DIR=/app/sts_lightspeed/build
+# STS_BUILD_DIR is only read by game_interface.py; Python itself ignores it. Also
+# put the dir on PYTHONPATH so a bare `import slaythespire` works anywhere in the
+# container (the sanity check below, notebooks, one-off scripts).
+ENV STS_BUILD_DIR=/app/sts_lightspeed/build \
+    PYTHONPATH=/app/sts_lightspeed/build
 
 # --- (Optional) Base model weights baked into the image ---------------------
 # By default from_pretrained() downloads to ~/.cache/huggingface at run time, and

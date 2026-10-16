@@ -51,7 +51,7 @@ class RolloutConfig(_Section):
 
 class PolicyConfig(_Section):
     kind: str = "random"                # 'random' | 'llm' | ...
-    model: str = "claude-opus-5"
+    model: str = "Qwen/Qwen2.5-1.5B-Instruct"
     temperature: float = Field(default=1.0, ge=0.0, le=2.0)
     max_tokens: int = Field(default=1024, gt=0)
 
