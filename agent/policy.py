@@ -1,8 +1,16 @@
 """LLM-as-policy wrapper. TODO."""
+import sys
+from pathlib import Path
+
+# Run this file directly and sys.path[0] is its own directory, so the `env.` /
+# `agent.` package imports below would not resolve. Same shim as env/game_interface.py.
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
 from env.game_interface import GameInterface
 from env.state_encoder import encode_state
 import torch
-from pathlib import Path
 import json
 
 from vllm import LLM, SamplingParams
@@ -10,7 +18,6 @@ from vllm.inputs import TokensPrompt
 
 from agent.prompts import SYSTEM_PROMPT
 
-_REPO_ROOT = Path(__file__).resolve().parents[1]
 _DUMP_PATH = _REPO_ROOT / "data" / "state_dump.jsonl"
 
 class Policy:
@@ -23,7 +30,7 @@ class Policy:
 #                  quantization="bitsandbytes" - for now commented out, not sure if it will be necessary tbh
                     )
         self.tokenizer = self.model.get_tokenizer()
-        self.sampling_params = SamplingParams(temperature=self.cfg.policy.temperature, top_p=self.cfg.policy.top_p, max_tokens=self.cfg.policy.max_tokens, log_probs=0)
+        self.sampling_params = SamplingParams(temperature=self.cfg.policy.temperature, top_p=self.cfg.policy.top_p, max_tokens=self.cfg.policy.max_tokens, logprobs=0)
 
 
     def tokenize_state(self, state: str) -> list[int]:
@@ -57,4 +64,4 @@ if __name__ == "__main__":
     cfg = load_config(args.config)
     policy = Policy(cfg)
     gi = GameInterface()
-    policy.act(encode_state(gi), gi.legal_actions())
+    print(policy.act(encode_state(gi), gi.legal_actions()))
