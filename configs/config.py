@@ -16,6 +16,7 @@ miserable to debug.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Literal
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -55,6 +56,8 @@ class PolicyConfig(_Section):
     temperature: float = Field(default=1.0, ge=0.0, le=2.0)
     max_tokens: int = Field(default=1024, gt=0)
     top_p: float = Field(default=1.0, gt=0.0, le=1.0)
+    # Which prompt in agent/prompts.py. A Literal so a typo fails here, at startup.
+    system_prompt: Literal["strategy", "no_strategy"] = "strategy"
 
 
 class TrainingConfig(_Section):

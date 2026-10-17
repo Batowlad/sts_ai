@@ -16,14 +16,15 @@ import json
 from vllm import LLM, SamplingParams
 from vllm.inputs import TokensPrompt
 
-from agent.prompts import SYSTEM_PROMPT
+from agent.prompts import SYSTEM_PROMPT, SYSTEM_PROMPT_NO_STRATEGY
 
 _DUMP_PATH = _REPO_ROOT / "data" / "state_dump.jsonl"
 
 class Policy:
     def __init__(self, cfg):
         self.cfg = cfg
-        self.system_prompt = SYSTEM_PROMPT
+        self.system_prompt = (SYSTEM_PROMPT if self.cfg.policy.system_prompt == "strategy"
+                              else SYSTEM_PROMPT_NO_STRATEGY)
         self.model = LLM(model=self.cfg.policy.model,
                    dtype=torch.bfloat16,
                    trust_remote_code=True,
